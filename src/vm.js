@@ -183,7 +183,7 @@ function step(n = 2) {
       : runSheet.getRange(dstAddr).getValue();
   console.log("dstValue", dstValue);
   resValue = Number(
-    runSheet.getRange(`${resColumn}${n + 2}`).getDisplayValue()
+    runSheet.getRange(`${resColumn}${n + 2}`).getDisplayValue(),
   );
   console.log("resValue", resValue);
 
@@ -200,7 +200,7 @@ function step(n = 2) {
       newPc = pc + Number(dstValue === 0 ? size(instruction) : op1Value);
       console.log(
         "jnz",
-        pc + Number(dstValue === 0 ? size(instruction) : op1Value)
+        pc + Number(dstValue === 0 ? size(instruction) : op1Value),
       );
       break;
     case PcUpdates.Regular:

@@ -4,13 +4,13 @@ function decodeInstruction(encodedInstruction) {
   const DstRegOff = BigInt(0);
   const Op0RegMask = BigInt(0x0002);
   const Op0RegOff = BigInt(1);
-  const Op1SrcMask = BigInt(0x001C);
+  const Op1SrcMask = BigInt(0x001c);
   const Op1SrcOff = BigInt(2);
   const ResLogicMask = BigInt(0x0060);
   const ResLogicOff = BigInt(5);
   const PcUpdateMask = BigInt(0x0380);
   const PcUpdateOff = BigInt(7);
-  const ApUpdateMask = BigInt(0x0C00);
+  const ApUpdateMask = BigInt(0x0c00);
   const ApUpdateOff = BigInt(10);
   const OpcodeMask = BigInt(0x7000);
   const OpcodeOff = BigInt(12);
@@ -19,11 +19,17 @@ function decodeInstruction(encodedInstruction) {
     throw new NonZeroHighBitError();
   }
 
-  const dstOffset = this.fromBiasedRepresentation((encodedInstruction & BigInt(0xFFFF)));
-  const op0Offset = this.fromBiasedRepresentation((encodedInstruction >> BigInt(16)) & BigInt(0xFFFF));
-  let op1Offset = this.fromBiasedRepresentation((encodedInstruction >> BigInt(32)) & BigInt(0xFFFF));
+  const dstOffset = this.fromBiasedRepresentation(
+    encodedInstruction & BigInt(0xffff),
+  );
+  const op0Offset = this.fromBiasedRepresentation(
+    (encodedInstruction >> BigInt(16)) & BigInt(0xffff),
+  );
+  let op1Offset = this.fromBiasedRepresentation(
+    (encodedInstruction >> BigInt(32)) & BigInt(0xffff),
+  );
 
-  const flags = (encodedInstruction >> BigInt(48));
+  const flags = encodedInstruction >> BigInt(48);
 
   const dstRegNum = (flags & DstRegMask) >> DstRegOff;
   const op0RegNum = (flags & Op0RegMask) >> Op0RegOff;
@@ -50,7 +56,7 @@ function decodeInstruction(encodedInstruction) {
       dstRegister = Registers.FP;
       break;
     default:
-      throw new InvalidDstRegisterError()
+      throw new InvalidDstRegisterError();
   }
 
   switch (op0RegNum) {
@@ -61,7 +67,7 @@ function decodeInstruction(encodedInstruction) {
       op0Register = Registers.FP;
       break;
     default:
-      throw new InvalidOp0RegisterError()
+      throw new InvalidOp0RegisterError();
   }
 
   switch (op1SrcNum) {
@@ -185,7 +191,7 @@ function decodeInstruction(encodedInstruction) {
     PcUpdate: pcUpdate,
     ApUpdate: apUpdate,
     FpUpdate: fpUpdate,
-  }
+  };
 }
 
 function fromBiasedRepresentation(offset) {
@@ -194,8 +200,8 @@ function fromBiasedRepresentation(offset) {
 }
 
 function toSignedInteger(encodedInstruction) {
-  const number = BigInt(encodedInstruction)
-  return number > BigInt(2 ** 128) ? number - PRIME : number
+  const number = BigInt(encodedInstruction);
+  return number > BigInt(2 ** 128) ? number - PRIME : number;
 }
 
 function size(instruction) {

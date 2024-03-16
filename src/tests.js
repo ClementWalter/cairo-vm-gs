@@ -13,17 +13,20 @@ function testGetR1C1() {
 }
 
 function testGetProgram() {
-  const program = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Program").getRange("A2:A").getValues()
-  Logger.log(program)
+  const program = SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName("Program")
+    .getRange("A2:A")
+    .getValues();
+  Logger.log(program);
 }
 
 function testObjectFromArray() {
-  const keys = ['a', 'b', 'c'];
+  const keys = ["a", "b", "c"];
   const values = [1, 2, 3];
   const target = objectFromEntries(keys, values);
-  Logger.log(target)
+  Logger.log(target);
 }
 
 function testCurrentStep() {
-  Logger.log(getLastActiveRowIndex("A") - 2)
+  Logger.log(getLastActiveRowIndex("A") - 2);
 }

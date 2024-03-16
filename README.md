@@ -76,3 +76,73 @@ DECODE_INSTRUCTION is working. Next priorities are to fix the Step and Run menu
 over a small fibonacci program. Then, we will add the option to load any
 compiled program. Eventually, we may stop there or keep improving the VM and
 support Cairo 1.
+
+## Contribute
+
+### Setup
+
+To start contributing:
+
+- fork this repo and `git clone` (as usual)
+- run `npm install` to get the
+  [clasp](https://developers.google.com/apps-script/guides/clasp) CLI tool
+- create a copy of the [main Google sheet](cairovm.gs) in the UX
+- clone your app script project locally with the CLI
+
+```bash
+npx clasp login
+npx clasp clone <project id> --rootDir .
+```
+
+- the project id can be found by:
+  - opening the menu Extensions > Apps Script
+  - go to project setting on the left navigation bar
+  - copy the ID therein
+
+The `clasp` CLI is not so convenient and you should take a bit of time to play
+around and read the doc. Especially, check that everything is set up correctly
+by using
+
+```bash
+npx clasp paths
+```
+
+and make sure that is shows:
+
+```bash
+project <project root>/.clasp.json
+ignore <project root>/.claspignore
+auth $HOME/.clasprc.json
+```
+
+It is recommended to have [`jq`](https://jqlang.github.io/jq/download/)
+installed to be able to check the status of the non-ignored files only
+
+```bash
+npx clasp status --json | jq ".filesToPush"
+```
+
+The `npx clasp push` command has a watch mode that allows you to make sure that
+the remote code running on the sheet is always up to date:
+
+```bash
+npx clasp push -w
+```
+
+### Debug
+
+You can run functions locally using `npx clasp run`. Follow
+[this documentation](https://github.com/google/clasp/blob/master/docs/run.md) to
+set your project:
+
+1. create a GCP project associated with the script in project setting > GCP
+   project
+1. add the
+   [Apps Script API](https://console.cloud.google.com/marketplace/product/google/script.googleapis.com?q=search)
+   to your project
+1. create an OAuth Client ID for a Desktop app
+   following[this doc](https://developers.google.com/workspace/guides/create-credentials#oauth-client-id)
+1. download the credentials as `creds.json` and put them at the root of the
+   project
+1. `npx clasp login --creds creds.json`
+1. `clasp run`

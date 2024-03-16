@@ -1,0 +1,3 @@
+.git/**/*
+.trunk/**/*
+node_modules/**/*

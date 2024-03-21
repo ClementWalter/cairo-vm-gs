@@ -13,6 +13,14 @@ function menuStep() {
 function menuClear() {
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName("Run")
-    .getRange("A2:J")
+    .getRange("A3:H")
+    .clearContent();
+  SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName("Run")
+    .getRange("D2:H2")
+    .clearContent();
+  SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName("Run")
+    .getRange("I5:I")
     .clearContent();
 }

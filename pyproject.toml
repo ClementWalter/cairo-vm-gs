@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "cairo-vm-gs"
+version = "0.1.0"
+description = ""
+authors = ["Clément Walter <clement0walter@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+cairo-lang = "^0.13.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,10 +1,10 @@
 const runSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
+const programSheet =
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Program");
 
 const columns = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 let i = 0;
-const programColumn = columns[i];
-i++;
 const pcColumn = columns[i];
 i++;
 const fpColumn = columns[i];
@@ -23,9 +23,7 @@ const dstColumn = columns[i];
 i++;
 const executionColumn = columns[i];
 i++;
-const program = runSheet
-  .getRange(`${programColumn}2:${programColumn}`)
-  .getValues();
+const program = runSheet.getRange("$A2:A").getValues();
 
 function step(n = 2) {
   runSheet

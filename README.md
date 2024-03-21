@@ -86,7 +86,7 @@ To start contributing:
 - fork this repo and `git clone` (as usual)
 - run `npm install` to get the
   [clasp](https://developers.google.com/apps-script/guides/clasp) CLI tool
-- create a copy of the [main Google sheet](cairovm.gs) in the UX
+- create a copy of the [main Google sheet](https://cairovm.gs) in the UX
 - clone your app script project locally with the CLI
 
 ```bash

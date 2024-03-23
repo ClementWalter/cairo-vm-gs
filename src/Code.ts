@@ -1,10 +1,10 @@
-function DECODE_INSTRUCTION(encodedInstruction) {
-  const header = ["Opcode", "Dst", "Op", "Pc Update", "Ap Update", "Fp Update"];
+function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
+  const header: String[] = ["Opcode", "Dst", "Op", "Pc Update", "Ap Update", "Fp Update"];
   try {
     if (encodedInstruction === "Program") {
       return [header];
     } else {
-      const instruction = decodeInstruction(BigInt(encodedInstruction));
+      const instruction: decodedInstruction = decodeInstruction(BigInt(encodedInstruction));
       Logger.log(instruction);
 
       if (
@@ -14,14 +14,14 @@ function DECODE_INSTRUCTION(encodedInstruction) {
         return [["", "", toSignedInteger(encodedInstruction)]];
       }
 
-      const dst =
+      const dst: string =
         `${instruction.DstRegister} ${instruction.DstOffset === 0 ? "" : (instruction.DstOffset > 0 ? "+ " : "- ") + Math.abs(instruction.DstOffset)}`.trim();
-      const op0 =
+      const op0: string =
         `${instruction.Op0Register} ${instruction.Op0Offset === 0 ? "" : (instruction.Op0Offset > 0 ? "+ " : "- ") + Math.abs(instruction.Op0Offset)}`.trim();
-      const op1 =
+      const op1: string =
         `${instruction.Op1Register} ${instruction.Op1Offset === 0 ? "" : (instruction.Op1Offset > 0 ? "+ " : "- ") + Math.abs(instruction.Op1Offset)}`.trim();
 
-      let op;
+      let op: string;
       switch (instruction.ResLogic) {
         case ResLogics.Op1:
           op = `[${op1}]`;
@@ -33,7 +33,7 @@ function DECODE_INSTRUCTION(encodedInstruction) {
           op = `[${op0}] * [${op1}]`;
           break;
       }
-      const pcUpdate =
+      const pcUpdate: string =
         instruction.PcUpdate === PcUpdates.Regular
           ? `PC + ${size(instruction)}`
           : instruction.PcUpdate;

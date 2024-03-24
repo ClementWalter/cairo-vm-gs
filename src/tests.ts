@@ -1,5 +1,5 @@
-function testInstruction(encodedInstruction: string = "0x208b7fff7fff7ffe") {
-  const instruction = DECODE_INSTRUCTION(encodedInstruction);
+function testInstruction(encodedInstruction: string = "0x208b7fff7fff7ffe"): void {
+  const instruction: [any[]] = DECODE_INSTRUCTION(encodedInstruction);
   console.log(instruction);
 }
 

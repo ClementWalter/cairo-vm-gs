@@ -1,52 +1,80 @@
-function decodeInstruction(encodedInstruction) {
-  const HighBit = BigInt(1) << BigInt(63);
-  const DstRegMask = BigInt(0x0001);
-  const DstRegOff = BigInt(0);
-  const Op0RegMask = BigInt(0x0002);
-  const Op0RegOff = BigInt(1);
-  const Op1SrcMask = BigInt(0x001c);
-  const Op1SrcOff = BigInt(2);
-  const ResLogicMask = BigInt(0x0060);
-  const ResLogicOff = BigInt(5);
-  const PcUpdateMask = BigInt(0x0380);
-  const PcUpdateOff = BigInt(7);
-  const ApUpdateMask = BigInt(0x0c00);
-  const ApUpdateOff = BigInt(10);
-  const OpcodeMask = BigInt(0x7000);
-  const OpcodeOff = BigInt(12);
+interface decodedInstruction {
+  Opcode: string;
+  Op0Register: string;
+  Op1Register: string;
+  DstRegister: string;
+  ResLogic: string;
+  Op0Offset: number;
+  Op1Offset: number;
+  DstOffset: number;
+  PcUpdate: string;
+  ApUpdate: string;
+  FpUpdate: string;
+}
+
+function fromBiasedRepresentation(offset: bigint): number {
+  const bias: bigint = BigInt(1) << BigInt(15);
+  return Number(BigInt(Number(offset)) - bias);
+}
+
+function toSignedInteger(encodedInstruction): bigint {
+  const number: bigint = BigInt(encodedInstruction);
+  return number > BigInt(2 ** 128) ? number - PRIME : number;
+}
+
+function size(instruction): number {
+  return instruction.Op1Register === Registers.PC ? 2 : 1;
+}
+
+function decodeInstruction(encodedInstruction: bigint): decodedInstruction {
+  const HighBit: bigint = BigInt(1) << BigInt(63);
+  const DstRegMask: bigint = BigInt(0x0001);
+  const DstRegOff: bigint = BigInt(0);
+  const Op0RegMask: bigint = BigInt(0x0002);
+  const Op0RegOff: bigint = BigInt(1);
+  const Op1SrcMask: bigint = BigInt(0x001c);
+  const Op1SrcOff: bigint = BigInt(2);
+  const ResLogicMask: bigint = BigInt(0x0060);
+  const ResLogicOff: bigint = BigInt(5);
+  const PcUpdateMask: bigint = BigInt(0x0380);
+  const PcUpdateOff: bigint = BigInt(7);
+  const ApUpdateMask: bigint = BigInt(0x0c00);
+  const ApUpdateOff: bigint = BigInt(10);
+  const OpcodeMask: bigint = BigInt(0x7000);
+  const OpcodeOff: bigint = BigInt(12);
 
   if ((encodedInstruction & HighBit) !== BigInt(0)) {
     throw new NonZeroHighBitError();
   }
 
-  const dstOffset = this.fromBiasedRepresentation(
+  const dstOffset: number = this.fromBiasedRepresentation(
     encodedInstruction & BigInt(0xffff),
   );
-  const op0Offset = this.fromBiasedRepresentation(
+  const op0Offset: number = this.fromBiasedRepresentation(
     (encodedInstruction >> BigInt(16)) & BigInt(0xffff),
   );
-  let op1Offset = this.fromBiasedRepresentation(
+  let op1Offset: number = this.fromBiasedRepresentation(
     (encodedInstruction >> BigInt(32)) & BigInt(0xffff),
   );
 
-  const flags = encodedInstruction >> BigInt(48);
+  const flags: bigint = encodedInstruction >> BigInt(48);
 
-  const dstRegNum = (flags & DstRegMask) >> DstRegOff;
-  const op0RegNum = (flags & Op0RegMask) >> Op0RegOff;
-  const op1SrcNum = (flags & Op1SrcMask) >> Op1SrcOff;
-  const resLogicNum = (flags & ResLogicMask) >> ResLogicOff;
-  const pcUpdateNum = (flags & PcUpdateMask) >> PcUpdateOff;
-  const apUpdateNum = (flags & ApUpdateMask) >> ApUpdateOff;
-  const opCodeNum = (flags & OpcodeMask) >> OpcodeOff;
+  const dstRegNum: bigint = (flags & DstRegMask) >> DstRegOff;
+  const op0RegNum: bigint = (flags & Op0RegMask) >> Op0RegOff;
+  const op1SrcNum: bigint = (flags & Op1SrcMask) >> Op1SrcOff;
+  const resLogicNum: bigint = (flags & ResLogicMask) >> ResLogicOff;
+  const pcUpdateNum: bigint = (flags & PcUpdateMask) >> PcUpdateOff;
+  const apUpdateNum: bigint = (flags & ApUpdateMask) >> ApUpdateOff;
+  const opCodeNum: bigint = (flags & OpcodeMask) >> OpcodeOff;
 
-  let dstRegister;
-  let op0Register;
-  let op1Src;
-  let pcUpdate;
-  let res;
-  let opcode;
-  let apUpdate;
-  let fpUpdate;
+  let dstRegister: string;
+  let op0Register: string;
+  let op1Src: string;
+  let pcUpdate: string;
+  let res: string;
+  let opcode: string;
+  let apUpdate: string;
+  let fpUpdate: string;
 
   switch (dstRegNum) {
     case BigInt(0):
@@ -192,18 +220,4 @@ function decodeInstruction(encodedInstruction) {
     ApUpdate: apUpdate,
     FpUpdate: fpUpdate,
   };
-}
-
-function fromBiasedRepresentation(offset) {
-  const bias = BigInt(1) << BigInt(15);
-  return Number(BigInt(Number(offset)) - bias);
-}
-
-function toSignedInteger(encodedInstruction) {
-  const number = BigInt(encodedInstruction);
-  return number > BigInt(2 ** 128) ? number - PRIME : number;
-}
-
-function size(instruction) {
-  return instruction.Op1Register === Registers.PC ? 2 : 1;
 }

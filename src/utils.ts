@@ -6,7 +6,8 @@ function objectFromEntries(keys: any, values: any): any {
 }
 
 function getLastActiveRowIndex(column: string): number {
-  const runSheet: GoogleAppsScript.Spreadsheet.Sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
+  const runSheet: GoogleAppsScript.Spreadsheet.Sheet =
+    SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
   const index: number = runSheet
     .getRange(column + (runSheet.getLastRow() + 1))
     .getNextDataCell(SpreadsheetApp.Direction.UP)

@@ -1,10 +1,19 @@
 function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
-  const header: String[] = ["Opcode", "Dst", "Op", "Pc Update", "Ap Update", "Fp Update"];
+  const header: String[] = [
+    "Opcode",
+    "Dst",
+    "Op",
+    "Pc Update",
+    "Ap Update",
+    "Fp Update",
+  ];
   try {
     if (encodedInstruction === "Program") {
       return [header];
     } else {
-      const instruction: decodedInstruction = decodeInstruction(BigInt(encodedInstruction));
+      const instruction: decodedInstruction = decodeInstruction(
+        BigInt(encodedInstruction),
+      );
       Logger.log(instruction);
 
       if (

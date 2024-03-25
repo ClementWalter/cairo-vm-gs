@@ -1,4 +1,5 @@
-const runSheet: GoogleAppsScript.Spreadsheet.Sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
+const runSheet: GoogleAppsScript.Spreadsheet.Sheet =
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
 const programSheet: GoogleAppsScript.Spreadsheet.Sheet =
   SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Program");
 
@@ -46,12 +47,17 @@ function step(n: number = 0): void {
   };
 
   const encodedInstruction: any = program[pc][0];
-  const instruction: decodedInstruction = decodeInstruction(BigInt(encodedInstruction));
+  const instruction: decodedInstruction = decodeInstruction(
+    BigInt(encodedInstruction),
+  );
   runSheet.getRange(`${opcodeColumn}${n + 2}`).setValue(instruction.Opcode);
 
-  const op0Index: string = registers[instruction.Op0Register] + instruction.Op0Offset;
-  const op1Index: string = registers[instruction.Op1Register] + instruction.Op1Offset;
-  const dstIndex: string = registers[instruction.DstRegister] + instruction.DstOffset;
+  const op0Index: string =
+    registers[instruction.Op0Register] + instruction.Op0Offset;
+  const op1Index: string =
+    registers[instruction.Op1Register] + instruction.Op1Offset;
+  const dstIndex: string =
+    registers[instruction.DstRegister] + instruction.DstOffset;
 
   // Addresses are sheet address (e.g. H4) or constants
   // Constants come from the Program, ie when register is PC
@@ -173,7 +179,7 @@ function step(n: number = 0): void {
       ? dstAddr
       : runSheet.getRange(dstAddr).getValue();
   let resValue: number = Number(
-    runSheet.getRange(`${resColumn}${n + 2}`).getDisplayValue()
+    runSheet.getRange(`${resColumn}${n + 2}`).getDisplayValue(),
   );
 
   let newPc: string | number;

@@ -6,7 +6,7 @@ interface RegistersType {
 
 interface PCUpdatesType {
   Regular: string;
-  Jump: string
+  Jump: string;
   JumpRel: string;
   Jnz: string;
 }
@@ -48,14 +48,12 @@ const Registers: RegistersType = {
   PC: "PC",
 };
 
-
 const PcUpdates: PCUpdatesType = {
   Regular: "PC + instruction size",
   Jump: "jmp abs",
   JumpRel: "jmp rel",
   Jnz: "jmp if != 0",
 };
-
 
 const ResLogics: ResLogicsType = {
   Op1: "Op1",

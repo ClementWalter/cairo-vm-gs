@@ -1,10 +1,13 @@
-function testInstruction(encodedInstruction: string = "0x208b7fff7fff7ffe"): void {
+function testInstruction(
+  encodedInstruction: string = "0x208b7fff7fff7ffe",
+): void {
   const instruction: [any[]] = DECODE_INSTRUCTION(encodedInstruction);
   console.log(instruction);
 }
 
 function testGetR1C1(): void {
-  var ss: GoogleAppsScript.Spreadsheet.Spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var ss: GoogleAppsScript.Spreadsheet.Spreadsheet =
+    SpreadsheetApp.getActiveSpreadsheet();
   var sheet: GoogleAppsScript.Spreadsheet.Sheet = ss.getSheets()[0];
 
   var range: GoogleAppsScript.Spreadsheet.Range = sheet.getRange("B5");

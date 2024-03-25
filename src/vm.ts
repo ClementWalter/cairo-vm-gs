@@ -1,83 +1,89 @@
-const runSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
-const programSheet =
+const runSheet: GoogleAppsScript.Spreadsheet.Sheet =
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
+const programSheet: GoogleAppsScript.Spreadsheet.Sheet =
   SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Program");
 
-const columns = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const columns: String[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 let i = 0;
-const pcColumn = columns[i];
+const pcColumn: String = columns[i];
 i++;
-const fpColumn = columns[i];
+const fpColumn: String = columns[i];
 i++;
-const apColumn = columns[i];
+const apColumn: String = columns[i];
 i++;
-const opcodeColumn = columns[i];
+const opcodeColumn: String = columns[i];
 i++;
-const op0Column = columns[i];
+const op0Column: String = columns[i];
 i++;
-const op1Column = columns[i];
+const op1Column: String = columns[i];
 i++;
-const resColumn = columns[i];
+const resColumn: String = columns[i];
 i++;
-const dstColumn = columns[i];
+const dstColumn: String = columns[i];
 i++;
-const executionColumn = columns[i];
+const executionColumn: String = columns[i];
 i++;
-const program = programSheet.getRange("A2:A").getValues();
+const program: any[][] = programSheet.getRange("A2:A").getValues();
 
-function step(n = 0) {
+function step(n: number = 0): void {
   runSheet
     .getRange(`${pcColumn}1:${executionColumn}1`)
     .setValues([
       ["PC", "FP", "AP", "Opcode", "Op0", "Op1", "Res", "Dst", "Execution"],
     ]);
-  const registersAddress = {
+  const registersAddress: RegistersType = {
     PC: `${pcColumn}${n + 2}`,
     FP: `${fpColumn}${n + 2}`,
     AP: `${apColumn}${n + 2}`,
   };
-  const pc = runSheet.getRange(registersAddress["PC"]).getValue();
-  const fp = runSheet.getRange(registersAddress["FP"]).getValue();
-  const ap = runSheet.getRange(registersAddress["AP"]).getValue();
-  const registers = {
+  const pc: string = runSheet.getRange(registersAddress["PC"]).getValue();
+  const fp: string = runSheet.getRange(registersAddress["FP"]).getValue();
+  const ap: string = runSheet.getRange(registersAddress["AP"]).getValue();
+  const registers: RegistersType = {
     PC: pc,
     FP: fp,
     AP: ap,
   };
 
-  const encodedInstruction = program[pc][0];
-  const instruction = decodeInstruction(BigInt(encodedInstruction));
+  const encodedInstruction: any = program[pc][0];
+  const instruction: decodedInstruction = decodeInstruction(
+    BigInt(encodedInstruction),
+  );
   runSheet.getRange(`${opcodeColumn}${n + 2}`).setValue(instruction.Opcode);
 
-  const op0Index = registers[instruction.Op0Register] + instruction.Op0Offset;
-  const op1Index = registers[instruction.Op1Register] + instruction.Op1Offset;
-  const dstIndex = registers[instruction.DstRegister] + instruction.DstOffset;
+  const op0Index: string =
+    registers[instruction.Op0Register] + instruction.Op0Offset;
+  const op1Index: string =
+    registers[instruction.Op1Register] + instruction.Op1Offset;
+  const dstIndex: string =
+    registers[instruction.DstRegister] + instruction.DstOffset;
 
   // Addresses are sheet address (e.g. H4) or constants
   // Constants come from the Program, ie when register is PC
   // Indexes are +2 since the CairoVM is 0 based, while the Sheet is 1 base
   // and the first row is a header
-  let op0Addr =
+  let op0Addr: number | string =
     instruction.Op0Register === Registers.PC
-      ? toSignedInteger(program[op0Index][0])
+      ? toSignedInteger(program[op0Index][0]).toString()
       : executionColumn + (op0Index + 2);
-  let op1Addr =
+  let op1Addr: number | string =
     instruction.Op1Register === Registers.PC
-      ? toSignedInteger(program[op1Index][0])
+      ? toSignedInteger(program[op1Index][0]).toString()
       : executionColumn + (op1Index + 2);
-  let dstAddr =
+  let dstAddr: number | string =
     instruction.DstRegister === Registers.PC
-      ? toSignedInteger(program[dstIndex][0])
+      ? toSignedInteger(program[dstIndex][0]).toString()
       : executionColumn + (dstIndex + 2);
-  let op0Value =
+  let op0Value: number | string =
     instruction.Op0Register === Registers.PC
       ? op0Addr
       : runSheet.getRange(op0Addr).getValue();
-  let op1Value =
+  let op1Value: number | string =
     instruction.Op1Register === Registers.PC
       ? op1Addr
       : runSheet.getRange(op1Addr).getValue();
-  let dstValue =
+  let dstValue: number | string =
     instruction.DstRegister === Registers.PC
       ? dstAddr
       : runSheet.getRange(dstAddr).getValue();
@@ -172,11 +178,11 @@ function step(n = 0) {
     instruction.DstRegister === Registers.PC
       ? dstAddr
       : runSheet.getRange(dstAddr).getValue();
-  resValue = Number(
-    runSheet.getRange(`${resColumn}${n + 2}`).getDisplayValue()
+  let resValue: number = Number(
+    runSheet.getRange(`${resColumn}${n + 2}`).getDisplayValue(),
   );
 
-  let newPc;
+  let newPc: string | number;
   switch (instruction.PcUpdate) {
     case PcUpdates.Jump:
       newPc = dstValue;
@@ -192,7 +198,7 @@ function step(n = 0) {
       break;
   }
 
-  let newFp;
+  let newFp: string;
   switch (instruction.FpUpdate) {
     case FpUpdates.Constant:
       newFp = registers[Registers.FP];
@@ -205,7 +211,7 @@ function step(n = 0) {
       break;
   }
 
-  let newAp;
+  let newAp: string;
   switch (instruction.ApUpdate) {
     case ApUpdates.Add1:
       newAp = registers[Registers.AP] + 1;

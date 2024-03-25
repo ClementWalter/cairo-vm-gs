@@ -1,16 +1,16 @@
-function onOpen() {
-  var ui = SpreadsheetApp.getUi();
+function onOpen(): void {
+  var ui: GoogleAppsScript.Base.Ui = SpreadsheetApp.getUi();
   ui.createMenu("Cairo VM")
     .addItem("Step", "menuStep")
     .addItem("Clear", "menuClear")
     .addToUi();
 }
 
-function menuStep() {
-  step((n = getLastActiveRowIndex("A") - 2));
+function menuStep(): void {
+  step(getLastActiveRowIndex("A") - 2);
 }
 
-function menuClear() {
+function menuClear(): void {
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName("Run")
     .getRange("A3:H")

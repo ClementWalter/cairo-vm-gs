@@ -9,6 +9,7 @@
   "author": "Clément Walter <clement0walter@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "@google/clasp": "^2.4.2"
+    "@google/clasp": "^2.4.2",
+    "@types/google-apps-script": "^1.0.82"
   }
 }

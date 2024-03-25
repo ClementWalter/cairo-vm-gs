@@ -24,7 +24,43 @@ const dstColumn: String = columns[i];
 i++;
 const executionColumn: String = columns[i];
 i++;
+
+type builtins = {
+  output: string;
+  pedersen: string;
+  range_check: string;
+  ecdsa: string;
+  bitwise: string;
+  ec_op: string;
+  keccak: string;
+  poseidon: string;
+};
+
+const builtins = {
+  "output": null,
+  "pedersen": null,
+  "range_check": null,
+  "ecdsa": null,
+  "bitwise": null,
+  "ec_op": null,
+  "keccak": null,
+  "poseidon": null,
+};
+
 const program: any[][] = programSheet.getRange("A2:A").getValues();
+
+function initialize_builtins(): void {
+  const keys: string[] = Object.keys(builtins);
+  for (var key of keys) {
+    console.log(`${key}: ${columns[i]}`);
+    builtins[key] = columns[i];
+    i++;
+  }
+  console.log(`${builtins[keys[0]]}1:${builtins[keys[keys.length - 1]]}1`);
+  runSheet
+    .getRange(`${builtins[keys[0]]}1:${builtins[keys[keys.length - 1]]}1`)
+    .setValues([keys]);
+}
 
 function step(n: number = 0): void {
   runSheet
@@ -32,6 +68,7 @@ function step(n: number = 0): void {
     .setValues([
       ["PC", "FP", "AP", "Opcode", "Op0", "Op1", "Res", "Dst", "Execution"],
     ]);
+  initialize_builtins();
   const registersAddress: RegistersType = {
     PC: `${pcColumn}${n + 2}`,
     FP: `${fpColumn}${n + 2}`,

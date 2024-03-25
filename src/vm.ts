@@ -37,14 +37,14 @@ type builtins = {
 };
 
 const builtins = {
-  "output": null,
-  "pedersen": null,
-  "range_check": null,
-  "ecdsa": null,
-  "bitwise": null,
-  "ec_op": null,
-  "keccak": null,
-  "poseidon": null,
+  output: null,
+  pedersen: null,
+  range_check: null,
+  ecdsa: null,
+  bitwise: null,
+  ec_op: null,
+  keccak: null,
+  poseidon: null,
 };
 
 const program: any[][] = programSheet.getRange("A2:A").getValues();

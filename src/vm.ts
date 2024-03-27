@@ -24,7 +24,44 @@ const dstColumn: String = columns[i];
 i++;
 const executionColumn: String = columns[i];
 i++;
+
+type builtins = {
+  output: string;
+  pedersen: string;
+  range_check: string;
+  ecdsa: string;
+  bitwise: string;
+  ec_op: string;
+  keccak: string;
+  poseidon: string;
+};
+
+const builtins = {
+  output: null,
+  pedersen: null,
+  range_check: null,
+  ecdsa: null,
+  bitwise: null,
+  ec_op: null,
+  keccak: null,
+  poseidon: null,
+};
+
 const program: any[][] = programSheet.getRange("A2:A").getValues();
+
+function initialize_builtins(): void {
+  let counter: number = 0;
+  const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;
+  const keys: string[] = Object.keys(builtins);
+
+  for (var key of keys) {
+    builtins[key] = columns[counter + executionColumnOffset];
+    counter++;
+  }
+  runSheet
+    .getRange(`${builtins[keys[0]]}1:${builtins[keys[keys.length - 1]]}1`)
+    .setValues([keys]);
+}
 
 function step(n: number = 0): void {
   runSheet
@@ -233,6 +270,7 @@ function step(n: number = 0): void {
 }
 
 function runUntilPc() {
+  initialize_builtins();
   for (let i = 0; i < 37; i++) {
     step(i);
   }

@@ -69,7 +69,6 @@ function step(n: number = 0): void {
     .setValues([
       ["PC", "FP", "AP", "Opcode", "Op0", "Op1", "Res", "Dst", "Execution"],
     ]);
-  initialize_builtins();
   const registersAddress: RegistersType = {
     PC: `${pcColumn}${n + 2}`,
     FP: `${fpColumn}${n + 2}`,
@@ -271,6 +270,7 @@ function step(n: number = 0): void {
 }
 
 function runUntilPc() {
+  initialize_builtins();
   for (let i = 0; i < 37; i++) {
     step(i);
   }

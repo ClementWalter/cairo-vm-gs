@@ -198,7 +198,7 @@ function step(n: number = 0): void {
       break;
   }
 
-  let newFp: string|number;
+  let newFp: string | number;
   switch (instruction.FpUpdate) {
     case FpUpdates.Constant:
       newFp = registers[Registers.FP];
@@ -238,8 +238,8 @@ function run() {
   let i: number = 0;
 
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
-  
-  while ( !(pc === FINAL_PC || pc === FINAL_FP) ) {
+
+  while (!(pc === FINAL_PC || pc === FINAL_FP)) {
     step(i);
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();

@@ -198,7 +198,7 @@ function step(n: number = 0): void {
       break;
   }
 
-  let newFp: string;
+  let newFp: string|number;
   switch (instruction.FpUpdate) {
     case FpUpdates.Constant:
       newFp = registers[Registers.FP];
@@ -207,7 +207,7 @@ function step(n: number = 0): void {
       newFp = registers[Registers.AP] + 2;
       break;
     case FpUpdates.Dst:
-      newFp = dst.getValue();
+      newFp = dstValue;
       break;
   }
 
@@ -230,6 +230,20 @@ function step(n: number = 0): void {
   runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setValue(newPc);
   runSheet.getRange(`${fpColumn}${n + 2 + 1}`).setValue(newFp);
   runSheet.getRange(`${apColumn}${n + 2 + 1}`).setValue(newAp);
+}
+
+function run() {
+  runSheet.getRange(`${executionColumn}${2 + 1}`).setValue(FINAL_FP);
+  runSheet.getRange(`${executionColumn}${3 + 1}`).setValue(FINAL_PC);
+  let i: number = 0;
+
+  let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
+  
+  while ( !(pc === FINAL_PC || pc === FINAL_FP) ) {
+    step(i);
+    i++;
+    pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
+  }
 }
 
 function runUntilPc() {

@@ -89,6 +89,8 @@ function step(n: number = 0): void {
   );
   runSheet.getRange(`${opcodeColumn}${n + 2}`).setValue(instruction.Opcode);
 
+  console.log(instruction);
+
   const op0Index: string =
     registers[instruction.Op0Register] + instruction.Op0Offset;
   const op1Index: string =
@@ -270,13 +272,9 @@ function step(n: number = 0): void {
 }
 
 function run() {
-  runSheet.getRange(`${executionColumn}${2 + 1}`).setValue(FINAL_FP);
-  runSheet.getRange(`${executionColumn}${3 + 1}`).setValue(FINAL_PC);
   let i: number = 0;
-
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
-
-  while (!(pc === FINAL_PC || pc === FINAL_FP)) {
+  while ( !(pc === FINAL_PC) ) {
     step(i);
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();

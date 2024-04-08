@@ -89,8 +89,6 @@ function step(n: number = 0): void {
   );
   runSheet.getRange(`${opcodeColumn}${n + 2}`).setValue(instruction.Opcode);
 
-  console.log(instruction);
-
   const op0Index: string =
     registers[instruction.Op0Register] + instruction.Op0Offset;
   const op1Index: string =

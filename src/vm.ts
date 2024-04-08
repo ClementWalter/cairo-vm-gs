@@ -272,7 +272,7 @@ function step(n: number = 0): void {
 function run() {
   let i: number = 0;
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
-  while ( !(pc === FINAL_PC) ) {
+  while (!(pc === FINAL_PC)) {
     step(i);
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();

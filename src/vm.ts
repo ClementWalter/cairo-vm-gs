@@ -215,17 +215,17 @@ function step(n: number = 0): void {
     instruction.DstRegister === Registers.PC
       ? dstAddr
       : runSheet.getRange(dstAddr).getValue();
-  let resValue: number = Number(
-    runSheet.getRange(`${resColumn}${n + 2}`).getDisplayValue(),
-  );
+  let resValue: string | number = runSheet
+    .getRange(`${resColumn}${n + 2}`)
+    .getDisplayValue();
 
   let newPc: string | number;
   switch (instruction.PcUpdate) {
     case PcUpdates.Jump:
-      newPc = dstValue;
+      newPc = resValue;
       break;
     case PcUpdates.JumpRel:
-      newPc = pc + resValue;
+      newPc = pc + Number(resValue);
       break;
     case PcUpdates.Jnz:
       newPc = pc + Number(dstValue === 0 ? size(instruction) : op1Value);
@@ -235,7 +235,7 @@ function step(n: number = 0): void {
       break;
   }
 
-  let newFp: string;
+  let newFp: string | number;
   switch (instruction.FpUpdate) {
     case FpUpdates.Constant:
       newFp = registers[Registers.FP];
@@ -244,7 +244,7 @@ function step(n: number = 0): void {
       newFp = registers[Registers.AP] + 2;
       break;
     case FpUpdates.Dst:
-      newFp = dst.getValue();
+      newFp = dstValue;
       break;
   }
 
@@ -257,7 +257,7 @@ function step(n: number = 0): void {
       newAp = registers[Registers.AP] + 2;
       break;
     case ApUpdates.AddRes:
-      newAp = registers[Registers.AP] + resValue;
+      newAp = registers[Registers.AP] + Number(resValue);
       break;
     case ApUpdates.Constant:
       newAp = registers[Registers.AP];
@@ -271,7 +271,7 @@ function step(n: number = 0): void {
 
 function runUntilPc() {
   initialize_builtins();
-  for (let i = 0; i < 37; i++) {
+  for (let i = 0; i < 39; i++) {
     step(i);
   }
 }

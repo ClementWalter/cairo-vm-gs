@@ -81,3 +81,6 @@ const FpUpdates: FpUpdatesType = {
   Dst: "Dst",
   ApPlus2: "AP + 2",
 };
+
+const FINAL_FP: string = "<FINAL_FP>";
+const FINAL_PC: string = "<FINAL_PC>";

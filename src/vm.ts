@@ -269,9 +269,13 @@ function step(n: number = 0): void {
   runSheet.getRange(`${apColumn}${n + 2 + 1}`).setValue(newAp);
 }
 
-function runUntilPc() {
-  initialize_builtins();
-  for (let i = 0; i < 39; i++) {
+function runUntilPc(): void {
+  let i: number = getLastActiveRowIndex(`${pcColumn}`) - 2;
+  let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
+  while (!(pc === FINAL_PC)) {
+    console.log(i);
     step(i);
+    i++;
+    pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   }
 }

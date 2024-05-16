@@ -26,6 +26,6 @@ function menuClear(): void {
     .clearContent();
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName("Run")
-    .getRange("I4:I")
+    .getRange("G4:G")
     .clearContent();
 }

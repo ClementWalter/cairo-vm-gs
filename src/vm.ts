@@ -14,13 +14,9 @@ const apColumn: String = columns[i];
 i++;
 const opcodeColumn: String = columns[i];
 i++;
-const op0Column: String = columns[i];
-i++;
-const op1Column: String = columns[i];
+const dstColumn: String = columns[i];
 i++;
 const resColumn: String = columns[i];
-i++;
-const dstColumn: String = columns[i];
 i++;
 const executionColumn: String = columns[i];
 i++;
@@ -66,9 +62,7 @@ function initialize_builtins(): void {
 function step(n: number = 0): void {
   runSheet
     .getRange(`${pcColumn}1:${executionColumn}1`)
-    .setValues([
-      ["PC", "FP", "AP", "Opcode", "Op0", "Op1", "Res", "Dst", "Execution"],
-    ]);
+    .setValues([["PC", "FP", "AP", "Opcode", "Dst", "Src", "Execution"]]);
   const registersAddress: RegistersType = {
     PC: `${pcColumn}${n + 2}`,
     FP: `${fpColumn}${n + 2}`,
@@ -125,25 +119,21 @@ function step(n: number = 0): void {
       ? dstAddr
       : runSheet.getRange(dstAddr).getValue();
 
-  // Set formula for current opcode, op0, op1 and dst
-  runSheet.getRange(`${op0Column}${n + 2}`).setFormula(`=${op0Addr}`);
-  runSheet.getRange(`${op1Column}${n + 2}`).setFormula(`=${op1Addr}`);
+  // Set formula for current opcode: dst and res
   runSheet.getRange(`${dstColumn}${n + 2}`).setFormula(`=${dstAddr}`);
   switch (instruction.ResLogic) {
     case ResLogics.Add:
       runSheet
         .getRange(`${resColumn}${n + 2}`)
-        .setFormula(`=${op0Column}${n + 2} + ${op1Column}${n + 2}`);
+        .setFormula(`=${op0Addr} + ${op1Addr}`);
       break;
     case ResLogics.Mul:
       runSheet
         .getRange(`${resColumn}${n + 2}`)
-        .setFormula(`=${op0Column}${n + 2} * ${op1Column}${n + 2}`);
+        .setFormula(`=${op0Addr} * ${op1Addr}`);
       break;
     case ResLogics.Op1:
-      runSheet
-        .getRange(`${resColumn}${n + 2}`)
-        .setFormula(`=${op1Column}${n + 2}`);
+      runSheet.getRange(`${resColumn}${n + 2}`).setFormula(`=${op1Addr}`);
       break;
   }
   // Cairo instructions are like
@@ -272,6 +262,8 @@ function step(n: number = 0): void {
 function runUntilPc(): void {
   let i: number = getLastActiveRowIndex(`${pcColumn}`) - 2;
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
+  runSheet.getRange(`${executionColumn}2`).setValue(FINAL_FP);
+  runSheet.getRange(`${executionColumn}3`).setValue(FINAL_PC);
   while (!(pc === FINAL_PC)) {
     console.log(i);
     step(i);

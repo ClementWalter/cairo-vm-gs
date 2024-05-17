@@ -141,12 +141,20 @@ function step(n: number = 0): void {
   // opcode(dst, res)
   switch (instruction.Opcode) {
     case Opcodes.Call:
-      runSheet
-        .getRange(op0Addr)
-        .setValue(registers[Registers.PC] + size(instruction));
-      runSheet.getRange(dstAddr).setValue(registers[Registers.FP]);
+      let validCallOp0Value: number | string = registers[Registers.PC] + size(instruction);
+      let validCallDstValue: number | string = registers[Registers.FP];
+      if (op0Value == ""){
+        runSheet.getRange(op0Addr).setValue(validCallOp0Value);
+      }
+      if (dstValue == ""){
+        runSheet.getRange(dstAddr).setValue(validCallDstValue);
+      }
+      if (Number(op0Value) !== Number(validCallDstValue)){
+        throw new AssertEqError();
+      }
       break;
     case Opcodes.AssertEq:
+      let validAssertEqDstValue: number | string;
       switch (instruction.ResLogic) {
         case ResLogics.Add:
           if (op0Value === "") {
@@ -164,6 +172,7 @@ function step(n: number = 0): void {
               .getRange(dstAddr)
               .setValue(BigInt(op0Value) + BigInt(op1Value));
           }
+          validAssertEqDstValue = Number(BigInt(op0Value) + BigInt(op1Value));
           break;
         case ResLogics.Mul:
           if (op0Value === "") {
@@ -181,6 +190,7 @@ function step(n: number = 0): void {
               .getRange(dstAddr)
               .setValue(BigInt(op0Value) * BigInt(op1Value));
           }
+          validAssertEqDstValue = Number(BigInt(op0Value) * BigInt(op1Value));
           break;
         case ResLogics.Op1:
           if (op1Value === "") {
@@ -189,8 +199,13 @@ function step(n: number = 0): void {
           if (dstValue === "") {
             runSheet.getRange(dstAddr).setValue(BigInt(op1Value));
           }
+          validAssertEqDstValue = Number(BigInt(op1Value));
           break;
       }
+      if (Number(dstValue) !== Number(validAssertEqDstValue)){
+        throw new AssertEqError();
+      }
+      break;
   }
 
   op0Value =

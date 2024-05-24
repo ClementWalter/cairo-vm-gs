@@ -18,11 +18,11 @@ function menuRun(): void {
 function menuClear(): void {
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName("Run")
-    .getRange("A3:H")
+    .getRange("A3:F")
     .clearContent();
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName("Run")
-    .getRange("D2:H2")
+    .getRange("D2:F")
     .clearContent();
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName("Run")

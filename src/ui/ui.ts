@@ -4,6 +4,7 @@ function onOpen(): void {
     .addItem("Step", "menuStep")
     .addItem("Run", "menuRun")
     .addItem("Clear", "menuClear")
+    .addItem("Load Program", "showPicker")
     .addToUi();
 }
 
@@ -28,4 +29,33 @@ function menuClear(): void {
     .getSheetByName("Run")
     .getRange("G4:G")
     .clearContent();
+}
+
+function showPicker() {
+  try {
+    const html = HtmlService.createHtmlOutputFromFile("src/dialog.html")
+      .setWidth(600)
+      .setHeight(425)
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+    SpreadsheetApp.getUi().showModalDialog(html, "Select a file");
+  } catch (e) {
+    // TODO (Developer) - Handle exception
+    console.log("Failed with error: %s", e.error);
+  }
+}
+
+function loadProgram(bytecode: string[]) {
+  SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName("Program")
+    .getRange("A2:G")
+    .clearContent();
+  SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName("Program")
+    .getRange(`A2:B${bytecode.length + 1}`)
+    .setValues(
+      bytecode.map((instruction, i) => [
+        instruction,
+        `=DECODE_INSTRUCTION(A${i + 2})`,
+      ])
+    );
 }

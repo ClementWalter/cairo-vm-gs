@@ -33,7 +33,7 @@ function menuClear(): void {
 
 function showPicker() {
   try {
-    const html = HtmlService.createHtmlOutputFromFile("src/dialog.html")
+    const html = HtmlService.createHtmlOutputFromFile("src/ui/dialog.html")
       .setWidth(600)
       .setHeight(425)
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);

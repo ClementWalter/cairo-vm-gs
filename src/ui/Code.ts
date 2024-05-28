@@ -65,3 +65,7 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
     return [[""]];
   }
 }
+
+function PEDERSEN(x: number | string, y: number | string): number | string {
+  return pedersen(BigInt(x), BigInt(y)).toString(16);
+}

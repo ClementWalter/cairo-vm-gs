@@ -56,6 +56,6 @@ function loadProgram(bytecode: string[]) {
       bytecode.map((instruction, i) => [
         instruction,
         `=DECODE_INSTRUCTION(A${i + 2})`,
-      ])
+      ]),
     );
 }

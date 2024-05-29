@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://ssl.gstatic.com/docs/script/css/add-ons.css"
+    />
+    <script>
+      function closeDialog() {
+        google.script.host.close();
+      }
+      function onFileLoad(event) {
+        var compiledJson = JSON.parse(event.target.result);
+        google.script.run
+          .withSuccessHandler(closeDialog)
+          .withFailureHandler(closeDialog)
+          .loadProgram(compiledJson.data);
+      }
+      function onFileChange(event) {
+        var fileReader = new FileReader();
+        fileReader.onload = onFileLoad;
+        fileReader.readAsText(event.target.files[0]);
+      }
+      function onApiLoad() {
+        document
+          .getElementById("program")
+          .addEventListener("change", onFileChange);
+      }
+    </script>
+  </head>
+  <body>
+    <div>
+      <input id="program" type="file" accept="application/json" />
+    </div>
+    <script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+  </body>
+</html>

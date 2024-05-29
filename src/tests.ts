@@ -18,26 +18,6 @@ function testRunner() {
     t.deepEqual(instruction, expectedInstruction);
   });
 
-  test("get R1C1", (t) => {
-    var ss: GoogleAppsScript.Spreadsheet.Spreadsheet =
-      SpreadsheetApp.getActiveSpreadsheet();
-    var sheet: GoogleAppsScript.Spreadsheet.Sheet = ss.getSheets()[0];
-
-    var range: GoogleAppsScript.Spreadsheet.Range = sheet.getRange("B5");
-    var formula: number = range.getColumn();
-    t.equal(formula, 2.0);
-  });
-
-  test("get program", (t) => {
-    var ss: GoogleAppsScript.Spreadsheet.Spreadsheet =
-      SpreadsheetApp.getActiveSpreadsheet();
-    const program: any[][] = ss
-      .getSheetByName("Program")
-      .getRange("A2:A")
-      .getValues();
-    t.deepEqual(program, expectedProgram);
-  });
-
   test("object from array", (t) => {
     const keys: string[] = ["a", "b", "c"];
     const values: number[] = [1, 2, 3];

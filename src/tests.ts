@@ -82,3 +82,19 @@ function testPedersen(): void {
   //Expect :
   //30e480bed5fe53fa909cc0f8c4d99b8f9f2c016be4c41e13a4848797979c662
 }
+
+function testBitwiseOperations(): void {
+  Logger.log(bitwise_operations(BigInt(0), BigInt(0)).toString());
+  Logger.log(bitwise_operations(BigInt(31), BigInt(0)).toString());
+  Logger.log(bitwise_operations(BigInt(0), BigInt(31)).toString());
+  Logger.log(bitwise_operations(BigInt(31), BigInt(31)).toString());
+  Logger.log(bitwise_operations(BigInt(31), BigInt(1)).toString());
+  Logger.log(bitwise_operations(BigInt(31), BigInt(30)).toString());
+  //Expect :
+  // [0, 0, 0]
+  // [0, 31, 31]
+  // [0, 31, 31]
+  // [31, 0, 31]
+  // [1, 30, 31]
+  // [30, 1, 31]
+}

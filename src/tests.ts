@@ -26,7 +26,7 @@ function testRunner() {
     t.deepEqual(target, expectedTarget);
   });
 
-  test("ec addition (pedersen)", (t) => {
+  test("ec_add", (t) => {
     var P = new AffinePoint(
       "45477851653901153117103016505176923677805691341513469374986918421704783798",
       "183085939200008105303514891306249502070824714566204820793608690653248096343",
@@ -44,31 +44,40 @@ function testRunner() {
     var R: AffinePoint;
     var expectedR;
 
-    R = add(P, neutralElement);
-    expectedR = P;
-    t.deepEqual(R, expectedR, "P + 0 = P");
+    t.deepEqual(ec_add(P, neutralElement), P, "P + 0 = P");
 
-    R = add(neutralElement, P);
-    expectedR = P;
-    t.deepEqual(R, expectedR, "0 + P = P");
+    t.deepEqual(ec_add(neutralElement, P), P, "0 + P = P");
 
-    R = add(P, minusP);
-    t.equal(R.isNeutralElement, true, "P - P = 0");
+    t.equal(ec_add(P, minusP).isNeutralElement, true, "P - P = 0");
 
-    R = add(P, P);
+    R = ec_add(P, P);
     expectedR = new AffinePoint(
       "1968885970339083619948296146201104092252508104349267720068326878178341392969",
       "593121236708823356289653686480454355603982629001053929931980663109960391985",
     );
     t.deepEqual(R, expectedR, "P + P");
 
-    R = add(P, Q);
+    R = ec_add(P, Q);
     expectedR = new AffinePoint(
       "2825233123465961750980798694652743017262313358557354910947070689454726096961",
       "3554824400633731496516020947624430028316074332303691877626182575674539922487",
     );
     t.deepEqual(R, expectedR, "P + Q");
   });
+
+  test("ec_mul", (t) =>{
+    var P = new AffinePoint(
+      "2381583528819525045296122742815875182495256257584749503448788652392977649575",
+      "2067108964175809973602195624719018122069259275804588771867408794862963975607",
+    );
+    var expectedR = new AffinePoint(
+      "2851021747692556495134621021330740661724372292432922651722907298519557703909",
+      "2640080408746596207685151085183790981626794605058347843666475762850263746578",
+    );
+    var m = BigInt(234);
+    t.equal(ec_mul(BigInt(0), P).isNeutralElement, true, "0*P");
+    t.deepEqual(ec_mul(m, P), expectedR, "m*P");
+  })
 
   test("pedersen hash", (t) => {
     var hash: string = pedersen(

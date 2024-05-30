@@ -14,7 +14,6 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
       const instruction: decodedInstruction = decodeInstruction(
         BigInt(encodedInstruction),
       );
-      Logger.log(instruction);
 
       if (
         instruction.Opcode === Opcodes.NOp &&

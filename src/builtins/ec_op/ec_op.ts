@@ -50,3 +50,7 @@ function ec_mul(m: bigint, p: AffinePoint): AffinePoint{
     }
     return res;
 }
+
+function ec_op(m: bigint, p: AffinePoint, q: AffinePoint): AffinePoint{
+    return ec_add(ec_mul(m,p),q);
+}

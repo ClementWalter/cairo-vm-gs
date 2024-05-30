@@ -68,3 +68,7 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
 function PEDERSEN(x: number | string, y: number | string): number | string {
   return pedersen(BigInt(x), BigInt(y)).toString(16);
 }
+
+function EC_OP(m: number | string, p: AffinePoint, q: AffinePoint): AffinePoint{
+  return ec_op(BigInt(m),p,q);
+}

@@ -65,7 +65,7 @@ function testRunner() {
     t.deepEqual(R, expectedR, "P + Q");
   });
 
-  test("ec_mul", (t) =>{
+  test("ec_mul", (t) => {
     var P = new AffinePoint(
       "2381583528819525045296122742815875182495256257584749503448788652392977649575",
       "2067108964175809973602195624719018122069259275804588771867408794862963975607",
@@ -77,7 +77,7 @@ function testRunner() {
     var m = BigInt(234);
     t.equal(ec_mul(BigInt(0), P).isNeutralElement, true, "0*P");
     t.deepEqual(ec_mul(m, P), expectedR, "m*P");
-  })
+  });
 
   test("pedersen hash", (t) => {
     var hash: string = pedersen(

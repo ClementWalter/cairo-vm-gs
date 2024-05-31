@@ -76,3 +76,22 @@ function EC_OP(
 ): AffinePoint {
   return ec_op(BigInt(m), p, q);
 }
+
+function SIGN_ECDSA(
+  message: number | string,
+  private_key: number | string,
+): SignatureType {
+  return sign_message(BigInt(message), BigInt(private_key));
+}
+
+function CHECK_ECDSA_SIGNATURE(
+  r: number | string,
+  s: number | string,
+  message: number | string,
+  x: number | string,
+  y: number | string,
+): boolean {
+  var signature: SignatureType = { r: BigInt(r), s: BigInt(s) };
+  var public_key = new AffinePoint(String(x), String(y));
+  return verify_sig(signature, BigInt(message), public_key);
+}

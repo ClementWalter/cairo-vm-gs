@@ -93,13 +93,13 @@ function testRunner() {
     t.equal(hash, expectedHash);
   });
 
-  test("ecdsa",(t)=>{
+  test("ecdsa", (t) => {
     var private_key: bigint = BigInt("2356745324256432");
-    var public_key: AffinePoint = ec_mul(private_key,GENERATOR);
+    var public_key: AffinePoint = ec_mul(private_key, GENERATOR);
     var message: bigint = BigInt("839418578108690");
     var signature: SignatureType = sign_message(message, private_key);
-    t.ok(verify_sig(signature,message,public_key), "signature verification");
-  })
+    t.ok(verify_sig(signature, message, public_key), "signature verification");
+  });
 
   test.finish();
 }

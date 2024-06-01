@@ -73,56 +73,35 @@ function PEDERSEN(x: number | string, y: number | string): number | string {
 /**
  * Provides custom function for bitwise 'and' for given two inputs.
  *
- * @param {number|Array<number>|Array<Array<number>>} input - only takes range of two cells as its input
- * @return The bitwise 'and' of two inputs present in the range in bigint form.
- *      If more than two inputs are given, only first two inputs are taken in consideration.
- *      returns the bigint of input if only one input is provided.
+ * @param {number} x - one of the input for 'and' operation
+ * @param {number} y - the other input for 'and' operation
+ * @return The bitwise 'and' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_AND(
-  input: number | Array<number> | Array<Array<number>>,
-): bigint {
-  if (Array.isArray(input)) {
-    input = input.flat();
-    return bitwise_and(BigInt(input[0]), BigInt(input[1]));
-  }
-  return BigInt(input);
+function BITWISE_AND(x: number, y: number): bigint {
+  return bitwise_and(BigInt(x), BigInt(y));
 }
 
 /**
  * Provides custom function for bitwise 'xor' for given two inputs.
  *
- * @param {number|Array<number>|Array<Array<number>>} input - only takes range of two cells as its input
- * @return The bitwise 'xor' of two inputs present in the range in bigint form.
- *      If more than two inputs are given, only first two inputs are taken in consideration.
- *      returns the bigint of input if only one input is provided.
+ * @param {number} x - one of the input for 'xor' operation
+ * @param {number} y - the other input for 'xor' operation
+ * @return The bitwise 'xor' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_XOR(
-  input: number | Array<number> | Array<Array<number>>,
-): bigint {
-  if (Array.isArray(input)) {
-    input = input.flat();
-    return bitwise_xor(BigInt(input[0]), BigInt(input[1]));
-  }
-  return BigInt(input);
+function BITWISE_XOR(x: number, y: number): bigint {
+  return bitwise_xor(BigInt(x), BigInt(y));
 }
 
 /**
  * Provides custom function for bitwise 'or' for given two inputs.
  *
- * @param {number|Array<number>|Array<Array<number>>} input - only takes range of two cells as its input
- * @return The bitwise 'or' of two inputs present in the range in bigint form.
- *      If more than two inputs are given, only first two inputs are taken in consideration.
- *      returns the bigint of input if only one input is provided.
+ * @param {number} x - one of the input for 'or' operation
+ * @param {number} y - the other input for 'or' operation
+ * @return The bitwise 'or' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_OR(
-  input: number | Array<number> | Array<Array<number>>,
-): bigint {
-  if (Array.isArray(input)) {
-    input = input.flat();
-    return bitwise_or(BigInt(input[0]), BigInt(input[1]));
-  }
-  return BigInt(input);
+function BITWISE_OR(x: number, y: number): bigint {
+  return bitwise_or(BigInt(x), BigInt(y));
 }

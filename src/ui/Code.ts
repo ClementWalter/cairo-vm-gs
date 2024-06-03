@@ -103,6 +103,7 @@ function BITWISE_XOR(x: number, y: number): bigint {
  */
 function BITWISE_OR(x: number, y: number): bigint {
   return bitwise_or(BigInt(x), BigInt(y));
+}
 
 function EC_OP(
   m: number | string,
@@ -110,4 +111,15 @@ function EC_OP(
   q: AffinePoint,
 ): AffinePoint {
   return ec_op(BigInt(m), p, q);
+}
+
+/**
+ * Provides custom function for range checking a given input.
+ *
+ * @param {number} num - The number which is to be validated.
+ * @return The number itself in bigint form if it is in range, else throws InvalidRangeError.
+ * @customfunction
+ */
+function RANGE_CHECK(num: number): bigint {
+  return range_check(BigInt(num));
 }

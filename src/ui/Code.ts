@@ -69,6 +69,41 @@ function PEDERSEN(x: number | string, y: number | string): number | string {
   return pedersen(BigInt(x), BigInt(y)).toString(16);
 }
 
+/**
+ * Provides custom function for bitwise 'and' for given two inputs.
+ *
+ * @param {number} x - one of the input for 'and' operation
+ * @param {number} y - the other input for 'and' operation
+ * @return The bitwise 'and' of two given inputs in bigint form.
+ * @customfunction
+ */
+function BITWISE_AND(x: number, y: number): bigint {
+  return bitwise_and(BigInt(x), BigInt(y));
+}
+
+/**
+ * Provides custom function for bitwise 'xor' for given two inputs.
+ *
+ * @param {number} x - one of the input for 'xor' operation
+ * @param {number} y - the other input for 'xor' operation
+ * @return The bitwise 'xor' of two given inputs in bigint form.
+ * @customfunction
+ */
+function BITWISE_XOR(x: number, y: number): bigint {
+  return bitwise_xor(BigInt(x), BigInt(y));
+}
+
+/**
+ * Provides custom function for bitwise 'or' for given two inputs.
+ *
+ * @param {number} x - one of the input for 'or' operation
+ * @param {number} y - the other input for 'or' operation
+ * @return The bitwise 'or' of two given inputs in bigint form.
+ * @customfunction
+ */
+function BITWISE_OR(x: number, y: number): bigint {
+  return bitwise_or(BigInt(x), BigInt(y));
+
 function EC_OP(
   m: number | string,
   p: AffinePoint,

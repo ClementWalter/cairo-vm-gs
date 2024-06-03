@@ -42,6 +42,8 @@ const PRIME: bigint = BigInt(
   "0x800000000000011000000000000000000000000000000000000000000000001",
 );
 
+const ALPHA: bigint = BigInt(1);
+
 const Registers: RegistersType = {
   AP: "AP",
   FP: "FP",

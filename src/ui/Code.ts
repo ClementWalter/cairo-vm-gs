@@ -14,7 +14,6 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
       const instruction: decodedInstruction = decodeInstruction(
         BigInt(encodedInstruction),
       );
-      Logger.log(instruction);
 
       if (
         instruction.Opcode === Opcodes.NOp &&
@@ -104,4 +103,11 @@ function BITWISE_XOR(x: number, y: number): bigint {
  */
 function BITWISE_OR(x: number, y: number): bigint {
   return bitwise_or(BigInt(x), BigInt(y));
+
+function EC_OP(
+  m: number | string,
+  p: AffinePoint,
+  q: AffinePoint,
+): AffinePoint {
+  return ec_op(BigInt(m), p, q);
 }

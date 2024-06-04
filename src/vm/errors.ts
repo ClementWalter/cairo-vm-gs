@@ -6,4 +6,5 @@ class InvalidApUpdateError extends Error {}
 class InvalidOp0RegisterError extends Error {}
 class InvalidOp1RegisterError extends Error {}
 class InvalidDstRegisterError extends Error {}
+class InvalidRangeError extends Error {}
 class AssertEqError extends Error {}

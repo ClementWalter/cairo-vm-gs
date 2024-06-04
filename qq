@@ -1,0 +1,39 @@
+* [33mcffba90[m[33m ([m[1;36mHEAD -> [m[1;32mecdsa[m[33m)[m put functions in code.ts and trunk
+* [33m57d7619[m add ecdsa
+[31m|[m * [33m80720f0[m[33m ([m[1;35mrefs/stash[m[33m)[m WIP on ecdsa: 14657ff add ec_op function (#34)
+[31m|[m[31m/[m[33m|[m 
+[31m|[m * [33m4be3a06[m index on ecdsa: 14657ff add ec_op function (#34)
+[31m|[m[31m/[m  
+* [33m14657ff[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m add ec_op function (#34)
+[33m|[m * [33md24714e[m[33m ([m[1;32mmy-branch-backup[m[33m, [m[1;32mmain[m[33m)[m add ecdsa
+[33m|[m * [33m7e56962[m added ec_op
+[33m|[m[33m/[m[36m|[m 
+[33m|[m * [33m320aa1e[m[33m ([m[1;32mec_op[m[33m)[m ran trunk check
+[33m|[m * [33mc13d614[m added ec_op
+[33m|[m * [33m4b0cfd1[m added ec_add, ec_mul and modular arithmetics
+[33m|[m * [33m37a3673[m removed irrelevent tests
+[33m|[m * [33m6d340a2[m add testing framework
+* [36m|[m [33m43e06e7[m add testing framework (#33)
+[36m|[m[36m/[m  
+* [33me80efab[m added pedersen hash function (#22)
+* [33mb1be490[m add a load program menu (#18)
+* [33mba5008c[m Refacto tree
+* [33mc7f578e[m added verification for asserts and fixed clear func (#14)
+* [33mbffbf01[m Remove res from UI
+* [33mdca3d6c[m added run method and 2 constants for FINAL_FP and FINAL_PC (#13)
+* [33m8442a06[m Load main.cairo and fix ret opcode
+* [33m5f27e2c[m Add main to run fibonacci(10) with tracer
+* [33mb314b57[m added function for initializing segments for builtins in form of columns next to 'Execution' (#12)
+* [33m6efb8ac[m TypeScript Migration (#10)
+* [33m2590026[m Added Dict.cairo and file and its equivalent Compiled output (#11)
+* [33mbd85929[m Fix column re ordering
+* [33m5b51c63[m Read the program from the Program sheet
+* [33m5fdc3eb[m Fix cairovm.gs link in README and format compiled file
+* [33m8a0af28[m Add python cairo0 poetry project (#8)
+* [33ma632f6d[m Move prettier config to trunk
+* [33mcc031f1[m Test CI (#1)
+* [33m46c1176[m Add trunk in CI
+* [33m7434318[m Run trunk fmt --all
+* [33m3258a37[m Fix claspignore and add contribute section in README
+* [33mb1af8a4[m Add README and trunk
+* [33mf3d3c9d[m Initial commit

@@ -94,11 +94,18 @@ function testRunner() {
   });
 
   test("ecdsa", (t) => {
-    var private_key: bigint = BigInt("2356745324256432");
+    var private_key: bigint = BigInt(
+      "3518502788666131213697322783095070105526743751716087489154079457884512865583",
+    );
     var public_key: AffinePoint = ec_mul(private_key, GENERATOR);
-    var message: bigint = BigInt("839418578108690");
-    var signature: SignatureType = sign_message(message, private_key);
-    t.ok(verify_sig(signature, message, public_key), "signature verification");
+    var message: bigint = BigInt(
+      "13434234141348937597925294754859245298359825",
+    );
+    var signature: SignatureType = signMessage(message, private_key);
+    t.ok(
+      verifySignature(signature, message, public_key),
+      "signature verification",
+    );
   });
 
   test.finish();

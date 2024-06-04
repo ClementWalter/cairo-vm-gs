@@ -81,7 +81,7 @@ function SIGN_ECDSA(
   message: number | string,
   private_key: number | string,
 ): SignatureType {
-  return sign_message(BigInt(message), BigInt(private_key));
+  return signMessage(BigInt(message), BigInt(private_key));
 }
 
 function CHECK_ECDSA_SIGNATURE(
@@ -93,5 +93,5 @@ function CHECK_ECDSA_SIGNATURE(
 ): boolean {
   var signature: SignatureType = { r: BigInt(r), s: BigInt(s) };
   var public_key = new AffinePoint(String(x), String(y));
-  return verify_sig(signature, BigInt(message), public_key);
+  return verifySignature(signature, BigInt(message), public_key);
 }

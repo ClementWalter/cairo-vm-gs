@@ -103,3 +103,19 @@ function testRunner() {
 
   test.finish();
 }
+
+function testBitwiseOperations(): void {
+  Logger.log(bitwise_operations(BigInt(0), BigInt(0)).toString());
+  Logger.log(bitwise_operations(BigInt(31), BigInt(0)).toString());
+  Logger.log(bitwise_operations(BigInt(0), BigInt(31)).toString());
+  Logger.log(bitwise_operations(BigInt(31), BigInt(31)).toString());
+  Logger.log(bitwise_operations(BigInt(31), BigInt(1)).toString());
+  Logger.log(bitwise_operations(BigInt(31), BigInt(30)).toString());
+  //Expect :
+  // [0, 0, 0]
+  // [0, 31, 31]
+  // [0, 31, 31]
+  // [31, 0, 31]
+  // [1, 30, 31]
+  // [30, 1, 31]
+}

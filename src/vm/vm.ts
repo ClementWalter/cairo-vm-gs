@@ -296,7 +296,6 @@ function runUntilPc(): void {
   runSheet.getRange(`${executionColumn}2`).setValue(FINAL_FP);
   runSheet.getRange(`${executionColumn}3`).setValue(FINAL_PC);
   while (!(pc === FINAL_PC)) {
-    console.log(i);
     step(i);
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();

@@ -240,54 +240,47 @@ function step(n: number = 0): void {
     .getRange(`${resColumn}${n + 2}`)
     .getDisplayValue();
 
-  let newPc: string | number;
   switch (instruction.PcUpdate) {
     case PcUpdates.Jump:
-      newPc = resValue;
+      runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setFormula(`=${resColumn}${n + 2}`);
       break;
     case PcUpdates.JumpRel:
-      newPc = pc + Number(resValue);
+      runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setFormula(`=${pcColumn}${n + 2} + ${resValue}`);
       break;
     case PcUpdates.Jnz:
-      newPc = pc + Number(dstValue === 0 ? size(instruction) : op1Value);
+      runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setFormula(`=${pcColumn}${n + 2} + ${dstValue === 0 ? size(instruction) : op1Value}`);
       break;
     case PcUpdates.Regular:
-      newPc = pc + size(instruction);
+      runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setFormula(`=${pcColumn}${n + 2} + ${size(instruction)}`);
       break;
   }
 
-  let newFp: string | number;
   switch (instruction.FpUpdate) {
     case FpUpdates.Constant:
-      newFp = registers[Registers.FP];
+      runSheet.getRange(`${fpColumn}${n + 2 + 1}`).setFormula(`=${fpColumn}${n + 2}`);
       break;
     case FpUpdates.ApPlus2:
-      newFp = registers[Registers.AP] + 2;
+      runSheet.getRange(`${fpColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2} + 2`);
       break;
     case FpUpdates.Dst:
-      newFp = dstValue;
+      runSheet.getRange(`${fpColumn}${n + 2 + 1}`).setFormula(`=${dstColumn}${n + 2 + 1}`);
       break;
   }
 
-  let newAp: string;
   switch (instruction.ApUpdate) {
     case ApUpdates.Add1:
-      newAp = registers[Registers.AP] + 1;
+      runSheet.getRange(`${apColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2} + 1`);
       break;
     case ApUpdates.Add2:
-      newAp = registers[Registers.AP] + 2;
+      runSheet.getRange(`${apColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2} + 2`);
       break;
     case ApUpdates.AddRes:
-      newAp = registers[Registers.AP] + Number(resValue);
+      runSheet.getRange(`${apColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2} + ${resValue}`);
       break;
     case ApUpdates.Constant:
-      newAp = registers[Registers.AP];
+      runSheet.getRange(`${apColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2}`);
       break;
   }
-
-  runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setValue(newPc);
-  runSheet.getRange(`${fpColumn}${n + 2 + 1}`).setValue(newFp);
-  runSheet.getRange(`${apColumn}${n + 2 + 1}`).setValue(newAp);
 }
 
 function runUntilPc(): void {

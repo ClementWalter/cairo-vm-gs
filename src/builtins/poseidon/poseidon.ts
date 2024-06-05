@@ -2,18 +2,18 @@
 //https://github.com/CryptoExperts/poseidon/blob/main/sage/poseidon.sage
 
 function hadesPermutation(values: bigint[], params: HadesParamsType): bigint[] {
-  var round_idx: number = 0;
+  var roundIdx: number = 0;
   for (var i = 0; i < params.Rf / 2; i++) {
-    values = hadesRound(values, params, true, round_idx);
-    round_idx += 1;
+    values = hadesRound(values, params, true, roundIdx);
+    roundIdx += 1;
   }
   for (var i = 0; i < params.Rp; i++) {
-    values = hadesRound(values, params, false, round_idx);
-    round_idx += 1;
+    values = hadesRound(values, params, false, roundIdx);
+    roundIdx += 1;
   }
   for (var i = 0; i < params.Rf / 2; i++) {
-    values = hadesRound(values, params, true, round_idx);
-    round_idx += 1;
+    values = hadesRound(values, params, true, roundIdx);
+    roundIdx += 1;
   }
   return values;
 }
@@ -21,12 +21,12 @@ function hadesPermutation(values: bigint[], params: HadesParamsType): bigint[] {
 function hadesRound(
   values: bigint[],
   params: HadesParamsType,
-  is_full_round: boolean,
-  round_idx: number,
+  isFullRound: boolean,
+  roundIdx: number,
 ): bigint[] {
-  values = modAddVectors(values, params.ark[round_idx]);
+  values = modAddVectors(values, params.ark[roundIdx]);
 
-  if (is_full_round) {
+  if (isFullRound) {
     for (var i = 0; i < values.length; i++) {
       values[i] = modPow(values[i], 3);
     }
@@ -38,7 +38,7 @@ function hadesRound(
 }
 
 function poseidon(x: bigint, y: bigint): bigint {
-  var params: HadesParamsType = {
+  const params: HadesParamsType = {
     r: 2,
     c: 1,
     m: 3,

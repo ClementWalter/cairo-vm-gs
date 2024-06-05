@@ -111,7 +111,7 @@ function testRunner() {
   test("poseidon hash", (t) => {
     //This test comes from : https://github.com/paulmillr/noble-curves/blob/main/test/poseidon.test.js#L88
     t.equal(
-      poseidonHash(
+      poseidon(
         BigInt(
           "4379311784651118086770398084575492314150568148003994287303975907890254409956",
         ),

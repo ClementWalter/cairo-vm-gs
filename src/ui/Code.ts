@@ -113,6 +113,25 @@ function EC_OP(
   return ec_op(BigInt(m), p, q);
 }
 
+function SIGN_ECDSA(
+  message: number | string,
+  private_key: number | string,
+): SignatureType {
+  return signMessage(BigInt(message), BigInt(private_key));
+}
+
+function CHECK_ECDSA_SIGNATURE(
+  r: number | string,
+  s: number | string,
+  message: number | string,
+  x: number | string,
+  y: number | string,
+): boolean {
+  var signature: SignatureType = { r: BigInt(r), s: BigInt(s) };
+  var public_key = new AffinePoint(String(x), String(y));
+  return verifySignature(signature, BigInt(message), public_key);
+}
+
 /**
  * Provides custom function for range checking a given input.
  *

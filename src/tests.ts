@@ -93,21 +93,20 @@ function testRunner() {
     t.equal(hash, expectedHash);
   });
 
-  test.finish();
-}
+  test("ecdsa", (t) => {
+    var private_key: bigint = BigInt(
+      "3518502788666131213697322783095070105526743751716087489154079457884512865583",
+    );
+    var public_key: AffinePoint = ec_mul(private_key, GENERATOR);
+    var message: bigint = BigInt(
+      "13434234141348937597925294754859245298359825",
+    );
+    var signature: SignatureType = signMessage(message, private_key);
+    t.ok(
+      verifySignature(signature, message, public_key),
+      "signature verification",
+    );
+  });
 
-function testBitwiseOperations(): void {
-  Logger.log(bitwise_operations(BigInt(0), BigInt(0)).toString());
-  Logger.log(bitwise_operations(BigInt(31), BigInt(0)).toString());
-  Logger.log(bitwise_operations(BigInt(0), BigInt(31)).toString());
-  Logger.log(bitwise_operations(BigInt(31), BigInt(31)).toString());
-  Logger.log(bitwise_operations(BigInt(31), BigInt(1)).toString());
-  Logger.log(bitwise_operations(BigInt(31), BigInt(30)).toString());
-  //Expect :
-  // [0, 0, 0]
-  // [0, 31, 31]
-  // [0, 31, 31]
-  // [31, 0, 31]
-  // [1, 30, 31]
-  // [30, 1, 31]
+  test.finish();
 }

@@ -24,10 +24,10 @@ i++;
 type builtins = {
   output: string;
   pedersen: string;
-  range_check: string;
+  rangeCheck: string;
   ecdsa: string;
   bitwise: string;
-  ec_op: string;
+  ecOp: string;
   keccak: string;
   poseidon: string;
 };
@@ -35,17 +35,17 @@ type builtins = {
 const builtins = {
   output: null,
   pedersen: null,
-  range_check: null,
+  rangeCheck: null,
   ecdsa: null,
   bitwise: null,
-  ec_op: null,
+  ecop: null,
   keccak: null,
   poseidon: null,
 };
 
 const program: any[][] = programSheet.getRange("A2:A").getValues();
 
-function initialize_builtins(): void {
+function initializeBuiltins(): void {
   let counter: number = 0;
   const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;
   const keys: string[] = Object.keys(builtins);

@@ -78,7 +78,7 @@ function PEDERSEN(x: number | string, y: number | string): number | string {
  * @customfunction
  */
 function BITWISE_AND(x: number, y: number): bigint {
-  return bitwise_and(BigInt(x), BigInt(y));
+  return bitwiseAnd(BigInt(x), BigInt(y));
 }
 
 /**
@@ -90,7 +90,7 @@ function BITWISE_AND(x: number, y: number): bigint {
  * @customfunction
  */
 function BITWISE_XOR(x: number, y: number): bigint {
-  return bitwise_xor(BigInt(x), BigInt(y));
+  return bitwiseXor(BigInt(x), BigInt(y));
 }
 
 /**
@@ -102,7 +102,7 @@ function BITWISE_XOR(x: number, y: number): bigint {
  * @customfunction
  */
 function BITWISE_OR(x: number, y: number): bigint {
-  return bitwise_or(BigInt(x), BigInt(y));
+  return bitwiseOr(BigInt(x), BigInt(y));
 }
 
 function EC_OP(
@@ -110,7 +110,7 @@ function EC_OP(
   p: AffinePoint,
   q: AffinePoint,
 ): AffinePoint {
-  return ec_op(BigInt(m), p, q);
+  return ecOp(BigInt(m), p, q);
 }
 
 function SIGN_ECDSA(
@@ -140,5 +140,5 @@ function CHECK_ECDSA_SIGNATURE(
  * @customfunction
  */
 function RANGE_CHECK(num: number): bigint {
-  return range_check(BigInt(num));
+  return rangeCheck(BigInt(num));
 }

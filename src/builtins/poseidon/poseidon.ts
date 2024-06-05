@@ -37,7 +37,7 @@ function hadesRound(
   return values;
 }
 
-function poseidonHash(x: bigint, y: bigint): bigint {
+function poseidon(x: bigint, y: bigint): bigint {
   var params: HadesParamsType = {
     r: 2,
     c: 1,

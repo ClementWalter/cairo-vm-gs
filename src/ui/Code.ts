@@ -142,3 +142,7 @@ function CHECK_ECDSA_SIGNATURE(
 function RANGE_CHECK(num: number): bigint {
   return range_check(BigInt(num));
 }
+
+function POSEIDON(x: number | string, y: number | string): number | string {
+  return poseidon(BigInt(x), BigInt(y)).toString(16);
+}

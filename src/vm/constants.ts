@@ -43,6 +43,18 @@ interface SignatureType {
   s: bigint;
 }
 
+interface HadesParamsType {
+  r: number;
+  c: number;
+  m: number;
+  Rf: number;
+  Rp: number;
+  nRounds: number;
+  outputSize: number;
+  ark: bigint[][];
+  mds: bigint[][];
+}
+
 const PRIME: bigint = BigInt(
   "0x800000000000011000000000000000000000000000000000000000000000001",
 );

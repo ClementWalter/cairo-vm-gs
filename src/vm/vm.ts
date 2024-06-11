@@ -242,43 +242,67 @@ function step(n: number = 0): void {
 
   switch (instruction.PcUpdate) {
     case PcUpdates.Jump:
-      runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setFormula(`=${resColumn}${n + 2}`);
+      runSheet
+        .getRange(`${pcColumn}${n + 2 + 1}`)
+        .setFormula(`=${resColumn}${n + 2}`);
       break;
     case PcUpdates.JumpRel:
-      runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setFormula(`=${pcColumn}${n + 2} + ${resValue}`);
+      runSheet
+        .getRange(`${pcColumn}${n + 2 + 1}`)
+        .setFormula(`=${pcColumn}${n + 2} + ${resColumn}${n + 2}`);
       break;
     case PcUpdates.Jnz:
-      runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setFormula(`=${pcColumn}${n + 2} + ${dstValue === 0 ? size(instruction) : op1Value}`);
+      runSheet
+        .getRange(`${pcColumn}${n + 2 + 1}`)
+        .setFormula(
+          `=${pcColumn}${n + 2} + ${dstValue === 0 ? size(instruction) : op1Value}`,
+        );
       break;
     case PcUpdates.Regular:
-      runSheet.getRange(`${pcColumn}${n + 2 + 1}`).setFormula(`=${pcColumn}${n + 2} + ${size(instruction)}`);
+      runSheet
+        .getRange(`${pcColumn}${n + 2 + 1}`)
+        .setFormula(`=${pcColumn}${n + 2} + ${size(instruction)}`);
       break;
   }
 
   switch (instruction.FpUpdate) {
     case FpUpdates.Constant:
-      runSheet.getRange(`${fpColumn}${n + 2 + 1}`).setFormula(`=${fpColumn}${n + 2}`);
+      runSheet
+        .getRange(`${fpColumn}${n + 2 + 1}`)
+        .setFormula(`=${fpColumn}${n + 2}`);
       break;
     case FpUpdates.ApPlus2:
-      runSheet.getRange(`${fpColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2} + 2`);
+      runSheet
+        .getRange(`${fpColumn}${n + 2 + 1}`)
+        .setFormula(`=${apColumn}${n + 2} + 2`);
       break;
     case FpUpdates.Dst:
-      runSheet.getRange(`${fpColumn}${n + 2 + 1}`).setFormula(`=${dstColumn}${n + 2 + 1}`);
+      runSheet
+        .getRange(`${fpColumn}${n + 2 + 1}`)
+        .setFormula(`=${dstColumn}${n + 2}`);
       break;
   }
 
   switch (instruction.ApUpdate) {
     case ApUpdates.Add1:
-      runSheet.getRange(`${apColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2} + 1`);
+      runSheet
+        .getRange(`${apColumn}${n + 2 + 1}`)
+        .setFormula(`=${apColumn}${n + 2} + 1`);
       break;
     case ApUpdates.Add2:
-      runSheet.getRange(`${apColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2} + 2`);
+      runSheet
+        .getRange(`${apColumn}${n + 2 + 1}`)
+        .setFormula(`=${apColumn}${n + 2} + 2`);
       break;
     case ApUpdates.AddRes:
-      runSheet.getRange(`${apColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2} + ${resValue}`);
+      runSheet
+        .getRange(`${apColumn}${n + 2 + 1}`)
+        .setFormula(`=${apColumn}${n + 2} + ${resColumn}${n + 2}`);
       break;
     case ApUpdates.Constant:
-      runSheet.getRange(`${apColumn}${n + 2 + 1}`).setFormula(`=${apColumn}${n + 2}`);
+      runSheet
+        .getRange(`${apColumn}${n + 2 + 1}`)
+        .setFormula(`=${apColumn}${n + 2}`);
       break;
   }
 }

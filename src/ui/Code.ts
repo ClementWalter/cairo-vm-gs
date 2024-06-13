@@ -73,7 +73,7 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
  * @return The bitwise 'and' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_AND(x: number, y: number): bigint {
+function BITWISE_AND(x: number, y: number): string {
   return "0x" + bitwiseAnd(BigInt(x), BigInt(y)).toString(16);
 }
 
@@ -139,10 +139,25 @@ function RANGE_CHECK(num: number | string): string {
   return "0x" + rangeCheck(BigInt(num)).toString(16);
 }
 
-function POSEIDON(x: number | string, y: number | string): number | string {
-  return "0x" + poseidon(BigInt(x), BigInt(y)).toString(16);
-}
-
 function PEDERSEN(x: number | string, y: number | string): number | string {
   return "0x" + pedersen(BigInt(x), BigInt(y)).toString(16);
+}
+
+function KECCAK(message: number | string): string {
+  const utf8Bytes = encodeUTF8(message.toString());
+  const bytearrayOutput = keccak(1088, 512, utf8Bytes, 0x01, 256 / 8);
+
+  const bitOutput = Array.from(bytearrayOutput)
+    .map((byte) => byte.toString(2).padStart(8, "0"))
+    .join("");
+
+  const bitStringSlice = bitOutput.slice(6);
+  const bitBigInt = BigInt("0b" + bitStringSlice);
+
+  const hexOutput = "0x" + bitBigInt.toString(16);
+  return hexOutput;
+}
+
+function POSEIDON(x: number | string, y: number | string): number | string {
+  return "0x" + poseidon(BigInt(x), BigInt(y)).toString(16);
 }

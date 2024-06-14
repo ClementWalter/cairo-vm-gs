@@ -252,7 +252,7 @@ function step(n: number = 0): void {
       runSheet
         .getRange(`${pcColumn}${n + 2 + 1}`)
         .setFormula(
-          `=${pcColumn}${n + 2} + IF(${dstAddr} = 0; ${size(instruction)}; ${resColumn}${n + 2})`,
+          `=${pcColumn}${n + 2} + IF(${dstColumn}${n + 2} = 0; ${size(instruction)}; ${resColumn}${n + 2})`,
         );
       break;
     case PcUpdates.Regular:

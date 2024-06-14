@@ -5,6 +5,6 @@ function rangeCheck(num: bigint): bigint {
   if (num < RC_BOUND) {
     return num;
   } else {
-    throw new InvalidRangeError();
+    throw new InvalidRangeError("Number out of range");
   }
 }

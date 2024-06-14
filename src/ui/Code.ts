@@ -65,10 +65,6 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
   }
 }
 
-function PEDERSEN(x: number | string, y: number | string): number | string {
-  return pedersen(BigInt(x), BigInt(y)).toString(16);
-}
-
 /**
  * Provides custom function for bitwise 'and' for given two inputs.
  *
@@ -78,7 +74,7 @@ function PEDERSEN(x: number | string, y: number | string): number | string {
  * @customfunction
  */
 function BITWISE_AND(x: number, y: number): bigint {
-  return bitwiseAnd(BigInt(x), BigInt(y));
+  return "0x" + bitwiseAnd(BigInt(x), BigInt(y)).toString(16);
 }
 
 /**
@@ -89,8 +85,8 @@ function BITWISE_AND(x: number, y: number): bigint {
  * @return The bitwise 'xor' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_XOR(x: number, y: number): bigint {
-  return bitwiseXor(BigInt(x), BigInt(y));
+function BITWISE_XOR(x: number, y: number): string {
+  return "0x" + bitwiseXor(BigInt(x), BigInt(y)).toString(16);
 }
 
 /**
@@ -101,8 +97,8 @@ function BITWISE_XOR(x: number, y: number): bigint {
  * @return The bitwise 'or' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_OR(x: number, y: number): bigint {
-  return bitwiseOr(BigInt(x), BigInt(y));
+function BITWISE_OR(x: number, y: number): string {
+  return "0x" + bitwiseOr(BigInt(x), BigInt(y)).toString(16);
 }
 
 function EC_OP(
@@ -139,6 +135,14 @@ function CHECK_ECDSA_SIGNATURE(
  * @return The number itself in bigint form if it is in range, else throws InvalidRangeError.
  * @customfunction
  */
-function RANGE_CHECK(num: number): bigint {
-  return rangeCheck(BigInt(num));
+function RANGE_CHECK(num: number | string): string {
+  return "0x" + rangeCheck(BigInt(num)).toString(16);
+}
+
+function POSEIDON(x: number | string, y: number | string): number | string {
+  return "0x" + poseidon(BigInt(x), BigInt(y)).toString(16);
+}
+
+function PEDERSEN(x: number | string, y: number | string): number | string {
+  return "0x" + pedersen(BigInt(x), BigInt(y)).toString(16);
 }

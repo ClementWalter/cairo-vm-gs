@@ -1,16 +1,24 @@
 function modAdd(a: bigint, b: bigint, p: bigint = PRIME): bigint {
-  var sum: bigint = (a + b) % p;
-  return sum < 0 ? sum + p : sum;
+  var result: bigint = (a + b) % p;
+  return result < 0 ? result + p : result;
 }
 
 function modSub(a: bigint, b: bigint, p: bigint = PRIME): bigint {
-  var sum: bigint = (a - b) % p;
-  return sum < 0 ? sum + p : sum;
+  var result: bigint = (a - b) % p;
+  return result < 0 ? result + p : result;
 }
 
 function modMul(a: bigint, b: bigint, p: bigint = PRIME): bigint {
-  var sum: bigint = (a * b) % p;
-  return sum < 0 ? sum + p : sum;
+  var result: bigint = (a * b) % p;
+  return result < 0 ? result + p : result;
+}
+
+function modPow(a: bigint, pow: number): bigint {
+  var result: bigint = a;
+  for (var i = 1; i < pow; i++) {
+    result = modMul(BigInt(result), a);
+  }
+  return result;
 }
 
 function modInv(a: bigint, p: bigint = PRIME): bigint {

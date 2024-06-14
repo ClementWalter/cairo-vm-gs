@@ -73,8 +73,8 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
  * @return The bitwise 'and' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_AND(x: number, y: number): string {
-  return "0x" + bitwise_and(BigInt(x), BigInt(y)).toString(16);
+function BITWISE_AND(x: number, y: number): bigint {
+  return "0x" + bitwiseAnd(BigInt(x), BigInt(y)).toString(16);
 }
 
 /**
@@ -86,7 +86,7 @@ function BITWISE_AND(x: number, y: number): string {
  * @customfunction
  */
 function BITWISE_XOR(x: number, y: number): string {
-  return "0x" + bitwise_xor(BigInt(x), BigInt(y)).toString(16);
+  return "0x" + bitwiseXor(BigInt(x), BigInt(y)).toString(16);
 }
 
 /**
@@ -98,7 +98,7 @@ function BITWISE_XOR(x: number, y: number): string {
  * @customfunction
  */
 function BITWISE_OR(x: number, y: number): string {
-  return "0x" + bitwise_or(BigInt(x), BigInt(y)).toString(16);
+  return "0x" + bitwiseOr(BigInt(x), BigInt(y)).toString(16);
 }
 
 function EC_OP(
@@ -106,7 +106,7 @@ function EC_OP(
   p: AffinePoint,
   q: AffinePoint,
 ): AffinePoint {
-  return ec_op(BigInt(m), p, q);
+  return ecOp(BigInt(m), p, q);
 }
 
 function SIGN_ECDSA(
@@ -136,7 +136,7 @@ function CHECK_ECDSA_SIGNATURE(
  * @customfunction
  */
 function RANGE_CHECK(num: number | string): string {
-  return "0x" + range_check(BigInt(num)).toString(16);
+  return "0x" + rangeCheck(BigInt(num)).toString(16);
 }
 
 function POSEIDON(x: number | string, y: number | string): number | string {

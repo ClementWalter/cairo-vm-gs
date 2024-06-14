@@ -1,4 +1,4 @@
-function ec_add(p: AffinePoint, q: AffinePoint): AffinePoint {
+function ecAdd(p: AffinePoint, q: AffinePoint): AffinePoint {
   var r = new AffinePoint("0x0", "0x0");
   //Deal with neutral elements
   if (p.isNeutralElement) {
@@ -33,23 +33,23 @@ function ec_add(p: AffinePoint, q: AffinePoint): AffinePoint {
   }
 }
 
-function ec_mul(m: bigint, p: AffinePoint): AffinePoint {
+function ecMul(m: bigint, p: AffinePoint): AffinePoint {
   var mBool: boolean[] = toBitsLe(m);
   var numOfBits: number = mBool.length;
   var points: AffinePoint[] = [p];
   var res = new AffinePoint("0x0", "0x0", true);
 
   for (let i = 1; i < numOfBits; i++) {
-    points.push(ec_add(points[points.length - 1], points[points.length - 1]));
+    points.push(ecAdd(points[points.length - 1], points[points.length - 1]));
   }
   for (let i = 0; i < numOfBits; i++) {
     if (mBool[i]) {
-      res = ec_add(res, points[i]);
+      res = ecAdd(res, points[i]);
     }
   }
   return res;
 }
 
-function ec_op(m: bigint, p: AffinePoint, q: AffinePoint): AffinePoint {
-  return ec_add(ec_mul(m, p), q);
+function ecOp(m: bigint, p: AffinePoint, q: AffinePoint): AffinePoint {
+  return ecAdd(ecMul(m, p), q);
 }

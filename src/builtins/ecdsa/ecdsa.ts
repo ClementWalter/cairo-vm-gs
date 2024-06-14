@@ -1,13 +1,13 @@
-function signMessage(message: bigint, private_key: bigint): SignatureType {
+function signMessage(message: bigint, privateKey: bigint): SignatureType {
   var k: bigint = getRandomBigInt(ORDER - BigInt(1)) + BigInt(1);
-  var r_point: AffinePoint = ec_mul(k, GENERATOR);
-  var r: bigint = r_point.x % ORDER;
+  var rPoint: AffinePoint = ecMul(k, GENERATOR);
+  var r: bigint = rPoint.x % ORDER;
   if (r === BigInt(0)) {
-    return signMessage(message, private_key);
+    return signMessage(message, privateKey);
   }
   var s: bigint = modMul(
     modInv(k, ORDER),
-    modAdd(message, modMul(r, private_key, ORDER), ORDER),
+    modAdd(message, modMul(r, privateKey, ORDER), ORDER),
     ORDER,
   );
   return { r: r, s: s } as SignatureType;
@@ -16,12 +16,12 @@ function signMessage(message: bigint, private_key: bigint): SignatureType {
 function verifySignature(
   signature: SignatureType,
   message: bigint,
-  public_key: AffinePoint,
+  publicKey: AffinePoint,
 ) {
-  var s_inv: bigint = modInv(signature.s, ORDER);
-  var u: bigint = modMul(message, s_inv, ORDER);
-  var v: bigint = modMul(signature.r, s_inv, ORDER);
-  var c: AffinePoint = ec_add(ec_mul(u, GENERATOR), ec_mul(v, public_key));
+  var sInv: bigint = modInv(signature.s, ORDER);
+  var u: bigint = modMul(message, sInv, ORDER);
+  var v: bigint = modMul(signature.r, sInv, ORDER);
+  var c: AffinePoint = ecAdd(ecMul(u, GENERATOR), ecMul(v, publicKey));
   return c.x === signature.r;
 }
 

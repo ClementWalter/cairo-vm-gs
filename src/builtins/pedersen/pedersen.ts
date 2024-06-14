@@ -19,11 +19,11 @@ function lookupAndAccumulate(
   bits: boolean[],
   prep: AffinePoint[],
 ): AffinePoint {
-  var chunks_of_bit: boolean[][] = chunks(bits, CURVE_CONST_BITS);
-  chunks_of_bit.forEach((v, i) => {
+  var chunksOfBit: boolean[][] = chunks(bits, CURVE_CONST_BITS);
+  chunksOfBit.forEach((v, i) => {
     var offset = boolsToUsizeLe(v);
     if (offset > 0) {
-      res = ec_add(res, prep[i * TABLE_SIZE + offset - 1]);
+      res = ecAdd(res, prep[i * TABLE_SIZE + offset - 1]);
     }
   });
   return res;
@@ -40,12 +40,12 @@ function boolsToUsizeLe(bools: boolean[]): number {
 }
 
 function chunks(bits: boolean[], sizeOfChunk: number): boolean[][] {
-  const chunks_of_bit: boolean[][] = [];
+  const chunksOfBit: boolean[][] = [];
   for (let i = 0; i < bits.length; i += sizeOfChunk) {
     const chunk = bits.slice(i, i + sizeOfChunk);
-    chunks_of_bit.push(chunk);
+    chunksOfBit.push(chunk);
   }
-  return chunks_of_bit;
+  return chunksOfBit;
 }
 
 function toBitsLe(x: bigint): boolean[] {

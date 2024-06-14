@@ -236,9 +236,6 @@ function step(n: number = 0): void {
     instruction.DstRegister === Registers.PC
       ? dstAddr
       : runSheet.getRange(dstAddr).getValue();
-  let resValue: string | number = runSheet
-    .getRange(`${resColumn}${n + 2}`)
-    .getDisplayValue();
 
   switch (instruction.PcUpdate) {
     case PcUpdates.Jump:
@@ -254,7 +251,9 @@ function step(n: number = 0): void {
     case PcUpdates.Jnz:
       runSheet
         .getRange(`${pcColumn}${n + 2 + 1}`)
-        .setFormula(`=${pcColumn}${n + 2} + ${resColumn}${n + 2}`);
+        .setFormula(
+          `=${pcColumn}${n + 2} + IF(${dstAddr} = 0; ${size(instruction)}; ${resColumn}${n + 2})`,
+        );
       break;
     case PcUpdates.Regular:
       runSheet

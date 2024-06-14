@@ -187,15 +187,7 @@ function decodeInstruction(encodedInstruction: bigint): decodedInstruction {
 
   switch (resLogicNum) {
     case BigInt(0):
-      if (pcUpdate === PcUpdates.Jnz) {
-        if (opcode === Opcodes.NOp && apUpdate !== ApUpdates.AddRes) {
-          res = ResLogics.Unused;
-        } else {
-          throw new InvalidResError();
-        }
-      } else {
-        res = ResLogics.Op1;
-      }
+      res = ResLogics.Op1;
       break;
     case BigInt(1):
       res = ResLogics.Add;

@@ -254,9 +254,7 @@ function step(n: number = 0): void {
     case PcUpdates.Jnz:
       runSheet
         .getRange(`${pcColumn}${n + 2 + 1}`)
-        .setFormula(
-          `=${pcColumn}${n + 2} + ${dstValue === 0 ? size(instruction) : op1Value}`,
-        );
+        .setFormula(`=${pcColumn}${n + 2} + ${resColumn}${n + 2}`);
       break;
     case PcUpdates.Regular:
       runSheet

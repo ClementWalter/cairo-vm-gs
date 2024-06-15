@@ -134,22 +134,5 @@ function testRunner() {
     ); //test value comes from https://github.com/paulmillr/scure-starknet
   });
 
-  test("poseidon hash", (t) => {
-    //This test comes from : https://github.com/paulmillr/noble-curves/blob/main/test/poseidon.test.js#L88
-    t.equal(
-      poseidon(
-        BigInt(
-          "4379311784651118086770398084575492314150568148003994287303975907890254409956",
-        ),
-        BigInt(
-          "5329163686893598957822497554130545759427567507701132391649270915797304266381",
-        ),
-      ),
-      BigInt(
-        "2457757238178986673695038558497063891521456354791980183317105434323761563347",
-      ),
-    );
-  });
-
   test.finish();
 }

@@ -151,6 +151,7 @@ function KECCAK(message: number | string): string {
     .map((byte) => byte.toString(2).padStart(8, "0"))
     .join("");
 
+  // trim the first 6 bits as Starknet keccak is keccak % 2**250
   const bitStringSlice = bitOutput.slice(6);
   const bitBigInt = BigInt("0b" + bitStringSlice);
 

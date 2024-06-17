@@ -125,5 +125,14 @@ function testRunner() {
     );
   });
 
+  test("keccak", (t) => {
+    t.equal(
+      BigInt(KECCAK("hello")),
+      BigInt(
+        "0x8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8",
+      ),
+    ); //test value comes from https://github.com/paulmillr/scure-starknet
+  });
+
   test.finish();
 }

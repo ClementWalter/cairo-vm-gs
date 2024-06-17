@@ -143,7 +143,7 @@ function PEDERSEN(x: number | string, y: number | string): number | string {
   return "0x" + pedersen(BigInt(x), BigInt(y)).toString(16);
 }
 
-function KECCAK(message: number | string): string {
+function KECCAK(message: string): string {
   const utf8Bytes = encodeUTF8(message.toString());
   const bytearrayOutput = keccak(1088, 512, utf8Bytes, 0x01, 256 / 8);
 

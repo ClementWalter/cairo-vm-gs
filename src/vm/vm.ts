@@ -43,8 +43,6 @@ const builtins = {
   poseidon: null,
 };
 
-const program: any[][] = programSheet.getRange("A2:A").getValues();
-
 function initializeBuiltins(): void {
   let counter: number = 0;
   const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;
@@ -60,6 +58,8 @@ function initializeBuiltins(): void {
 }
 
 function step(n: number = 0): void {
+  const program: any[][] = programSheet.getRange("A2:A").getValues();
+
   runSheet
     .getRange(`${pcColumn}1:${executionColumn}1`)
     .setValues([["PC", "FP", "AP", "Opcode", "Dst", "Src", "Execution"]]);

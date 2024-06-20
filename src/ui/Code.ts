@@ -162,3 +162,7 @@ function KECCAK(message: string): string {
 function POSEIDON(x: number | string, y: number | string): number | string {
   return "0x" + poseidon(BigInt(x), BigInt(y)).toString(16);
 }
+
+function RANGE_CHECK96(num: number | string): string {
+  return "0x" + rangeCheck96(BigInt(num)).toString(16);
+}

@@ -28,6 +28,7 @@ const doPost = (request: Request) => {
   const { postData: { contents, type } = {} } = request;
 
   if (type === "application/json") {
+    clear();
     const jsonData: JsonData = JSON.parse(contents);
     loadProgram(jsonData.data);
     runUntilPc();

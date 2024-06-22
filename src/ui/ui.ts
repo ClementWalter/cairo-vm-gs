@@ -3,7 +3,7 @@ function onOpen(): void {
   ui.createMenu("Cairo VM")
     .addItem("Step", "menuStep")
     .addItem("Run", "menuRun")
-    .addItem("Clear", "menuClear")
+    .addItem("Clear", "clear")
     .addItem("Load Program", "showPicker")
     .addToUi();
 }
@@ -16,7 +16,7 @@ function menuRun(): void {
   runUntilPc();
 }
 
-function menuClear(): void {
+function clear(): void {
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName("Run")
     .getRange("A3:F")

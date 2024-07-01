@@ -17,18 +17,9 @@ function menuRun(): void {
 }
 
 function clear(): void {
-  SpreadsheetApp.getActiveSpreadsheet()
-    .getSheetByName("Run")
-    .getRange("A3:F")
-    .clearContent();
-  SpreadsheetApp.getActiveSpreadsheet()
-    .getSheetByName("Run")
-    .getRange("D2:F")
-    .clearContent();
-  SpreadsheetApp.getActiveSpreadsheet()
-    .getSheetByName("Run")
-    .getRange("G4:G")
-    .clearContent();
+  runSheet.getRange("A3:F").clearContent();
+  runSheet.getRange("D2:F").clearContent();
+  runSheet.getRange("G4:G").clearContent();
 }
 
 function showPicker() {
@@ -44,13 +35,10 @@ function showPicker() {
   }
 }
 
-function loadProgram(bytecode: string[]) {
-  SpreadsheetApp.getActiveSpreadsheet()
-    .getSheetByName("Program")
-    .getRange("A2:G")
-    .clearContent();
-  SpreadsheetApp.getActiveSpreadsheet()
-    .getSheetByName("Program")
+function loadProgram(program: any) {
+  programSheet.getRange("A2:G").clearContent();
+  const bytecode: string[] = program.data;
+  programSheet
     .getRange(`A2:B${bytecode.length + 1}`)
     .setValues(
       bytecode.map((instruction, i) => [
@@ -58,4 +46,20 @@ function loadProgram(bytecode: string[]) {
         `=DECODE_INSTRUCTION(A${i + 2})`,
       ]),
     );
+  runSheet.getRange("A1:O").clearContent();
+  runSheet
+    .getRange(`${pcColumn}1:${executionColumn}1`)
+    .setValues([["PC", "FP", "AP", "Opcode", "Dst", "Src", "Execution"]]);
+  const builtinsList: string[] = program.builtins;
+  const segmentAddresses: string[] =
+    builtinsList.length === 0 ? [] : initializeBuiltins(builtinsList);
+  const stack: string[] = [...segmentAddresses, FINAL_FP, FINAL_PC];
+  const mainOffset: string | number =
+    program["identifiers"]["__main__.main"]["pc"];
+  runSheet.getRange(`${pcColumn}2`).setValue(mainOffset);
+  runSheet.getRange(`${apColumn}2`).setValue(stack.length);
+  runSheet.getRange(`${fpColumn}2`).setFormula(`=${apColumn}2`);
+  runSheet
+    .getRange(`${executionColumn}2:${executionColumn}${stack.length + 1}`)
+    .setValues(stack.map((address) => [address]));
 }

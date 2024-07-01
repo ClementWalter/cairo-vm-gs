@@ -166,3 +166,11 @@ function POSEIDON(x: number | string, y: number | string): number | string {
 function RANGE_CHECK96(num: number | string): string {
   return "0x" + rangeCheck96(BigInt(num)).toString(16);
 }
+
+function ADD_FELT(a: number | string, b: number | string): number | string {
+  return "0x" + modAdd(BigInt(a), BigInt(b)).toString(16);
+}
+
+function MUL_FELT(a: number | string, b: number | string): number | string {
+  return "0x" + modMul(BigInt(a), BigInt(b)).toString(16);
+}

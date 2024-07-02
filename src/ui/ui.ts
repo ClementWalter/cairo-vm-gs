@@ -17,7 +17,9 @@ function menuRun(): void {
 }
 
 function clear(): void {
-  const stackLength: number = Number(runSheet.getRange(`${apColumn}2`).getValue());
+  const stackLength: number = Number(
+    runSheet.getRange(`${apColumn}2`).getValue(),
+  );
   runSheet.getRange(`A2:F`).clearContent();
   runSheet.getRange("D2:F").clearContent();
   runSheet.getRange(`G${stackLength + 2}:G`).clearContent();

@@ -4,7 +4,7 @@ interface RegistersType {
   PC: string;
 }
 
-interface Op1SrcType{
+interface Op1SrcType {
   Op0: string;
   AP: string;
   FP: string;

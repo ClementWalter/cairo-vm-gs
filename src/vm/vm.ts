@@ -21,7 +21,7 @@ i++;
 const executionColumn: String = columns[i];
 i++;
 
-let j=0;
+let j = 0;
 const progBytecodeColumn: String = columns[j];
 j++;
 const progOpcodeColumn: String = columns[j];
@@ -120,11 +120,11 @@ function step(n: number = 0): void {
   let op0Value: string = runSheet.getRange(op0Addr).getValue();
   let dstValue: string = runSheet.getRange(dstAddr).getValue();
 
-  switch (instruction.Op1Register){
+  switch (instruction.Op1Register) {
     case Op1Src.Op0:
       //instruction.Op0Register can't be Registers.PC because we expect op0Value to be an pointer to a segment emplacement and not a felt
       //So there is no need to deal with this case.
-      op1Addr = `${op0Value[0]}${Number(op0Value.substring(1)) + instruction.Op1Offset}` ;
+      op1Addr = `${op0Value[0]}${Number(op0Value.substring(1)) + instruction.Op1Offset}`;
       break;
     case Op1Src.PC:
       op1Index = registers[instruction.Op1Register] + instruction.Op1Offset;
@@ -242,9 +242,6 @@ function step(n: number = 0): void {
       }
       break;
   }
-
-
-
 
   switch (instruction.PcUpdate) {
     case PcUpdates.Jump:

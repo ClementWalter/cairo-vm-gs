@@ -142,9 +142,13 @@ function step(n: number = 0): void {
   runSheet.getRange(`${dstColumn}${n + 2}`).setFormula(`=${dstAddr}`);
   switch (instruction.ResLogic) {
     case ResLogics.Add:
-      runSheet
-        .getRange(`${resColumn}${n + 2}`)
-        .setFormula(`=${op0Addr} + ${op1Addr}`);
+      var resFormula: string = getFormulaOfAddition(
+        op0Value,
+        op1Value,
+        op0Addr,
+        op1Addr,
+      );
+      runSheet.getRange(`${resColumn}${n + 2}`).setFormula(resFormula);
       break;
     case ResLogics.Mul:
       runSheet
@@ -160,9 +164,11 @@ function step(n: number = 0): void {
   // opcode(dst, res)
   switch (instruction.Opcode) {
     case Opcodes.Call:
-      let validCallOp0Value: number | string =
-        registers[Registers.PC] + size(instruction);
-      let validCallDstValue: number | string = registers[Registers.FP];
+      let validCallOp0Value: string = addSegmentValues(
+        registers[Registers.PC].toString(10),
+        size(instruction).toString(10),
+      );
+      let validCallDstValue: string = registers[Registers.FP].toString(10);
       if (op0Value == "") {
         runSheet.getRange(op0Addr).setValue(validCallOp0Value);
         op0Value = runSheet.getRange(op0Addr).getValue();
@@ -172,36 +178,32 @@ function step(n: number = 0): void {
         dstValue = runSheet.getRange(dstAddr).getValue();
       }
 
-      if (
-        Number(dstValue) !== Number(validCallDstValue) ||
-        Number(op0Value) !== Number(validCallOp0Value)
-      ) {
+      if (dstValue != validCallDstValue || op0Value != validCallOp0Value) {
         throw new AssertEqError();
       }
       break;
     case Opcodes.AssertEq:
-      let validAssertEqDstValue: number | string;
+      let validAssertEqDstValue: string;
       switch (instruction.ResLogic) {
         case ResLogics.Add:
           if (op0Value === "") {
             runSheet
               .getRange(op0Addr)
-              .setValue(BigInt(dstValue) - BigInt(op1Value));
+              .setValue(addSegmentValues(dstValue, `-${op1Value}`));
             op0Value = runSheet.getRange(op0Addr).getValue();
           }
           if (op1Value === "") {
             runSheet
               .getRange(op1Addr)
-              .setValue(BigInt(dstValue) - BigInt(op0Value));
+              .setValue(addSegmentValues(dstValue, `-${op0Value}`));
             op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
             runSheet
               .getRange(dstAddr)
-              .setValue(BigInt(op0Value) + BigInt(op1Value));
-            dstValue = runSheet.getRange(dstAddr).getValue();
+              .setValue(addSegmentValues(`${op0Value}`, `${op1Value}`));
           }
-          validAssertEqDstValue = Number(BigInt(op0Value) + BigInt(op1Value));
+          validAssertEqDstValue = addSegmentValues(op0Value, op1Value);
           break;
         case ResLogics.Mul:
           if (op0Value === "") {
@@ -220,28 +222,30 @@ function step(n: number = 0): void {
             runSheet
               .getRange(dstAddr)
               .setValue(BigInt(op0Value) * BigInt(op1Value));
-            dstValue = runSheet.getRange(dstAddr).getValue();
           }
-          validAssertEqDstValue = Number(BigInt(op0Value) * BigInt(op1Value));
+          validAssertEqDstValue = Number(
+            BigInt(op0Value) * BigInt(op1Value),
+          ).toString(10);
           break;
         case ResLogics.Op1:
           if (op1Value === "") {
-            runSheet.getRange(op1Addr).setValue(BigInt(dstValue));
+            runSheet.getRange(op1Addr).setValue(dstValue);
             op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
-            runSheet.getRange(dstAddr).setValue(BigInt(op1Value));
-            dstValue = runSheet.getRange(dstAddr).getValue();
+            runSheet.getRange(dstAddr).setValue(op1Value);
           }
-          validAssertEqDstValue = Number(BigInt(op1Value));
+          validAssertEqDstValue = op1Value;
           break;
       }
       dstValue = runSheet.getRange(dstAddr).getValue();
-      if (Number(dstValue) !== Number(validAssertEqDstValue)) {
+      if (dstValue != validAssertEqDstValue) {
         throw new AssertEqError();
       }
       break;
   }
+
+  const resValue: string = runSheet.getRange(`${resColumn}${n + 2}`).getValue();
 
   switch (instruction.PcUpdate) {
     case PcUpdates.Jump:
@@ -252,7 +256,14 @@ function step(n: number = 0): void {
     case PcUpdates.JumpRel:
       runSheet
         .getRange(`${pcColumn}${n + 2 + 1}`)
-        .setFormula(`=${pcColumn}${n + 2} + ${resColumn}${n + 2}`);
+        .setFormula(
+          getFormulaOfAddition(
+            pc,
+            resValue,
+            `${pcColumn}${n + 2}`,
+            `${resColumn}${n + 2}`,
+          ),
+        );
       break;
     case PcUpdates.Jnz:
       runSheet
@@ -264,7 +275,14 @@ function step(n: number = 0): void {
     case PcUpdates.Regular:
       runSheet
         .getRange(`${pcColumn}${n + 2 + 1}`)
-        .setFormula(`=${pcColumn}${n + 2} + ${size(instruction)}`);
+        .setFormula(
+          getFormulaOfAddition(
+            pc,
+            `${size(instruction)}`,
+            `${pcColumn}${n + 2}`,
+            `${size(instruction)}`,
+          ),
+        );
       break;
   }
 
@@ -277,7 +295,7 @@ function step(n: number = 0): void {
     case FpUpdates.ApPlus2:
       runSheet
         .getRange(`${fpColumn}${n + 2 + 1}`)
-        .setFormula(`=${apColumn}${n + 2} + 2`);
+        .setFormula(getFormulaOfAddition(ap, "2", `${apColumn}${n + 2}`, "2"));
       break;
     case FpUpdates.Dst:
       runSheet
@@ -290,17 +308,24 @@ function step(n: number = 0): void {
     case ApUpdates.Add1:
       runSheet
         .getRange(`${apColumn}${n + 2 + 1}`)
-        .setFormula(`=${apColumn}${n + 2} + 1`);
+        .setFormula(getFormulaOfAddition(ap, `1`, `${apColumn}${n + 2}`, "1"));
       break;
     case ApUpdates.Add2:
       runSheet
         .getRange(`${apColumn}${n + 2 + 1}`)
-        .setFormula(`=${apColumn}${n + 2} + 2`);
+        .setFormula(getFormulaOfAddition(ap, `2`, `${apColumn}${n + 2}`, "2"));
       break;
     case ApUpdates.AddRes:
       runSheet
         .getRange(`${apColumn}${n + 2 + 1}`)
-        .setFormula(`=${apColumn}${n + 2} + ${resColumn}${n + 2}`);
+        .setFormula(
+          getFormulaOfAddition(
+            ap,
+            resValue,
+            `${apColumn}${n + 2}`,
+            `${resColumn}${n + 2}`,
+          ),
+        );
       break;
     case ApUpdates.Constant:
       runSheet

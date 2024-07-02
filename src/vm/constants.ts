@@ -4,6 +4,13 @@ interface RegistersType {
   PC: string;
 }
 
+interface Op1SrcType{
+  Op0: string;
+  AP: string;
+  FP: string;
+  PC: string;
+}
+
 interface PCUpdatesType {
   Regular: string;
   Jump: string;
@@ -70,6 +77,13 @@ const ORDER = BigInt(
 const ALPHA: bigint = BigInt(1);
 
 const Registers: RegistersType = {
+  AP: "AP",
+  FP: "FP",
+  PC: "PC",
+};
+
+const Op1Src: Op1SrcType = {
+  Op0: "Op0",
   AP: "AP",
   FP: "FP",
   PC: "PC",

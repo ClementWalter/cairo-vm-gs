@@ -14,7 +14,7 @@
         google.script.run
           .withSuccessHandler(closeDialog)
           .withFailureHandler(closeDialog)
-          .loadProgram(compiledJson.data);
+          .loadProgram(compiledJson);
       }
       function onFileChange(event) {
         var fileReader = new FileReader();

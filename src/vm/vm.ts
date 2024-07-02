@@ -43,26 +43,25 @@ const builtins = {
   poseidon: null,
 };
 
-function initializeBuiltins(): void {
+function initializeBuiltins(builtinsList: string[]): string[] {
   let counter: number = 0;
   const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;
-  const keys: string[] = Object.keys(builtins);
 
-  for (var key of keys) {
+  for (var key of builtinsList) {
     builtins[key] = columns[counter + executionColumnOffset];
     counter++;
   }
   runSheet
-    .getRange(`${builtins[keys[0]]}1:${builtins[keys[keys.length - 1]]}1`)
-    .setValues([keys]);
+    .getRange(
+      `${builtins[builtinsList[0]]}1:${builtins[builtinsList[builtinsList.length - 1]]}1`,
+    )
+    .setValues([builtinsList]);
+  return builtinsList.map((builtin) => `${builtins[builtin]}2`);
 }
 
 function step(n: number = 0): void {
   const program: any[][] = programSheet.getRange("A2:A").getValues();
 
-  runSheet
-    .getRange(`${pcColumn}1:${executionColumn}1`)
-    .setValues([["PC", "FP", "AP", "Opcode", "Dst", "Src", "Execution"]]);
   const registersAddress: RegistersType = {
     PC: `${pcColumn}${n + 2}`,
     FP: `${fpColumn}${n + 2}`,
@@ -307,8 +306,6 @@ function step(n: number = 0): void {
 function runUntilPc(): void {
   let i: number = getLastActiveRowIndex(`${pcColumn}`) - 2;
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
-  runSheet.getRange(`${executionColumn}2`).setValue(FINAL_FP);
-  runSheet.getRange(`${executionColumn}3`).setValue(FINAL_PC);
   while (!(pc === FINAL_PC)) {
     step(i);
     i++;

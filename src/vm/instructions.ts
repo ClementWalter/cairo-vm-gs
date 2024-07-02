@@ -100,17 +100,16 @@ function decodeInstruction(encodedInstruction: bigint): decodedInstruction {
 
   switch (op1SrcNum) {
     case BigInt(0):
-      op1Src = op0Register;
-      op1Offset = op0Offset + op1Offset;
+      op1Src = Op1Src.Op0;
       break;
     case BigInt(1):
-      op1Src = Registers.PC;
+      op1Src = Op1Src.PC;
       break;
     case BigInt(2):
-      op1Src = Registers.FP;
+      op1Src = Op1Src.FP;
       break;
     case BigInt(4):
-      op1Src = Registers.AP;
+      op1Src = Op1Src.AP;
       break;
     default:
       throw new InvalidOp1RegisterError();

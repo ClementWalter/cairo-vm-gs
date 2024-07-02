@@ -17,9 +17,12 @@ function menuRun(): void {
 }
 
 function clear(): void {
-  runSheet.getRange("A3:F").clearContent();
+  const stackLength: number = Number(
+    runSheet.getRange(`${apColumn}2`).getValue(),
+  );
+  runSheet.getRange(`A2:F`).clearContent();
   runSheet.getRange("D2:F").clearContent();
-  runSheet.getRange("G4:G").clearContent();
+  runSheet.getRange(`G${stackLength + 2}:G`).clearContent();
 }
 
 function showPicker() {

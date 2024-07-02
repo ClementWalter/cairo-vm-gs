@@ -21,6 +21,22 @@ i++;
 const executionColumn: String = columns[i];
 i++;
 
+let j = 0;
+const progBytecodeColumn: String = columns[j];
+j++;
+const progOpcodeColumn: String = columns[j];
+j++;
+const progDstColumn: String = columns[j];
+j++;
+const progOpColumn: String = columns[j];
+j++;
+const progPcupdateColumn: String = columns[j];
+j++;
+const progApupdateColumn: String = columns[j];
+j++;
+const progFpupdateColumn: String = columns[j];
+j++;
+
 type builtins = {
   output: string;
   pedersen: string;
@@ -82,41 +98,45 @@ function step(n: number = 0): void {
   );
   runSheet.getRange(`${opcodeColumn}${n + 2}`).setValue(instruction.Opcode);
 
-  const op0Index: string =
-    registers[instruction.Op0Register] + instruction.Op0Offset;
-  const op1Index: string =
-    registers[instruction.Op1Register] + instruction.Op1Offset;
-  const dstIndex: string =
-    registers[instruction.DstRegister] + instruction.DstOffset;
+  const op0Index: number =
+    Number(registers[instruction.Op0Register]) + instruction.Op0Offset;
+  const dstIndex: number =
+    Number(registers[instruction.DstRegister]) + instruction.DstOffset;
+  let op1Index: number;
 
   // Addresses are sheet address (e.g. H4) or constants
   // Constants come from the Program, ie when register is PC
   // Indexes are +2 since the CairoVM is 0 based, while the Sheet is 1 base
   // and the first row is a header
-  let op0Addr: number | string =
+  let op0Addr: string =
     instruction.Op0Register === Registers.PC
-      ? toSignedInteger(program[op0Index][0]).toString()
-      : executionColumn + (op0Index + 2);
-  let op1Addr: number | string =
-    instruction.Op1Register === Registers.PC
-      ? toSignedInteger(program[op1Index][0]).toString()
-      : executionColumn + (op1Index + 2);
-  let dstAddr: number | string =
+      ? `Program!${progOpColumn}${op0Index + 2}`
+      : `${executionColumn}${op0Index + 2}`;
+  let op1Addr: string;
+  let dstAddr: string =
     instruction.DstRegister === Registers.PC
-      ? toSignedInteger(program[dstIndex][0]).toString()
-      : executionColumn + (dstIndex + 2);
-  let op0Value: number | string =
-    instruction.Op0Register === Registers.PC
-      ? op0Addr
-      : runSheet.getRange(op0Addr).getValue();
-  let op1Value: number | string =
-    instruction.Op1Register === Registers.PC
-      ? op1Addr
-      : runSheet.getRange(op1Addr).getValue();
-  let dstValue: number | string =
-    instruction.DstRegister === Registers.PC
-      ? dstAddr
-      : runSheet.getRange(dstAddr).getValue();
+      ? `Program!${progOpColumn}${dstIndex + 2}`
+      : `${executionColumn}${dstIndex + 2}`;
+  let op0Value: string = runSheet.getRange(op0Addr).getValue();
+  let dstValue: string = runSheet.getRange(dstAddr).getValue();
+
+  switch (instruction.Op1Register) {
+    case Op1Src.Op0:
+      //instruction.Op0Register can't be Registers.PC because we expect op0Value to be an pointer to a segment emplacement and not a felt
+      //So there is no need to deal with this case.
+      op1Addr = `${op0Value[0]}${Number(op0Value.substring(1)) + instruction.Op1Offset}`;
+      break;
+    case Op1Src.PC:
+      op1Index = registers[instruction.Op1Register] + instruction.Op1Offset;
+      op1Addr = `Program!${progOpColumn}${op1Index + 2}`;
+      break;
+    default:
+      op1Index = registers[instruction.Op1Register] + instruction.Op1Offset;
+      op1Addr = `${executionColumn}${op1Index + 2}`;
+      break;
+  }
+
+  let op1Value: string = runSheet.getRange(op1Addr).getValue();
 
   // Set formula for current opcode: dst and res
   runSheet.getRange(`${dstColumn}${n + 2}`).setFormula(`=${dstAddr}`);
@@ -145,18 +165,13 @@ function step(n: number = 0): void {
       let validCallDstValue: number | string = registers[Registers.FP];
       if (op0Value == "") {
         runSheet.getRange(op0Addr).setValue(validCallOp0Value);
+        op0Value = runSheet.getRange(op0Addr).getValue();
       }
       if (dstValue == "") {
         runSheet.getRange(dstAddr).setValue(validCallDstValue);
+        dstValue = runSheet.getRange(dstAddr).getValue();
       }
-      op0Value =
-        instruction.Op0Register === Registers.PC
-          ? op0Addr
-          : runSheet.getRange(op0Addr).getValue();
-      dstValue =
-        instruction.DstRegister === Registers.PC
-          ? dstAddr
-          : runSheet.getRange(dstAddr).getValue();
+
       if (
         Number(dstValue) !== Number(validCallDstValue) ||
         Number(op0Value) !== Number(validCallOp0Value)
@@ -172,16 +187,19 @@ function step(n: number = 0): void {
             runSheet
               .getRange(op0Addr)
               .setValue(BigInt(dstValue) - BigInt(op1Value));
+            op0Value = runSheet.getRange(op0Addr).getValue();
           }
           if (op1Value === "") {
             runSheet
               .getRange(op1Addr)
               .setValue(BigInt(dstValue) - BigInt(op0Value));
+            op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
             runSheet
               .getRange(dstAddr)
               .setValue(BigInt(op0Value) + BigInt(op1Value));
+            dstValue = runSheet.getRange(dstAddr).getValue();
           }
           validAssertEqDstValue = Number(BigInt(op0Value) + BigInt(op1Value));
           break;
@@ -190,51 +208,40 @@ function step(n: number = 0): void {
             runSheet
               .getRange(op0Addr)
               .setValue(BigInt(dstValue) / BigInt(op1Value));
+            op0Value = runSheet.getRange(op0Addr).getValue();
           }
           if (op1Value === "") {
             runSheet
               .getRange(op1Addr)
               .setValue(BigInt(dstValue) / BigInt(op0Value));
+            op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
             runSheet
               .getRange(dstAddr)
               .setValue(BigInt(op0Value) * BigInt(op1Value));
+            dstValue = runSheet.getRange(dstAddr).getValue();
           }
           validAssertEqDstValue = Number(BigInt(op0Value) * BigInt(op1Value));
           break;
         case ResLogics.Op1:
           if (op1Value === "") {
             runSheet.getRange(op1Addr).setValue(BigInt(dstValue));
+            op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
             runSheet.getRange(dstAddr).setValue(BigInt(op1Value));
+            dstValue = runSheet.getRange(dstAddr).getValue();
           }
           validAssertEqDstValue = Number(BigInt(op1Value));
           break;
       }
-      dstValue =
-        instruction.DstRegister === Registers.PC
-          ? dstAddr
-          : runSheet.getRange(dstAddr).getValue();
+      dstValue = runSheet.getRange(dstAddr).getValue();
       if (Number(dstValue) !== Number(validAssertEqDstValue)) {
         throw new AssertEqError();
       }
       break;
   }
-
-  op0Value =
-    instruction.Op0Register === Registers.PC
-      ? op0Addr
-      : runSheet.getRange(op0Addr).getValue();
-  op1Value =
-    instruction.Op1Register === Registers.PC
-      ? op1Addr
-      : runSheet.getRange(op1Addr).getValue();
-  dstValue =
-    instruction.DstRegister === Registers.PC
-      ? dstAddr
-      : runSheet.getRange(dstAddr).getValue();
 
   switch (instruction.PcUpdate) {
     case PcUpdates.Jump:

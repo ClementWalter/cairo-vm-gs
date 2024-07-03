@@ -35,3 +35,55 @@ function encodeUTF8(str: string): Uint8Array {
 
   return new Uint8Array(utf8Bytes);
 }
+
+function isCell(str: string): boolean {
+  return columns.includes(str.toString().charAt(0));
+}
+
+function getFormulaOfAddition(
+  value1: string,
+  value2: string,
+  address1: string,
+  address2: string,
+): string {
+  var formula: string;
+  if (isCell(value1) && !isCell(value2)) {
+    formula = `="${value1[0]}" & (${value1.substring(1)} + ${address2})`;
+  }
+  if (!isCell(value1) && isCell(value2)) {
+    formula = `="${value2[0]}" & (${value2.substring(1)} + ${address1})`;
+  }
+  if (!isCell(value1) && !isCell(value2)) {
+    formula = `=${address1} + ${address2}`;
+  }
+  if (isCell(value1) && isCell(value2)) {
+    if (value1[0] !== value2[0]) {
+      throw new InvalidCellSumError();
+    }
+    formula = `="${value1[0]}" & (${value1.substring(1)} + ${value2.substring(1)})`;
+  }
+  return formula;
+}
+
+function addSegmentValues(
+  segmentValue1: string,
+  segmentValue2: string,
+): string {
+  var sum: string;
+  if (isCell(segmentValue1) && !isCell(segmentValue2)) {
+    sum = `${segmentValue1[0]}${Number(segmentValue1.substring(1)) + Number(segmentValue2)}`;
+  }
+  if (!isCell(segmentValue1) && isCell(segmentValue2)) {
+    sum = `${segmentValue2[0]}${Number(segmentValue2.substring(1)) + Number(segmentValue1)}`;
+  }
+  if (!isCell(segmentValue1) && !isCell(segmentValue2)) {
+    sum = `${Number(segmentValue1) + Number(segmentValue2)}`;
+  }
+  if (isCell(segmentValue1) && isCell(segmentValue2)) {
+    if (segmentValue1[0] !== segmentValue2[0]) {
+      throw new InvalidCellSumError();
+    }
+    sum = `${segmentValue1[0]}${Number(segmentValue1.substring(1)) + Number(segmentValue2.substring(1))}`;
+  }
+  return sum;
+}

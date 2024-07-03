@@ -77,7 +77,7 @@ function addSegmentValues(
     sum = `${segmentValue2[0]}${Number(segmentValue2.substring(1)) + Number(segmentValue1)}`;
   }
   if (!isCell(segmentValue1) && !isCell(segmentValue2)) {
-    sum = `${segmentValue1 + segmentValue2}`;
+    sum = `${Number(segmentValue1) + Number(segmentValue2)}`;
   }
   if (isCell(segmentValue1) && isCell(segmentValue2)) {
     if (segmentValue1[0] !== segmentValue2[0]) {

@@ -62,7 +62,7 @@ interface HadesParamsType {
   mds: bigint[][];
 }
 
-interface BuitlinType{
+interface BuitlinType {
   freeCellsPerBuiltin: number;
   column: string;
   functionName: string[];

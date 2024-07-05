@@ -88,10 +88,15 @@ function addSegmentValues(
   return sum;
 }
 
-function updateBuiltins(){
+function updateBuiltins() {
   const startColumn = 8;
   const lastColumn = runSheet.getLastColumn();
-  const range = runSheet.getRange(1, startColumn, 1, lastColumn - startColumn + 1);
+  const range = runSheet.getRange(
+    1,
+    startColumn,
+    1,
+    lastColumn - startColumn + 1,
+  );
   const values = range.getValues()[0];
 
   for (let i = 0; i < values.length; i++) {

@@ -74,7 +74,9 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
  * @customfunction
  */
 function BITWISE_AND(x: number | string, y: number | string): string {
-  return (x == "" || y == "") ? "" : bitwiseAnd(BigInt(x), BigInt(y)).toString(10);
+  return x == "" || y == ""
+    ? ""
+    : bitwiseAnd(BigInt(x), BigInt(y)).toString(10);
 }
 
 /**
@@ -86,7 +88,9 @@ function BITWISE_AND(x: number | string, y: number | string): string {
  * @customfunction
  */
 function BITWISE_XOR(x: number | string, y: number | string): string {
-  return (x == "" || y == "") ? "" : bitwiseXor(BigInt(x), BigInt(y)).toString(10);
+  return x == "" || y == ""
+    ? ""
+    : bitwiseXor(BigInt(x), BigInt(y)).toString(10);
 }
 
 /**
@@ -98,7 +102,7 @@ function BITWISE_XOR(x: number | string, y: number | string): string {
  * @customfunction
  */
 function BITWISE_OR(x: number | string, y: number | string): string {
-  return (x == "" || y == "") ? "" : bitwiseOr(BigInt(x), BigInt(y)).toString(10);
+  return x == "" || y == "" ? "" : bitwiseOr(BigInt(x), BigInt(y)).toString(10);
 }
 
 function EC_OP(
@@ -140,11 +144,11 @@ function RANGE_CHECK(num: number | string): string {
 }
 
 function PEDERSEN(x: number | string, y: number | string): number | string {
-  return (x == "" || y == "") ? "" : pedersen(BigInt(x), BigInt(y)).toString(10);
+  return x == "" || y == "" ? "" : pedersen(BigInt(x), BigInt(y)).toString(10);
 }
 
 function KECCAK(message: string): string {
-  if (message == ""){
+  if (message == "") {
     return "";
   }
   const utf8Bytes = encodeUTF8(message.toString());
@@ -163,7 +167,7 @@ function KECCAK(message: string): string {
 }
 
 function POSEIDON(x: number | string, y: number | string): number | string {
-  return (x == "" || y == "") ? "" : poseidon(BigInt(x), BigInt(y)).toString(10);
+  return x == "" || y == "" ? "" : poseidon(BigInt(x), BigInt(y)).toString(10);
 }
 
 function RANGE_CHECK96(num: number | string): string {

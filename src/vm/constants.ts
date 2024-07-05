@@ -62,6 +62,12 @@ interface HadesParamsType {
   mds: bigint[][];
 }
 
+interface BuitlinType{
+  freeCellsPerBuiltin: number;
+  column: string;
+  functionName: string[];
+}
+
 const PRIME: bigint = BigInt(
   "0x800000000000011000000000000000000000000000000000000000000000001",
 );

@@ -37,46 +37,81 @@ j++;
 const progFpupdateColumn: String = columns[j];
 j++;
 
-type builtins = {
-  output: string;
-  pedersen: string;
-  rangeCheck: string;
-  ecdsa: string;
-  bitwise: string;
-  ecOp: string;
-  keccak: string;
-  poseidon: string;
+type Builtins = {
+  output: BuitlinType;
+  pedersen: BuitlinType;
+  range_check: BuitlinType;
+  ecdsa: BuitlinType;
+  bitwise: BuitlinType;
+  ecOp: BuitlinType;
+  keccak: BuitlinType;
+  poseidon: BuitlinType;
 };
 
-const builtins = {
-  output: null,
-  pedersen: null,
-  rangeCheck: null,
+let builtins: Builtins = {
+  output : null,
+  pedersen: {
+    freeCellsPerBuiltin : 2,
+    column : "",
+    functionName: ["PEDERSEN"],
+  },
+  range_check: {
+    freeCellsPerBuiltin : 0,
+    column : "",
+    functionName: ["RANGE_CHECK"],
+  },
   ecdsa: null,
-  bitwise: null,
-  ecop: null,
-  keccak: null,
-  poseidon: null,
+  bitwise: {
+    freeCellsPerBuiltin : 2,
+    column : "",
+    functionName: ["BITWISE_AND","BITWISE_XOR","BITWISE_OR"],
+  },
+  ecOp: null,
+  keccak: {
+    freeCellsPerBuiltin : 1,
+    column : "",
+    functionName: ["KECCAK"],
+  },
+  poseidon: {
+    freeCellsPerBuiltin : 2,
+    column : "",
+    functionName: ["POSEIDON"],
+  },
 };
 
 function initializeBuiltins(builtinsList: string[]): string[] {
   let counter: number = 0;
+  const repetitions: number = 2;
   const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;
 
   for (var key of builtinsList) {
-    builtins[key] = columns[counter + executionColumnOffset];
+    builtins[key].column = columns[counter + executionColumnOffset];
+
+    for (let i = 0; i < repetitions; i++) {
+      var inputCells: string[] = [];
+      var builtinSize: number = builtins[key].freeCellsPerBuiltin + builtins[key].functionName.length;
+      for (let j = 0; j < builtins[key].freeCellsPerBuiltin ; j++) {
+        inputCells.push(`${builtins[key].column}${i * builtinSize + j + 2}`);
+      }
+      var inputCellsString: string = inputCells.length == 0 ? "" :  inputCells.join(";");
+      for (let k = 0; k< builtins[key].functionName.length; k++){
+        runSheet.getRange(`${builtins[key].column}${builtins[key].freeCellsPerBuiltin + i * builtinSize + k + 2}`).setFormula(`=${builtins[key].functionName[k]}(${inputCellsString})`);
+      }
+    }
     counter++;
   }
   runSheet
     .getRange(
-      `${builtins[builtinsList[0]]}1:${builtins[builtinsList[builtinsList.length - 1]]}1`,
+      `${builtins[builtinsList[0]].column}1:${builtins[builtinsList[builtinsList.length - 1]].column}1`,
     )
     .setValues([builtinsList]);
-  return builtinsList.map((builtin) => `${builtins[builtin]}2`);
+
+  return builtinsList.map((builtin) => `${builtins[builtin].column}2`);
 }
 
 function step(n: number = 0): void {
   const program: any[][] = programSheet.getRange("A2:A").getValues();
+  updateBuiltins();
 
   const registersAddress: RegistersType = {
     PC: `${pcColumn}${n + 2}`,
@@ -131,7 +166,7 @@ function step(n: number = 0): void {
       op1Addr = `Program!${progOpColumn}${op1Index + 2}`;
       break;
     default:
-      op1Index = registers[instruction.Op1Register] + instruction.Op1Offset;
+      op1Index = Number(registers[instruction.Op1Register]) + instruction.Op1Offset;
       op1Addr = `${executionColumn}${op1Index + 2}`;
       break;
   }
@@ -170,11 +205,11 @@ function step(n: number = 0): void {
       );
       let validCallDstValue: string = registers[Registers.FP].toString(10);
       if (op0Value == "") {
-        runSheet.getRange(op0Addr).setValue(validCallOp0Value);
+        runSheet.getRange(op0Addr).setFormula(op0Addr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${validCallOp0Value})` : `="${validCallOp0Value}"`);
         op0Value = runSheet.getRange(op0Addr).getValue();
       }
       if (dstValue == "") {
-        runSheet.getRange(dstAddr).setValue(validCallDstValue);
+        runSheet.getRange(dstAddr).setFormula(dstAddr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${validCallDstValue})` : `="${validCallDstValue}"`);
         dstValue = runSheet.getRange(dstAddr).getValue();
       }
 
@@ -189,19 +224,19 @@ function step(n: number = 0): void {
           if (op0Value === "") {
             runSheet
               .getRange(op0Addr)
-              .setValue(addSegmentValues(dstValue, `-${op1Value}`));
+              .setFormula(op0Addr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${addSegmentValues(dstValue, `-${op1Value}`)})` : `="${addSegmentValues(dstValue, `-${op1Value}"`)}`);
             op0Value = runSheet.getRange(op0Addr).getValue();
           }
           if (op1Value === "") {
             runSheet
               .getRange(op1Addr)
-              .setValue(addSegmentValues(dstValue, `-${op0Value}`));
+              .setFormula(op1Addr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${addSegmentValues(dstValue, `-${op0Value}`)})` : `="${addSegmentValues(dstValue, `-${op0Value}"`)}`);
             op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
             runSheet
               .getRange(dstAddr)
-              .setValue(addSegmentValues(`${op0Value}`, `${op1Value}`));
+              .setFormula(dstAddr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${addSegmentValues(`${op0Value}`, `${op1Value}`)})` : `="${addSegmentValues(`${op0Value}`, `${op1Value}`)}"`);
           }
           validAssertEqDstValue = addSegmentValues(op0Value, op1Value);
           break;
@@ -209,19 +244,19 @@ function step(n: number = 0): void {
           if (op0Value === "") {
             runSheet
               .getRange(op0Addr)
-              .setValue(BigInt(dstValue) / BigInt(op1Value));
+              .setFormula(op0Addr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${BigInt(dstValue) / BigInt(op1Value)})` : `="${BigInt(dstValue) / BigInt(op1Value)}"`);
             op0Value = runSheet.getRange(op0Addr).getValue();
           }
           if (op1Value === "") {
             runSheet
               .getRange(op1Addr)
-              .setValue(BigInt(dstValue) / BigInt(op0Value));
+              .setFormula(op1Addr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${BigInt(dstValue) / BigInt(op0Value)})` : `="${BigInt(dstValue) / BigInt(op0Value)}"`);
             op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
             runSheet
               .getRange(dstAddr)
-              .setValue(BigInt(op0Value) * BigInt(op1Value));
+              .setFormula(dstAddr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${BigInt(op0Value) * BigInt(op1Value)})` : `="${BigInt(op0Value) * BigInt(op1Value)}"`);
           }
           validAssertEqDstValue = Number(
             BigInt(op0Value) * BigInt(op1Value),
@@ -229,11 +264,11 @@ function step(n: number = 0): void {
           break;
         case ResLogics.Op1:
           if (op1Value === "") {
-            runSheet.getRange(op1Addr).setValue(dstValue);
+            runSheet.getRange(op1Addr).setFormula(op1Addr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${dstValue})` : `="${dstValue}"`);
             op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
-            runSheet.getRange(dstAddr).setValue(op1Value);
+            runSheet.getRange(dstAddr).setFormula(dstAddr[0] == builtins["range_check"].column ? `=RANGE_CHECK(${op1Value})` : `="${op1Value}"`);
           }
           validAssertEqDstValue = op1Value;
           break;
@@ -269,7 +304,7 @@ function step(n: number = 0): void {
       runSheet
         .getRange(`${pcColumn}${n + 2 + 1}`)
         .setFormula(
-          `=${pcColumn}${n + 2} + IF(${dstColumn}${n + 2} = 0; ${size(instruction)}; ${resColumn}${n + 2})`,
+          `=${pcColumn}${n + 2} + IF(${dstColumn}${n + 2} = "0"; ${size(instruction)}; ${resColumn}${n + 2})`,
         );
       break;
     case PcUpdates.Regular:

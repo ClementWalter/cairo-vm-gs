@@ -94,14 +94,17 @@ function initializeBuiltins(builtinsList: string[]): string[] {
       for (let j = 0; j < builtins[key].freeCellsPerBuiltin; j++) {
         inputCells.push(`${builtins[key].column}${i * builtinSize + j + 2}`);
       }
-      var inputCellsString: string =
-        inputCells.length == 0 ? "" : inputCells.join(";");
-      for (let k = 0; k < builtins[key].functionName.length; k++) {
-        runSheet
-          .getRange(
-            `${builtins[key].column}${builtins[key].freeCellsPerBuiltin + i * builtinSize + k + 2}`,
-          )
-          .setFormula(`=${builtins[key].functionName[k]}(${inputCellsString})`);
+      if (inputCells.length != 0) {
+        var inputCellsString: string = inputCells.join(";");
+        for (let k = 0; k < builtins[key].functionName.length; k++) {
+          runSheet
+            .getRange(
+              `${builtins[key].column}${builtins[key].freeCellsPerBuiltin + i * builtinSize + k + 2}`,
+            )
+            .setFormula(
+              `=${builtins[key].functionName[k]}(${inputCellsString})`,
+            );
+        }
       }
     }
     counter++;

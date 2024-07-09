@@ -73,8 +73,10 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
  * @return The bitwise 'and' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_AND(x: number, y: number): string {
-  return "0x" + bitwiseAnd(BigInt(x), BigInt(y)).toString(16);
+function BITWISE_AND(x: number | string, y: number | string): string {
+  return x == "" || y == ""
+    ? ""
+    : bitwiseAnd(BigInt(x), BigInt(y)).toString(10);
 }
 
 /**
@@ -85,8 +87,10 @@ function BITWISE_AND(x: number, y: number): string {
  * @return The bitwise 'xor' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_XOR(x: number, y: number): string {
-  return "0x" + bitwiseXor(BigInt(x), BigInt(y)).toString(16);
+function BITWISE_XOR(x: number | string, y: number | string): string {
+  return x == "" || y == ""
+    ? ""
+    : bitwiseXor(BigInt(x), BigInt(y)).toString(10);
 }
 
 /**
@@ -97,8 +101,8 @@ function BITWISE_XOR(x: number, y: number): string {
  * @return The bitwise 'or' of two given inputs in bigint form.
  * @customfunction
  */
-function BITWISE_OR(x: number, y: number): string {
-  return "0x" + bitwiseOr(BigInt(x), BigInt(y)).toString(16);
+function BITWISE_OR(x: number | string, y: number | string): string {
+  return x == "" || y == "" ? "" : bitwiseOr(BigInt(x), BigInt(y)).toString(10);
 }
 
 function EC_OP(
@@ -136,14 +140,17 @@ function CHECK_ECDSA_SIGNATURE(
  * @customfunction
  */
 function RANGE_CHECK(num: number | string): string {
-  return "0x" + rangeCheck(BigInt(num)).toString(16);
+  return num == "" ? "" : rangeCheck(BigInt(num)).toString(10);
 }
 
 function PEDERSEN(x: number | string, y: number | string): number | string {
-  return "0x" + pedersen(BigInt(x), BigInt(y)).toString(16);
+  return x == "" || y == "" ? "" : pedersen(BigInt(x), BigInt(y)).toString(10);
 }
 
 function KECCAK(message: string): string {
+  if (message == "") {
+    return "";
+  }
   const utf8Bytes = encodeUTF8(message.toString());
   const bytearrayOutput = keccak(1088, 512, utf8Bytes, 0x01, 256 / 8);
 
@@ -155,22 +162,22 @@ function KECCAK(message: string): string {
   const bitStringSlice = bitOutput.slice(6);
   const bitBigInt = BigInt("0b" + bitStringSlice);
 
-  const hexOutput = "0x" + bitBigInt.toString(16);
-  return hexOutput;
+  const decOutput = bitBigInt.toString(10);
+  return decOutput;
 }
 
 function POSEIDON(x: number | string, y: number | string): number | string {
-  return "0x" + poseidon(BigInt(x), BigInt(y)).toString(16);
+  return x == "" || y == "" ? "" : poseidon(BigInt(x), BigInt(y)).toString(10);
 }
 
 function RANGE_CHECK96(num: number | string): string {
-  return "0x" + rangeCheck96(BigInt(num)).toString(16);
+  return num == "" ? "" : rangeCheck96(BigInt(num)).toString(10);
 }
 
 function ADD_FELT(a: number | string, b: number | string): number | string {
-  return "0x" + modAdd(BigInt(a), BigInt(b)).toString(16);
+  return modAdd(BigInt(a), BigInt(b)).toString(10);
 }
 
 function MUL_FELT(a: number | string, b: number | string): number | string {
-  return "0x" + modMul(BigInt(a), BigInt(b)).toString(16);
+  return modMul(BigInt(a), BigInt(b)).toString(10);
 }

@@ -36,6 +36,8 @@ const progApupdateColumn: String = columns[j];
 j++;
 const progFpupdateColumn: String = columns[j];
 j++;
+const progDecimalInstructionColumn: String = columns[j];
+j++;
 
 type Builtins = {
   output: BuitlinType;
@@ -154,12 +156,12 @@ function step(n: number = 0): void {
   // and the first row is a header
   let op0Addr: string =
     instruction.Op0Register === Registers.PC
-      ? `Program!${progOpColumn}${op0Index + 2}`
+      ? `Program!${progDecimalInstructionColumn}${op0Index + 2}`
       : `${executionColumn}${op0Index + 2}`;
   let op1Addr: string;
   let dstAddr: string =
     instruction.DstRegister === Registers.PC
-      ? `Program!${progOpColumn}${dstIndex + 2}`
+      ? `Program!${progDecimalInstructionColumn}${dstIndex + 2}`
       : `${executionColumn}${dstIndex + 2}`;
   let op0Value: string = runSheet.getRange(op0Addr).getValue();
   let dstValue: string = runSheet.getRange(dstAddr).getValue();
@@ -172,7 +174,7 @@ function step(n: number = 0): void {
       break;
     case Op1Src.PC:
       op1Index = registers[instruction.Op1Register] + instruction.Op1Offset;
-      op1Addr = `Program!${progOpColumn}${op1Index + 2}`;
+      op1Addr = `Program!${progDecimalInstructionColumn}${op1Index + 2}`;
       break;
     default:
       op1Index =

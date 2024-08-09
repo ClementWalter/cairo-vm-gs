@@ -6,6 +6,7 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
     "Pc Update",
     "Ap Update",
     "Fp Update",
+    "Decimal instruction",
   ];
   try {
     if (encodedInstruction === "Program") {
@@ -14,13 +15,6 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
       const instruction: decodedInstruction = decodeInstruction(
         BigInt(encodedInstruction),
       );
-
-      if (
-        instruction.Opcode === Opcodes.NOp &&
-        instruction.PcUpdate === PcUpdates.Regular
-      ) {
-        return [["", "", toSignedInteger(encodedInstruction)]];
-      }
 
       const dst: string =
         `${instruction.DstRegister} ${instruction.DstOffset === 0 ? "" : (instruction.DstOffset > 0 ? "+ " : "- ") + Math.abs(instruction.DstOffset)}`.trim();
@@ -53,15 +47,13 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
           pcUpdate,
           instruction.ApUpdate,
           instruction.FpUpdate,
+          toSignedInteger(encodedInstruction),
         ],
       ];
     }
   } catch (error) {
     Logger.log(error);
-    if (error instanceof NonZeroHighBitError) {
-      return [["", "", BigInt(encodedInstruction) - PRIME]];
-    }
-    return [[""]];
+    return [["", "", "", "", "", "", toSignedInteger(encodedInstruction)]];
   }
 }
 

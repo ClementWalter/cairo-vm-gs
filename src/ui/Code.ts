@@ -27,9 +27,7 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
       const op0: string =
         `${instruction.Op0Register} ${instruction.Op0Offset === 0 ? "" : (instruction.Op0Offset > 0 ? "+ " : "- ") + Math.abs(instruction.Op0Offset)}`.trim();
       const op1: string =
-        instruction.Op1Register === Op1Src.Op0
-          ? `${instruction.Op0Register} ${instruction.Op0Offset + instruction.Op1Offset === 0 ? "" : (instruction.Op0Offset + instruction.Op1Offset > 0 ? "+ " : "- ") + Math.abs(instruction.Op0Offset + instruction.Op1Offset)}`.trim()
-          : `${instruction.Op1Register} ${instruction.Op1Offset === 0 ? "" : (instruction.Op1Offset > 0 ? "+ " : "- ") + Math.abs(instruction.Op1Offset)}`.trim();
+        `${instruction.Op1Register === Op1Src.Op0 ? `[${op0}]` : instruction.Op1Register} ${instruction.Op1Offset === 0 ? "" : (instruction.Op1Offset > 0 ? "+ " : "- ") + Math.abs(instruction.Op1Offset)}`.trim();
 
       let op: string;
       switch (instruction.ResLogic) {

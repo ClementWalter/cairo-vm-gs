@@ -42,14 +42,25 @@ function showPicker() {
 function loadProgram(program: any) {
   programSheet.getRange("A2:G").clearContent();
   const bytecode: string[] = program.data;
-  programSheet
-    .getRange(`A2:B${bytecode.length + 1}`)
-    .setValues(
-      bytecode.map((instruction, i) => [
-        instruction,
-        `=IF(${progInstructionSizeColumn}${i + 2 - 1}=2;TO_SIGNED_INTEGER(A${i + 2});DECODE_INSTRUCTION(A${i + 2}))`,
-      ]),
-    );
+  let isConstant: boolean = false;
+  for (var i = 0; i < bytecode.length; i++) {
+    programSheet
+      .getRange(`A${i + 2}:B${i + 2}`)
+      .setValues([
+        [
+          bytecode[i],
+          isConstant
+            ? `=TO_SIGNED_INTEGER(A${i + 2})`
+            : `=DECODE_INSTRUCTION(A${i + 2})`,
+        ],
+      ]);
+    if (!isConstant) {
+      isConstant = size(decodeInstruction(BigInt(bytecode[i]))) == 2;
+    } else {
+      isConstant = false;
+    }
+  }
+
   runSheet.getRange("A1:O").clearContent();
   runSheet
     .getRange(`${pcColumn}1:${executionColumn}1`)

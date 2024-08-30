@@ -6,7 +6,6 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
     "Pc Update",
     "Ap Update",
     "Fp Update",
-    "Instruction size",
   ];
   try {
     if (encodedInstruction === "Program") {
@@ -47,7 +46,6 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
           pcUpdate,
           instruction.ApUpdate,
           instruction.FpUpdate,
-          size(instruction)
         ],
       ];
     }
@@ -61,7 +59,7 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
 }
 
 function TO_SIGNED_INTEGER(encodedInstruction: string): [any[]] {
-  return [["", "", toSignedInteger(BigInt(encodedInstruction))]];
+  return [["", "", toSignedInteger(BigInt(encodedInstruction)).toString(10)]];
 }
 
 /**

@@ -47,7 +47,7 @@ function loadProgram(program: any) {
     .setValues(
       bytecode.map((instruction, i) => [
         instruction,
-        `=DECODE_INSTRUCTION(A${i + 2})`,
+        `=IF(${progInstructionSizeColumn}${i + 2 - 1}=2;TO_SIGNED_INTEGER(A${i + 2});DECODE_INSTRUCTION(A${i + 2}))`,
       ]),
     );
   runSheet.getRange("A1:O").clearContent();

@@ -36,8 +36,6 @@ const progApupdateColumn: String = columns[j];
 j++;
 const progFpupdateColumn: String = columns[j];
 j++;
-const progInstructionSizeColumn: String = columns[j];
-j++;
 
 type Builtins = {
   output: BuitlinType;

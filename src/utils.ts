@@ -105,3 +105,21 @@ function updateBuiltins() {
     }
   }
 }
+
+function transpose(matrix:string[][]):string[][]{
+  if (matrix.length === 0 || matrix[0].length === 0) {
+    return [];
+  }
+
+  let transposed: string[][] = [];
+
+  for (let i = 0; i < matrix[0].length; i++) {
+    transposed[i] = [];
+
+    for (let j = 0; j < matrix.length; j++) {
+      transposed[i][j] = matrix[j][i];
+    }
+  }
+
+return transposed;
+}

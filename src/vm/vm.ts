@@ -437,3 +437,45 @@ function runUntilPc(): void {
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   }
 }
+
+function relocateMemory(): bigint[] {
+  //Relocated memory's addresses have 0 offset
+  let relocatedMemory: bigint[] = [];
+
+  /* Store all segments like so:
+  * [["E","X","E","C","U","T","I","O","N"],
+  *  ["R","A","N","G","E"],
+  *  ...
+  * ]
+  */
+
+  let startCell = runSheet.getRange(`${executionColumn}2`);
+  let totalRows = runSheet.getMaxRows();
+  let totalColumns = runSheet.getMaxColumns();
+  let startRow = startCell.getRow();
+  let startColumn = startCell.getColumn();
+  let rangeSegments = runSheet.getRange(startRow, startColumn, totalRows - startRow + 1, totalColumns - startColumn + 1);
+  let segments: string[][] = transpose(rangeSegments.getValues()).map(row => row.filter(cell => cell !== ""));
+
+  const lengthOfSegments: number[] = segments.map((segment,index)=>index === 0 ? segment.length - 2 : segment.length);
+  let relocationTable: number[] = [];
+  let sum: number = 0;
+  for (let length of lengthOfSegments){
+    relocationTable.push(sum);
+    sum += length;
+  }
+
+  for (let value of segments.flat()){ //go through all value of all segments
+    if (value === FINAL_FP || value === FINAL_PC){continue;}
+    else{
+      if (isCell(value)){
+        let indexOfSegment: number = value.charCodeAt(0) - executionColumn.charCodeAt(0);
+        relocatedMemory.push(BigInt(relocationTable[indexOfSegment] + Number(value.substring(1)) - 2));
+      }
+      else{
+        relocatedMemory.push(BigInt(value));
+      }
+    }
+  }
+  return relocatedMemory;
+}

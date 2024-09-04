@@ -137,6 +137,6 @@ function testRunner() {
   test.finish();
 }
 
-function testRelocation(){
-  Logger.log(relocateMemory());
+function testRelocation() {
+  Logger.log(relocate());
 }

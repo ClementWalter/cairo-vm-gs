@@ -106,7 +106,7 @@ function updateBuiltins() {
   }
 }
 
-function transpose(matrix:string[][]):string[][]{
+function transpose(matrix: string[][]): string[][] {
   if (matrix.length === 0 || matrix[0].length === 0) {
     return [];
   }
@@ -121,5 +121,5 @@ function transpose(matrix:string[][]):string[][]{
     }
   }
 
-return transposed;
+  return transposed;
 }

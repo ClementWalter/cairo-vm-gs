@@ -48,6 +48,16 @@ type Builtins = {
   poseidon: BuitlinType;
 };
 
+type RelocatedMemory = {
+  address: number;
+  value: bigint;
+};
+
+type RelocatedExecution = {
+  relocatedTrace: BigInt[][];
+  relocatedMemory: RelocatedMemory[];
+};
+
 let builtins: Builtins = {
   output: null,
   pedersen: {
@@ -438,44 +448,109 @@ function runUntilPc(): void {
   }
 }
 
-function relocateMemory(): bigint[] {
-  //Relocated memory's addresses have 0 offset
-  let relocatedMemory: bigint[] = [];
+function relocate(): RelocatedExecution {
+  let relocatedMemory: RelocatedMemory[] = [];
+  let relocatedTrace: bigint[][] = [];
 
   /* Store all segments like so:
-  * [["E","X","E","C","U","T","I","O","N"],
-  *  ["R","A","N","G","E"],
-  *  ...
-  * ]
-  */
-
+   * [["E","X","E","C","U","T","I","O","N"],
+   *  ["R","A","N","G","E"],
+   *  ...
+   * ]
+   */
   let startCell = runSheet.getRange(`${executionColumn}2`);
   let totalRows = runSheet.getMaxRows();
   let totalColumns = runSheet.getMaxColumns();
   let startRow = startCell.getRow();
   let startColumn = startCell.getColumn();
-  let rangeSegments = runSheet.getRange(startRow, startColumn, totalRows - startRow + 1, totalColumns - startColumn + 1);
-  let segments: string[][] = transpose(rangeSegments.getValues()).map(row => row.filter(cell => cell !== ""));
+  let rangeSegments = runSheet.getRange(
+    startRow,
+    startColumn,
+    totalRows - startRow + 1,
+    totalColumns - startColumn + 1,
+  );
+  let segments: string[][] = transpose(rangeSegments.getValues()).map((row) =>
+    row.filter((cell) => cell !== ""),
+  );
+  let flattenSegments: string[] = segments.flat();
 
-  const lengthOfSegments: number[] = segments.map((segment,index)=>index === 0 ? segment.length - 2 : segment.length);
+  const lengthOfSegments: number[] = segments.map((segment) => segment.length);
   let relocationTable: number[] = [];
   let sum: number = 0;
-  for (let length of lengthOfSegments){
+  for (let length of lengthOfSegments) {
     relocationTable.push(sum);
     sum += length;
   }
 
-  for (let value of segments.flat()){ //go through all value of all segments
-    if (value === FINAL_FP || value === FINAL_PC){continue;}
-    else{
-      if (isCell(value)){
-        let indexOfSegment: number = value.charCodeAt(0) - executionColumn.charCodeAt(0);
-        relocatedMemory.push(BigInt(relocationTable[indexOfSegment] + Number(value.substring(1)) - 2));
-      }
-      else{
-        relocatedMemory.push(BigInt(value));
-      }
+  for (let i = 0; i < flattenSegments.length; i++) {
+    //go through all value of all segments
+    let value: bigint;
+    if (flattenSegments[i] === FINAL_FP) {
+      value = BigInt(flattenSegments.length);
+    } else if (flattenSegments[i] === FINAL_PC) {
+      value = BigInt(flattenSegments.length + 1);
+    } else if (isCell(flattenSegments[i])) {
+      let indexOfSegment: number =
+        flattenSegments[i].charCodeAt(0) - executionColumn.charCodeAt(0);
+      value = BigInt(
+        relocationTable[indexOfSegment] +
+          Number(flattenSegments[i].substring(1)),
+      );
+    } else {
+      value = BigInt(flattenSegments[i]);
     }
+    relocatedMemory.push({ address: i, value: value });
   }
-  return relocatedMemory;
+
+  let trace: string[][] = runSheet
+    .getRange(`${pcColumn}2:${apColumn}`)
+    .getValues()
+    .map((row) => row.filter((cell) => cell !== ""));
+
+  for (let value of trace) {
+    if (value.length === 0) {
+      continue;
+    }
+    let row: bigint[] = [];
+    //Handle PC:
+    if (value[0] === FINAL_PC) {
+      row.push(BigInt(flattenSegments.length));
+    } else if (isCell(value[0])) {
+      let indexOfSegment: number =
+        value[0].charCodeAt(0) - executionColumn.charCodeAt(0);
+      row.push(
+        BigInt(relocationTable[indexOfSegment] + Number(value[0].substring(1))),
+      );
+    } else {
+      row.push(BigInt(value[0]));
+    }
+
+    //Handle FP:
+    if (value[1] === FINAL_FP) {
+      row.push(BigInt(flattenSegments.length + 1));
+    } else if (isCell(value[1])) {
+      let indexOfSegment: number =
+        value[1].charCodeAt(0) - executionColumn.charCodeAt(0);
+      row.push(
+        BigInt(relocationTable[indexOfSegment] + Number(value[1].substring(1))),
+      );
+    } else {
+      row.push(BigInt(value[1]));
+    }
+
+    //Handle AP:
+    if (isCell(value[2])) {
+      let indexOfSegment: number =
+        value[2].charCodeAt(0) - executionColumn.charCodeAt(0);
+      row.push(
+        BigInt(relocationTable[indexOfSegment] + Number(value[2].substring(1))),
+      );
+    } else {
+      row.push(BigInt(value[2]));
+    }
+
+    relocatedTrace.push(row);
+  }
+
+  return { relocatedTrace, relocatedMemory };
 }

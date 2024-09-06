@@ -15,13 +15,6 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
         BigInt(encodedInstruction),
       );
 
-      if (
-        instruction.Opcode === Opcodes.NOp &&
-        instruction.PcUpdate === PcUpdates.Regular
-      ) {
-        return [["", "", toSignedInteger(encodedInstruction)]];
-      }
-
       const dst: string =
         `${instruction.DstRegister} ${instruction.DstOffset === 0 ? "" : (instruction.DstOffset > 0 ? "+ " : "- ") + Math.abs(instruction.DstOffset)}`.trim();
       const op0: string =
@@ -59,10 +52,14 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
   } catch (error) {
     Logger.log(error);
     if (error instanceof NonZeroHighBitError) {
-      return [["", "", BigInt(encodedInstruction) - PRIME]];
+      return [["", "", toSignedInteger(encodedInstruction)]];
     }
     return [[""]];
   }
+}
+
+function TO_SIGNED_INTEGER(encodedInstruction: string): [any[]] {
+  return [["", "", toSignedInteger(BigInt(encodedInstruction)).toString(10)]];
 }
 
 /**

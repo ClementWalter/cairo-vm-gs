@@ -42,6 +42,7 @@ function showPicker() {
 
 function loadProgram(program: any) {
   programSheet.getRange("A2:G").clearContent();
+  proverSheet.getRange("A3:G").clearContent();
   const bytecode: string[] = program.data;
   let isConstant: boolean = false;
   for (var i = 0; i < bytecode.length; i++) {

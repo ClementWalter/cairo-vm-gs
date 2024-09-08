@@ -50,16 +50,6 @@ type Builtins = {
   poseidon: BuitlinType;
 };
 
-type RelocatedMemory = {
-  address: number;
-  value: bigint;
-};
-
-type RelocatedExecution = {
-  relocatedTrace: BigInt[][];
-  relocatedMemory: RelocatedMemory[];
-};
-
 let builtins: Builtins = {
   output: null,
   pedersen: {
@@ -121,15 +111,23 @@ function initializeBuiltins(builtinsList: string[]): string[] {
     }
     counter++;
   }
-  let fpRow: String = columns[letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column)+1];
-  let pcRow: String = columns[letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column)+2];
+  let fpRow: String =
+    columns[
+      letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1
+    ];
+  let pcRow: String =
+    columns[
+      letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 2
+    ];
   runSheet
-    .getRange(
-      `${builtins[builtinsList[0]].column}1:${pcRow}1`,
-    )
-    .setValues([[...builtinsList,"final_fp","final_pc"]]);
+    .getRange(`${builtins[builtinsList[0]].column}1:${pcRow}1`)
+    .setValues([[...builtinsList, "final_fp", "final_pc"]]);
 
-  return [...builtinsList.map((builtin) => `${builtins[builtin].column}2`),`${fpRow}2`,`${pcRow}2`];
+  return [
+    ...builtinsList.map((builtin) => `${builtins[builtin].column}2`),
+    `${fpRow}2`,
+    `${pcRow}2`,
+  ];
 }
 
 function step(n: number = 0): void {
@@ -443,7 +441,7 @@ function step(n: number = 0): void {
 }
 
 function runUntilPc(): void {
-  let i: number = getLastActiveRowNumber(`${pcColumn}`,runSheet) - 2;
+  let i: number = getLastActiveRowNumber(`${pcColumn}`, runSheet) - 2;
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   while (!isCell(pc)) {
     step(i);
@@ -452,55 +450,62 @@ function runUntilPc(): void {
   }
 }
 
-function concatenateSegments(){
-  let formulas: string[] = []
+function concatenateSegments() {
+  let formulas: string[] = [];
   let columnIndex: number = letterToIndex(executionColumn);
-  while (runSheet.getRange(1,columnIndex+1).getValue() != ""){
+  while (runSheet.getRange(1, columnIndex + 1).getValue() != "") {
     let currentColumn: string = columns[columnIndex].toString();
-    let maxRowNumber: number = getLastActiveRowNumber(currentColumn,runSheet);
+    let maxRowNumber: number = getLastActiveRowNumber(currentColumn, runSheet);
     let extraCell: number = currentColumn == executionColumn ? 0 : 1;
-    for (let row=2; row<=maxRowNumber+extraCell; row++){
+    for (let row = 2; row <= maxRowNumber + extraCell; row++) {
       formulas.push(`=Run!${currentColumn}${row}`);
     }
-    columnIndex ++;
+    columnIndex++;
   }
-  proverSheet.getRange(3,1,formulas.length).setFormulas(formulas.map(formula=>[formula]));
+  proverSheet
+    .getRange(3, 1, formulas.length)
+    .setFormulas(formulas.map((formula) => [formula]));
 }
 
-function relocatePointers(){
-  let lastActiveRowNumber: number = getLastActiveFormulaRowNumber("A",proverSheet);
-  let rangeColumA = proverSheet.getRange(3,1,lastActiveRowNumber-2);
+function relocatePointers() {
+  let lastActiveRowNumber: number = getLastActiveFormulaRowNumber(
+    "A",
+    proverSheet,
+  );
+  let rangeColumA = proverSheet.getRange(3, 1, lastActiveRowNumber - 2);
   let formulasColumnA: string[] = transpose(rangeColumA.getFormulas())[0];
   let valuesColumnA: string[] = transpose(rangeColumA.getValues())[0];
   let formulasColumnB: string[] = [];
-  valuesColumnA.forEach((value)=>{
-    if (isCell(value)){
+  valuesColumnA.forEach((value) => {
+    if (isCell(value)) {
       let indexOfCellPointed: number = formulasColumnA.indexOf(`=Run!${value}`);
       formulasColumnB.push(`=B${3 + indexOfCellPointed}`);
-    }
-    else{
+    } else {
       formulasColumnB.push(`="${value}"`);
     }
   });
-  proverSheet.getRange(3,2,formulasColumnB.length).setFormulas(formulasColumnB.map(formula=>[formula]));
+  proverSheet
+    .getRange(3, 2, formulasColumnB.length)
+    .setFormulas(formulasColumnB.map((formula) => [formula]));
 }
 
-function pointersToIndexes(){
-  let lastActiveRowNumber: number = getLastActiveFormulaRowNumber("B",proverSheet);
-  let formulasColumnB: string[] = transpose(proverSheet.getRange(3,2,lastActiveRowNumber-2).getFormulas())[0];
+function pointersToIndexes() {
+  let lastActiveRowNumber: number = getLastActiveFormulaRowNumber(
+    "B",
+    proverSheet,
+  );
+  let formulasColumnB: string[] = transpose(
+    proverSheet.getRange(3, 2, lastActiveRowNumber - 2).getFormulas(),
+  )[0];
   let valueFormulas: string[] = [];
-  formulasColumnB.forEach((value)=>{
-    if (isCell(value.substring(1))){
-      valueFormulas.push(`="${Number(value.substring(2))-3}"`);
-    }
-    else{
+  formulasColumnB.forEach((value) => {
+    if (isCell(value.substring(1))) {
+      valueFormulas.push(`="${Number(value.substring(2)) - 3}"`);
+    } else {
       valueFormulas.push(`=${value.substring(1)}`);
     }
   });
   let addressesValues: number[] = Array.from(valueFormulas.keys());
-
-  proverSheet.getRange(3,3,addressesValues.length).setValues(addressesValues.map(formula=>[formula]))
-  proverSrom(valueFormulas.keys());
 
   proverSheet
     .getRange(3, 3, addressesValues.length)

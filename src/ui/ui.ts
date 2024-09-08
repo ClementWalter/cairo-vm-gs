@@ -5,11 +5,12 @@ function onOpen(): void {
     .addItem("Run", "menuRun")
     .addItem("Clear", "clear")
     .addItem("Load Program", "showPicker")
+    .addItem("Relocate", "relocate")
     .addToUi();
 }
 
 function menuStep(): void {
-  step(getLastActiveRowIndex("A") - 2);
+  step(getLastActiveRowNumber("A", runSheet) - 2);
 }
 
 function menuRun(): void {
@@ -57,13 +58,35 @@ function loadProgram(program: any) {
   const builtinsList: string[] = program.builtins;
   const segmentAddresses: string[] =
     builtinsList.length === 0 ? [] : initializeBuiltins(builtinsList);
-  const stack: string[] = [...segmentAddresses, FINAL_FP, FINAL_PC];
   const mainOffset: string | number =
     program["identifiers"]["__main__.main"]["pc"];
   runSheet.getRange(`${pcColumn}2`).setValue(mainOffset);
-  runSheet.getRange(`${apColumn}2`).setValue(stack.length);
+  runSheet.getRange(`${apColumn}2`).setValue(segmentAddresses.length);
   runSheet.getRange(`${fpColumn}2`).setFormula(`=${apColumn}2`);
   runSheet
-    .getRange(`${executionColumn}2:${executionColumn}${stack.length + 1}`)
-    .setValues(stack.map((address) => [address]));
+    .getRange(
+      `${executionColumn}2:${executionColumn}${segmentAddresses.length + 1}`,
+    )
+    .setValues(segmentAddresses.map((address) => [address]));
+}
+
+function relocate() {
+  proverSheet.getRange("A3:G").clearContent();
+  proverSheet
+    .getRange("A1:C1")
+    .setValues([
+      ["Concatenated Segments", "Pointers relocation", "Relocated Memory"],
+    ]);
+  proverSheet.getRange("E1").setValue([["Relocated Trace"]]);
+  proverSheet.getRange("C2:D2").setValues([["Addresses", "Values"]]);
+  proverSheet.getRange("E2:G2").setValues([["PC", "FP", "AP"]]);
+  proverSheet.getRange("A1:A2").mergeVertically();
+  proverSheet.getRange("B1:B2").mergeVertically();
+  proverSheet.getRange("C1:D1").mergeAcross();
+  proverSheet.getRange("E1:G1").mergeAcross();
+
+  concatenateSegments();
+  relocatePointers();
+  pointersToIndexes();
+  relocateTrace();
 }

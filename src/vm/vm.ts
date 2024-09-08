@@ -1,5 +1,7 @@
 const runSheet: GoogleAppsScript.Spreadsheet.Sheet =
   SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
+const proverSheet: GoogleAppsScript.Spreadsheet.Sheet =
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Prover");
 const programSheet: GoogleAppsScript.Spreadsheet.Sheet =
   SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Program");
 
@@ -119,13 +121,15 @@ function initializeBuiltins(builtinsList: string[]): string[] {
     }
     counter++;
   }
+  let fpRow: String = columns[letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column)+1];
+  let pcRow: String = columns[letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column)+2];
   runSheet
     .getRange(
-      `${builtins[builtinsList[0]].column}1:${builtins[builtinsList[builtinsList.length - 1]].column}1`,
+      `${builtins[builtinsList[0]].column}1:${pcRow}1`,
     )
-    .setValues([builtinsList]);
+    .setValues([[...builtinsList,"final_fp","final_pc"]]);
 
-  return builtinsList.map((builtin) => `${builtins[builtin].column}2`);
+  return [...builtinsList.map((builtin) => `${builtins[builtin].column}2`),`${fpRow}2`,`${pcRow}2`];
 }
 
 function step(n: number = 0): void {
@@ -439,118 +443,106 @@ function step(n: number = 0): void {
 }
 
 function runUntilPc(): void {
-  let i: number = getLastActiveRowIndex(`${pcColumn}`) - 2;
+  let i: number = getLastActiveRowNumber(`${pcColumn}`,runSheet) - 2;
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
-  while (!(pc === FINAL_PC)) {
+  while (!isCell(pc)) {
     step(i);
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   }
 }
 
-function relocate(): RelocatedExecution {
-  let relocatedMemory: RelocatedMemory[] = [];
-  let relocatedTrace: bigint[][] = [];
-
-  /* Store all segments like so:
-   * [["E","X","E","C","U","T","I","O","N"],
-   *  ["R","A","N","G","E"],
-   *  ...
-   * ]
-   */
-  let startCell = runSheet.getRange(`${executionColumn}2`);
-  let totalRows = runSheet.getMaxRows();
-  let totalColumns = runSheet.getMaxColumns();
-  let startRow = startCell.getRow();
-  let startColumn = startCell.getColumn();
-  let rangeSegments = runSheet.getRange(
-    startRow,
-    startColumn,
-    totalRows - startRow + 1,
-    totalColumns - startColumn + 1,
-  );
-  let segments: string[][] = transpose(rangeSegments.getValues()).map((row) =>
-    row.filter((cell) => cell !== ""),
-  );
-  let flattenSegments: string[] = segments.flat();
-
-  const lengthOfSegments: number[] = segments.map((segment) => segment.length);
-  let relocationTable: number[] = [];
-  let sum: number = 0;
-  for (let length of lengthOfSegments) {
-    relocationTable.push(sum);
-    sum += length;
-  }
-
-  for (let i = 0; i < flattenSegments.length; i++) {
-    //go through all value of all segments
-    let value: bigint;
-    if (flattenSegments[i] === FINAL_FP) {
-      value = BigInt(flattenSegments.length);
-    } else if (flattenSegments[i] === FINAL_PC) {
-      value = BigInt(flattenSegments.length + 1);
-    } else if (isCell(flattenSegments[i])) {
-      let indexOfSegment: number =
-        flattenSegments[i].charCodeAt(0) - executionColumn.charCodeAt(0);
-      value = BigInt(
-        relocationTable[indexOfSegment] +
-          Number(flattenSegments[i].substring(1)),
-      );
-    } else {
-      value = BigInt(flattenSegments[i]);
+function concatenateSegments(){
+  let formulas: string[] = []
+  let columnIndex: number = letterToIndex(executionColumn);
+  while (runSheet.getRange(1,columnIndex+1).getValue() != ""){
+    let currentColumn: string = columns[columnIndex].toString();
+    let maxRowNumber: number = getLastActiveRowNumber(currentColumn,runSheet);
+    let extraCell: number = currentColumn == executionColumn ? 0 : 1;
+    for (let row=2; row<=maxRowNumber+extraCell; row++){
+      formulas.push(`=Run!${currentColumn}${row}`);
     }
-    relocatedMemory.push({ address: i, value: value });
+    columnIndex ++;
   }
+  proverSheet.getRange(3,1,formulas.length).setFormulas(formulas.map(formula=>[formula]));
+}
 
-  let trace: string[][] = runSheet
+function relocatePointers(){
+  let lastActiveRowNumber: number = getLastActiveFormulaRowNumber("A",proverSheet);
+  let rangeColumA = proverSheet.getRange(3,1,lastActiveRowNumber-2);
+  let formulasColumnA: string[] = transpose(rangeColumA.getFormulas())[0];
+  let valuesColumnA: string[] = transpose(rangeColumA.getValues())[0];
+  let formulasColumnB: string[] = [];
+  valuesColumnA.forEach((value)=>{
+    if (isCell(value)){
+      let indexOfCellPointed: number = formulasColumnA.indexOf(`=Run!${value}`);
+      formulasColumnB.push(`=B${3 + indexOfCellPointed}`);
+    }
+    else{
+      formulasColumnB.push(`="${value}"`);
+    }
+  });
+  proverSheet.getRange(3,2,formulasColumnB.length).setFormulas(formulasColumnB.map(formula=>[formula]));
+}
+
+function pointersToIndexes(){
+  let lastActiveRowNumber: number = getLastActiveFormulaRowNumber("B",proverSheet);
+  let formulasColumnB: string[] = transpose(proverSheet.getRange(3,2,lastActiveRowNumber-2).getFormulas())[0];
+  let valueFormulas: string[] = [];
+  formulasColumnB.forEach((value)=>{
+    if (isCell(value.substring(1))){
+      valueFormulas.push(`="${Number(value.substring(2))-3}"`);
+    }
+    else{
+      valueFormulas.push(`=${value.substring(1)}`);
+    }
+  });
+  let addressesValues: number[] = Array.from(valueFormulas.keys());
+
+  proverSheet.getRange(3,3,addressesValues.length).setValues(addressesValues.map(formula=>[formula]))
+  proverSrom(valueFormulas.keys());
+
+  proverSheet
+    .getRange(3, 3, addressesValues.length)
+    .setValues(addressesValues.map((formula) => [formula]));
+  proverSheet
+    .getRange(3, 4, valueFormulas.length)
+    .setFormulas(valueFormulas.map((formula) => [formula]));
+}
+
+function relocateTrace() {
+  let relocatedPC: number[] = [];
+  let relocatedFP: number[] = [];
+  let relocatedAP: number[] = [];
+
+  let registersValue: string[][] = runSheet
     .getRange(`${pcColumn}2:${apColumn}`)
-    .getValues()
-    .map((row) => row.filter((cell) => cell !== ""));
-
-  for (let value of trace) {
-    if (value.length === 0) {
-      continue;
+    .getValues();
+  registersValue.forEach(([pc, fp, ap]) => {
+    if (Boolean(pc) && Boolean(fp) && Boolean(ap)) {
+      relocatedPC.push(registerRelocation(pc));
+      relocatedFP.push(registerRelocation(fp));
+      relocatedAP.push(registerRelocation(ap));
     }
-    let row: bigint[] = [];
-    //Handle PC:
-    if (value[0] === FINAL_PC) {
-      row.push(BigInt(flattenSegments.length));
-    } else if (isCell(value[0])) {
-      let indexOfSegment: number =
-        value[0].charCodeAt(0) - executionColumn.charCodeAt(0);
-      row.push(
-        BigInt(relocationTable[indexOfSegment] + Number(value[0].substring(1))),
-      );
-    } else {
-      row.push(BigInt(value[0]));
-    }
+  });
 
-    //Handle FP:
-    if (value[1] === FINAL_FP) {
-      row.push(BigInt(flattenSegments.length + 1));
-    } else if (isCell(value[1])) {
-      let indexOfSegment: number =
-        value[1].charCodeAt(0) - executionColumn.charCodeAt(0);
-      row.push(
-        BigInt(relocationTable[indexOfSegment] + Number(value[1].substring(1))),
-      );
-    } else {
-      row.push(BigInt(value[1]));
-    }
+  proverSheet
+    .getRange(3, 5, relocatedPC.length)
+    .setValues(relocatedPC.map((pc) => [pc]));
+  proverSheet
+    .getRange(3, 6, relocatedFP.length)
+    .setValues(relocatedFP.map((pc) => [pc]));
+  proverSheet
+    .getRange(3, 7, relocatedAP.length)
+    .setValues(relocatedAP.map((pc) => [pc]));
+}
 
-    //Handle AP:
-    if (isCell(value[2])) {
-      let indexOfSegment: number =
-        value[2].charCodeAt(0) - executionColumn.charCodeAt(0);
-      row.push(
-        BigInt(relocationTable[indexOfSegment] + Number(value[2].substring(1))),
-      );
-    } else {
-      row.push(BigInt(value[2]));
-    }
-
-    relocatedTrace.push(row);
+function registerRelocation(myRegister: string): number {
+  if (isCell(myRegister)) {
+    return transpose(proverSheet.getRange("A3:A").getFormulas())[0].indexOf(
+      `=Run!${myRegister}`,
+    );
+  } else {
+    return Number(myRegister);
   }
-
-  return { relocatedTrace, relocatedMemory };
 }

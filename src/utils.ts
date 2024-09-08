@@ -5,14 +5,28 @@ function objectFromEntries(keys: any, values: any): any {
   );
 }
 
-function getLastActiveRowIndex(column: string): number {
-  const runSheet: GoogleAppsScript.Spreadsheet.Sheet =
-    SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run");
-  const index: number = runSheet
-    .getRange(column + (runSheet.getLastRow() + 1))
-    .getNextDataCell(SpreadsheetApp.Direction.UP)
-    .getRow();
-  return index;
+function getLastActiveRowNumber(column: string, sheet): number {
+  let columunValues: string[] = transpose(
+    sheet.getRange(`${column}1:${column}`).getValues(),
+  )[0];
+  for (let i = columunValues.length - 1; i >= 0; i--) {
+    if (columunValues[i] != "") {
+      return i + 1;
+    }
+  }
+  return 1;
+}
+
+function getLastActiveFormulaRowNumber(column: string, sheet): number {
+  let columunValues: string[] = transpose(
+    sheet.getRange(`${column}1:${column}`).getFormulas(),
+  )[0];
+  for (let i = columunValues.length - 1; i >= 0; i--) {
+    if (columunValues[i] != "") {
+      return i + 1;
+    }
+  }
+  return 0;
 }
 
 function encodeUTF8(str: string): Uint8Array {
@@ -122,4 +136,8 @@ function transpose(matrix: string[][]): string[][] {
   }
 
   return transposed;
+}
+
+function letterToIndex(char: string | String): number {
+  return char.charCodeAt(0) - "A".charCodeAt(0);
 }

@@ -479,14 +479,32 @@ function relocateMemory() {
     columnIndex++;
   }
   proverSheet
-    .getRange(3, letterToIndex(provValuesColumn)+1, formulas.length)
+    .getRange(3, letterToIndex(provValuesColumn) + 1, formulas.length)
     .setFormulas(formulas.map((formula) => [formula]));
 
-  proverSheet.getRange(3,letterToIndex(provSegmentsColumn)+1,formulas.length).setFormulas(formulas.map( (_ ,index) => [`=FORMULATEXT(${provValuesColumn}${index+3})`]))
+  proverSheet
+    .getRange(3, letterToIndex(provSegmentsColumn) + 1, formulas.length)
+    .setFormulas(
+      formulas.map((_, index) => [
+        `=FORMULATEXT(${provValuesColumn}${index + 3})`,
+      ]),
+    );
 
-  proverSheet.getRange(3, letterToIndex(provAddressColumn)+1,formulas.length).setFormulas(formulas.map( (_ ,index) => [`=RIGHT(${provSegmentsColumn}${index+3};LEN(${provSegmentsColumn}${index+3}) - 5)`]));
+  proverSheet
+    .getRange(3, letterToIndex(provAddressColumn) + 1, formulas.length)
+    .setFormulas(
+      formulas.map((_, index) => [
+        `=RIGHT(${provSegmentsColumn}${index + 3};LEN(${provSegmentsColumn}${index + 3}) - 5)`,
+      ]),
+    );
 
-  proverSheet.getRange(3,letterToIndex(provMemoryRelocatedColumn)+1,formulas.length).setFormulas(formulas.map( (_ ,index) => [`=IFERROR(MATCH(${provValuesColumn}${index+3};${provAddressColumn}3:${provAddressColumn}); ${provValuesColumn}${index+3})`]));
+  proverSheet
+    .getRange(3, letterToIndex(provMemoryRelocatedColumn) + 1, formulas.length)
+    .setFormulas(
+      formulas.map((_, index) => [
+        `=IFERROR(MATCH(${provValuesColumn}${index + 3};${provAddressColumn}3:${provAddressColumn}); ${provValuesColumn}${index + 3})`,
+      ]),
+    );
 }
 
 function relocateTrace() {
@@ -499,9 +517,15 @@ function relocateTrace() {
     .getValues();
   registersValue.forEach(([pc, fp, ap], index) => {
     if (Boolean(pc) && Boolean(fp) && Boolean(ap)) {
-      relocatedPCFormulas.push(`=IFERROR(MATCH(Run!${pcColumn}${index+2};${provAddressColumn}3:${provAddressColumn});Run!${pcColumn}${index+2})`);
-      relocatedFPFormulas.push(`=IFERROR(MATCH(Run!${fpColumn}${index+2};${provAddressColumn}3:${provAddressColumn});Run!${fpColumn}${index+2})`);
-      relocatedAPFormulas.push(`=IFERROR(MATCH(Run!${apColumn}${index+2};${provAddressColumn}3:${provAddressColumn});Run!${apColumn}${index+2})`);
+      relocatedPCFormulas.push(
+        `=IFERROR(MATCH(Run!${pcColumn}${index + 2};${provAddressColumn}3:${provAddressColumn});Run!${pcColumn}${index + 2})`,
+      );
+      relocatedFPFormulas.push(
+        `=IFERROR(MATCH(Run!${fpColumn}${index + 2};${provAddressColumn}3:${provAddressColumn});Run!${fpColumn}${index + 2})`,
+      );
+      relocatedAPFormulas.push(
+        `=IFERROR(MATCH(Run!${apColumn}${index + 2};${provAddressColumn}3:${provAddressColumn});Run!${apColumn}${index + 2})`,
+      );
     }
   });
 

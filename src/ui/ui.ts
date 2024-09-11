@@ -83,22 +83,16 @@ function loadProgram(program: any) {
 }
 
 function relocate() {
-  proverSheet.getRange("A3:G").clearContent();
-  proverSheet
-    .getRange("A1:C1")
-    .setValues([
-      ["Concatenated Segments", "Pointers relocation", "Relocated Memory"],
-    ]);
-  proverSheet.getRange("E1").setValue([["Relocated Trace"]]);
-  proverSheet.getRange("C2:D2").setValues([["Addresses", "Values"]]);
-  proverSheet.getRange("E2:G2").setValues([["PC", "FP", "AP"]]);
-  proverSheet.getRange("A1:A2").mergeVertically();
-  proverSheet.getRange("B1:B2").mergeVertically();
-  proverSheet.getRange("C1:D1").mergeAcross();
-  proverSheet.getRange("E1:G1").mergeAcross();
+  proverSheet.getRange(`A3:${columns[k]}`).clearContent();
 
-  concatenateSegments();
-  relocatePointers();
-  pointersToIndexes();
+  proverSheet.getRange("A1").setValue("Memory");
+  proverSheet.getRange(`A1:D1`).mergeAcross();
+
+  proverSheet.getRange(`E1`).setValue("Relocated Trace");
+  proverSheet.getRange(`E1:G1`).mergeAcross();
+
+  proverSheet.getRange(`${provSegmentsColumn}2:${provRelocatedApColumn}2`).setValues([["Segments", "Addresses","Values","Relocated","PC","FP","AP"]]);
+
+  relocateMemory();
   relocateTrace();
 }

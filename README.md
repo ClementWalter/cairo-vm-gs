@@ -95,11 +95,13 @@ npx clasp clone <project id> --rootDir .
 ```
 
 - the project id can be found by:
+
   - opening the menu Extensions > Apps Script
   - go to project setting on the left navigation bar
   - copy the ID therein
 
-- Cloning the project will double each .gs file into a similar .js file. Delete the .js files.
+- Cloning the project will double each .gs file into a similar .js file. Delete
+  the .js files.
 
 The `clasp` CLI is not so convenient and you should take a bit of time to play
 around and read the doc. Especially, check that everything is set up correctly

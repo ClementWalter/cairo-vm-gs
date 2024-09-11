@@ -39,6 +39,22 @@ j++;
 const progFpupdateColumn: String = columns[j];
 j++;
 
+let k = 0;
+const provSegmentsColumn: String = columns[k];
+k++;
+const provAddressColumn: String = columns[k];
+k++;
+const provValuesColumn: String = columns[k];
+k++;
+const provMemoryRelocatedColumn: String = columns[k];
+k++;
+const provRelocatedPcColumn: String = columns[k];
+k++;
+const provRelocatedFpColumn: String = columns[k];
+k++;
+const provRelocatedApColumn: String = columns[k];
+k++;
+
 type Builtins = {
   output: BuitlinType;
   pedersen: BuitlinType;
@@ -121,7 +137,7 @@ function initializeBuiltins(builtinsList: string[]): string[] {
     ];
   runSheet
     .getRange(`${builtins[builtinsList[0]].column}1:${pcRow}1`)
-    .setValues([[...builtinsList, "final_fp", "final_pc"]]);
+    .setValues([[...builtinsList, FINAL_FP, FINAL_PC]]);
 
   return [
     ...builtinsList.map((builtin) => `${builtins[builtin].column}2`),
@@ -443,14 +459,14 @@ function step(n: number = 0): void {
 function runUntilPc(): void {
   let i: number = getLastActiveRowNumber(`${pcColumn}`, runSheet) - 2;
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
-  while (!isCell(pc)) {
+  while (!isFinalPc(pc)) {
     step(i);
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   }
 }
 
-function concatenateSegments() {
+function relocateMemory() {
   let formulas: string[] = [];
   let columnIndex: number = letterToIndex(executionColumn);
   while (runSheet.getRange(1, columnIndex + 1).getValue() != "") {
@@ -463,91 +479,39 @@ function concatenateSegments() {
     columnIndex++;
   }
   proverSheet
-    .getRange(3, 1, formulas.length)
+    .getRange(3, letterToIndex(provValuesColumn)+1, formulas.length)
     .setFormulas(formulas.map((formula) => [formula]));
-}
 
-function relocatePointers() {
-  let lastActiveRowNumber: number = getLastActiveFormulaRowNumber(
-    "A",
-    proverSheet,
-  );
-  let rangeColumA = proverSheet.getRange(3, 1, lastActiveRowNumber - 2);
-  let formulasColumnA: string[] = transpose(rangeColumA.getFormulas())[0];
-  let valuesColumnA: string[] = transpose(rangeColumA.getValues())[0];
-  let formulasColumnB: string[] = [];
-  valuesColumnA.forEach((value) => {
-    if (isCell(value)) {
-      let indexOfCellPointed: number = formulasColumnA.indexOf(`=Run!${value}`);
-      formulasColumnB.push(`=B${3 + indexOfCellPointed}`);
-    } else {
-      formulasColumnB.push(`="${value}"`);
-    }
-  });
-  proverSheet
-    .getRange(3, 2, formulasColumnB.length)
-    .setFormulas(formulasColumnB.map((formula) => [formula]));
-}
+  proverSheet.getRange(3,letterToIndex(provSegmentsColumn)+1,formulas.length).setFormulas(formulas.map( (_ ,index) => [`=FORMULATEXT(${provValuesColumn}${index+3})`]))
 
-function pointersToIndexes() {
-  let lastActiveRowNumber: number = getLastActiveFormulaRowNumber(
-    "B",
-    proverSheet,
-  );
-  let formulasColumnB: string[] = transpose(
-    proverSheet.getRange(3, 2, lastActiveRowNumber - 2).getFormulas(),
-  )[0];
-  let valueFormulas: string[] = [];
-  formulasColumnB.forEach((value) => {
-    if (isCell(value.substring(1))) {
-      valueFormulas.push(`="${Number(value.substring(2)) - 3}"`);
-    } else {
-      valueFormulas.push(`=${value.substring(1)}`);
-    }
-  });
-  let addressesValues: number[] = Array.from(valueFormulas.keys());
+  proverSheet.getRange(3, letterToIndex(provAddressColumn)+1,formulas.length).setFormulas(formulas.map( (_ ,index) => [`=RIGHT(${provSegmentsColumn}${index+3};LEN(${provSegmentsColumn}${index+3}) - 5)`]));
 
-  proverSheet
-    .getRange(3, 3, addressesValues.length)
-    .setValues(addressesValues.map((formula) => [formula]));
-  proverSheet
-    .getRange(3, 4, valueFormulas.length)
-    .setFormulas(valueFormulas.map((formula) => [formula]));
+  proverSheet.getRange(3,letterToIndex(provMemoryRelocatedColumn)+1,formulas.length).setFormulas(formulas.map( (_ ,index) => [`=IFERROR(MATCH(${provValuesColumn}${index+3};${provAddressColumn}3:${provAddressColumn}); ${provValuesColumn}${index+3})`]));
 }
 
 function relocateTrace() {
-  let relocatedPC: number[] = [];
-  let relocatedFP: number[] = [];
-  let relocatedAP: number[] = [];
+  let relocatedPCFormulas: string[] = [];
+  let relocatedFPFormulas: string[] = [];
+  let relocatedAPFormulas: string[] = [];
 
   let registersValue: string[][] = runSheet
     .getRange(`${pcColumn}2:${apColumn}`)
     .getValues();
-  registersValue.forEach(([pc, fp, ap]) => {
+  registersValue.forEach(([pc, fp, ap], index) => {
     if (Boolean(pc) && Boolean(fp) && Boolean(ap)) {
-      relocatedPC.push(registerRelocation(pc));
-      relocatedFP.push(registerRelocation(fp));
-      relocatedAP.push(registerRelocation(ap));
+      relocatedPCFormulas.push(`=IFERROR(MATCH(Run!${pcColumn}${index+2};${provAddressColumn}3:${provAddressColumn});Run!${pcColumn}${index+2})`);
+      relocatedFPFormulas.push(`=IFERROR(MATCH(Run!${fpColumn}${index+2};${provAddressColumn}3:${provAddressColumn});Run!${fpColumn}${index+2})`);
+      relocatedAPFormulas.push(`=IFERROR(MATCH(Run!${apColumn}${index+2};${provAddressColumn}3:${provAddressColumn});Run!${apColumn}${index+2})`);
     }
   });
 
   proverSheet
-    .getRange(3, 5, relocatedPC.length)
-    .setValues(relocatedPC.map((pc) => [pc]));
+    .getRange(3, 5, relocatedPCFormulas.length)
+    .setFormulas(relocatedPCFormulas.map((pc) => [pc]));
   proverSheet
-    .getRange(3, 6, relocatedFP.length)
-    .setValues(relocatedFP.map((pc) => [pc]));
+    .getRange(3, 6, relocatedFPFormulas.length)
+    .setFormulas(relocatedFPFormulas.map((fp) => [fp]));
   proverSheet
-    .getRange(3, 7, relocatedAP.length)
-    .setValues(relocatedAP.map((pc) => [pc]));
-}
-
-function registerRelocation(myRegister: string): number {
-  if (isCell(myRegister)) {
-    return transpose(proverSheet.getRange("A3:A").getFormulas())[0].indexOf(
-      `=Run!${myRegister}`,
-    );
-  } else {
-    return Number(myRegister);
-  }
+    .getRange(3, 7, relocatedAPFormulas.length)
+    .setFormulas(relocatedAPFormulas.map((ap) => [ap]));
 }

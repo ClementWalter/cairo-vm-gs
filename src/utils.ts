@@ -6,27 +6,27 @@ function objectFromEntries(keys: any, values: any): any {
 }
 
 function getLastActiveRowNumber(column: string, sheet): number {
-  let columunValues: string[] = transpose(
-    sheet.getRange(`${column}1:${column}`).getValues(),
-  )[0];
-  for (let i = columunValues.length - 1; i >= 0; i--) {
-    if (columunValues[i] != "") {
-      return i + 1;
-    }
+  let columnValues: string[] = sheet.getRange(`${column}1:${column}`).getValues().map(element => {
+    return (element && element.length > 0) ? element[0] : "";
+  });
+  let lastNonEmptyIndex = columnValues.slice().reverse().findIndex(value => value !== "");
+  if (lastNonEmptyIndex === -1) {
+    return 0;
   }
-  return 1;
+
+  return columnValues.length - lastNonEmptyIndex;
 }
 
 function getLastActiveFormulaRowNumber(column: string, sheet): number {
-  let columunValues: string[] = transpose(
-    sheet.getRange(`${column}1:${column}`).getFormulas(),
-  )[0];
-  for (let i = columunValues.length - 1; i >= 0; i--) {
-    if (columunValues[i] != "") {
-      return i + 1;
-    }
+  let columnValues: string[] = sheet.getRange(`${column}1:${column}`).getFormulas().map(element => {
+    return (element && element.length > 0) ? element[0] : "";
+  });
+  let lastNonEmptyIndex = columnValues.slice().reverse().findIndex(value => value !== "");
+  if (lastNonEmptyIndex === -1) {
+    return 0;
   }
-  return 0;
+
+  return columnValues.length - lastNonEmptyIndex;
 }
 
 function encodeUTF8(str: string): Uint8Array {
@@ -120,24 +120,11 @@ function updateBuiltins() {
   }
 }
 
-function transpose(matrix: string[][]): string[][] {
-  if (matrix.length === 0 || matrix[0].length === 0) {
-    return [];
-  }
-
-  let transposed: string[][] = [];
-
-  for (let i = 0; i < matrix[0].length; i++) {
-    transposed[i] = [];
-
-    for (let j = 0; j < matrix.length; j++) {
-      transposed[i][j] = matrix[j][i];
-    }
-  }
-
-  return transposed;
-}
-
 function letterToIndex(char: string | String): number {
   return char.charCodeAt(0) - "A".charCodeAt(0);
+}
+
+function isFinalPc(pc: number | string): boolean{
+  const finalPcColumnIndex: number = runSheet.getRange("1:1").getValues()[0].indexOf(FINAL_PC);
+  return finalPcColumnIndex == letterToIndex(pc.toString()[0]);
 }

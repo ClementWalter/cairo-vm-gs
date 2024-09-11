@@ -91,7 +91,11 @@ function relocate() {
   proverSheet.getRange(`E1`).setValue("Relocated Trace");
   proverSheet.getRange(`E1:G1`).mergeAcross();
 
-  proverSheet.getRange(`${provSegmentsColumn}2:${provRelocatedApColumn}2`).setValues([["Segments", "Addresses","Values","Relocated","PC","FP","AP"]]);
+  proverSheet
+    .getRange(`${provSegmentsColumn}2:${provRelocatedApColumn}2`)
+    .setValues([
+      ["Segments", "Addresses", "Values", "Relocated", "PC", "FP", "AP"],
+    ]);
 
   relocateMemory();
   relocateTrace();

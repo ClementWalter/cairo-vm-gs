@@ -6,10 +6,16 @@ function objectFromEntries(keys: any, values: any): any {
 }
 
 function getLastActiveRowNumber(column: string, sheet): number {
-  let columnValues: string[] = sheet.getRange(`${column}1:${column}`).getValues().map(element => {
-    return (element && element.length > 0) ? element[0] : "";
-  });
-  let lastNonEmptyIndex = columnValues.slice().reverse().findIndex(value => value !== "");
+  let columnValues: string[] = sheet
+    .getRange(`${column}1:${column}`)
+    .getValues()
+    .map((element) => {
+      return element && element.length > 0 ? element[0] : "";
+    });
+  let lastNonEmptyIndex = columnValues
+    .slice()
+    .reverse()
+    .findIndex((value) => value !== "");
   if (lastNonEmptyIndex === -1) {
     return 0;
   }
@@ -18,10 +24,16 @@ function getLastActiveRowNumber(column: string, sheet): number {
 }
 
 function getLastActiveFormulaRowNumber(column: string, sheet): number {
-  let columnValues: string[] = sheet.getRange(`${column}1:${column}`).getFormulas().map(element => {
-    return (element && element.length > 0) ? element[0] : "";
-  });
-  let lastNonEmptyIndex = columnValues.slice().reverse().findIndex(value => value !== "");
+  let columnValues: string[] = sheet
+    .getRange(`${column}1:${column}`)
+    .getFormulas()
+    .map((element) => {
+      return element && element.length > 0 ? element[0] : "";
+    });
+  let lastNonEmptyIndex = columnValues
+    .slice()
+    .reverse()
+    .findIndex((value) => value !== "");
   if (lastNonEmptyIndex === -1) {
     return 0;
   }
@@ -124,7 +136,10 @@ function letterToIndex(char: string | String): number {
   return char.charCodeAt(0) - "A".charCodeAt(0);
 }
 
-function isFinalPc(pc: number | string): boolean{
-  const finalPcColumnIndex: number = runSheet.getRange("1:1").getValues()[0].indexOf(FINAL_PC);
+function isFinalPc(pc: number | string): boolean {
+  const finalPcColumnIndex: number = runSheet
+    .getRange("1:1")
+    .getValues()[0]
+    .indexOf(FINAL_PC);
   return finalPcColumnIndex == letterToIndex(pc.toString()[0]);
 }

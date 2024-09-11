@@ -69,7 +69,7 @@ function loadProgram(program: any) {
     .setValues([["PC", "FP", "AP", "Opcode", "Dst", "Src", "Execution"]]);
   const builtinsList: string[] = program.builtins;
   const segmentAddresses: string[] =
-    builtinsList.length === 0 ? [] : initializeBuiltins(builtinsList);
+    builtinsList.length === 0 ? [] : initializeSegments(builtinsList);
   const mainOffset: string | number =
     program["identifiers"]["__main__.main"]["pc"];
   runSheet.getRange(`${pcColumn}2`).setValue(mainOffset);

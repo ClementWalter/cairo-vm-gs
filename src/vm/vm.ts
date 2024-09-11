@@ -97,7 +97,7 @@ let builtins: Builtins = {
   },
 };
 
-function initializeBuiltins(builtinsList: string[]): string[] {
+function initializeSegments(builtinsList: string[]): string[] {
   let counter: number = 0;
   const repetitions: number = 2;
   const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;

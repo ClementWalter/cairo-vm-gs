@@ -97,36 +97,16 @@ let builtins: Builtins = {
   },
 };
 
+let builtinsColumns: {};
 function initializeSegments(builtinsList: string[]): string[] {
   let counter: number = 0;
-  const repetitions: number = 2;
   const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;
 
   for (var key of builtinsList) {
     builtins[key].column = columns[counter + executionColumnOffset];
-
-    for (let i = 0; i < repetitions; i++) {
-      var inputCells: string[] = [];
-      var builtinSize: number =
-        builtins[key].freeCellsPerBuiltin + builtins[key].functionName.length;
-      for (let j = 0; j < builtins[key].freeCellsPerBuiltin; j++) {
-        inputCells.push(`${builtins[key].column}${i * builtinSize + j + 2}`);
-      }
-      if (inputCells.length != 0) {
-        var inputCellsString: string = inputCells.join(";");
-        for (let k = 0; k < builtins[key].functionName.length; k++) {
-          runSheet
-            .getRange(
-              `${builtins[key].column}${builtins[key].freeCellsPerBuiltin + i * builtinSize + k + 2}`,
-            )
-            .setFormula(
-              `=${builtins[key].functionName[k]}(${inputCellsString})`,
-            );
-        }
-      }
-    }
     counter++;
   }
+
   let fpRow: String =
     columns[
       letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1
@@ -207,6 +187,48 @@ function step(n: number = 0): void {
         Number(registers[instruction.Op1Register]) + instruction.Op1Offset;
       op1Addr = `${executionColumn}${op1Index + 2}`;
       break;
+  }
+
+  builtinsColumns = Object.fromEntries(
+    Object.keys(builtins)
+      .filter((builtin) => !!builtins[builtin] && builtins[builtin].column)
+      .map((builtin) => [builtins[builtin].column, builtins[builtin]]),
+  );
+  let addr = op1Addr.split("!").pop();
+  let op1Column = addr[0];
+  let op1Offset = Number(addr.slice(1)) - 2;
+  if (Object.keys(builtinsColumns).includes(op1Column)) {
+    const builtin = builtinsColumns[op1Column];
+    if (builtin.freeCellsPerBuiltin > 0) {
+      const builtinSize =
+        builtin.freeCellsPerBuiltin + builtin.functionName.length;
+
+      const requiredInstances =
+        op1Offset > 0 ? Math.ceil(op1Offset / builtinSize) : 1;
+      const lastInstance = (requiredInstances - 1) * builtinSize;
+      const lastBuiltinCell = requiredInstances * builtinSize;
+      if (
+        runSheet.getRange(`${op1Column}${lastBuiltinCell + 1}`).getFormula() ==
+        ""
+      ) {
+        var inputCells: string[] = [];
+        for (let j = 1; j <= builtin.freeCellsPerBuiltin; j++) {
+          inputCells.push(`${op1Column}${lastInstance + j + 1}`);
+        }
+
+        for (let k = 0; k < builtin.functionName.length; k++) {
+          runSheet
+            .getRange(
+              `${builtin.column}${lastInstance + 1 + builtin.freeCellsPerBuiltin + 1}:${builtin.column}${lastBuiltinCell + 1}`,
+            )
+            .setFormulas(
+              builtin.functionName.map((functionName) => [
+                `=${functionName}(${inputCells.join(";")})`,
+              ]),
+            );
+        }
+      }
+    }
   }
 
   let op1Value: string = runSheet.getRange(op1Addr).getValue();

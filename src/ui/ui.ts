@@ -5,11 +5,12 @@ function onOpen(): void {
     .addItem("Run", "menuRun")
     .addItem("Clear", "clear")
     .addItem("Load Program", "showPicker")
+    .addItem("Relocate", "relocate")
     .addToUi();
 }
 
 function menuStep(): void {
-  step(getLastActiveRowIndex("A") - 2);
+  step(getLastActiveRowNumber("A", runSheet) - 2);
 }
 
 function menuRun(): void {
@@ -41,6 +42,7 @@ function showPicker() {
 
 function loadProgram(program: any) {
   programSheet.getRange("A2:G").clearContent();
+  proverSheet.getRange("A3:G").clearContent();
   const bytecode: string[] = program.data;
   let isConstant: boolean = false;
   for (var i = 0; i < bytecode.length; i++) {
@@ -66,15 +68,34 @@ function loadProgram(program: any) {
     .getRange(`${pcColumn}1:${executionColumn}1`)
     .setValues([["PC", "FP", "AP", "Opcode", "Dst", "Src", "Execution"]]);
   const builtinsList: string[] = program.builtins;
-  const segmentAddresses: string[] =
-    builtinsList.length === 0 ? [] : initializeBuiltins(builtinsList);
-  const stack: string[] = [...segmentAddresses, FINAL_FP, FINAL_PC];
+  const segmentAddresses: string[] = initializeSegments(builtinsList);
   const mainOffset: string | number =
     program["identifiers"]["__main__.main"]["pc"];
   runSheet.getRange(`${pcColumn}2`).setValue(mainOffset);
-  runSheet.getRange(`${apColumn}2`).setValue(stack.length);
+  runSheet.getRange(`${apColumn}2`).setValue(segmentAddresses.length);
   runSheet.getRange(`${fpColumn}2`).setFormula(`=${apColumn}2`);
   runSheet
-    .getRange(`${executionColumn}2:${executionColumn}${stack.length + 1}`)
-    .setValues(stack.map((address) => [address]));
+    .getRange(
+      `${executionColumn}2:${executionColumn}${segmentAddresses.length + 1}`,
+    )
+    .setValues(segmentAddresses.map((address) => [address]));
+}
+
+function relocate() {
+  proverSheet.getRange(`A3:${columns[k]}`).clearContent();
+
+  proverSheet.getRange("A1").setValue("Memory");
+  proverSheet.getRange(`A1:D1`).mergeAcross();
+
+  proverSheet.getRange(`E1`).setValue("Relocated Trace");
+  proverSheet.getRange(`E1:G1`).mergeAcross();
+
+  proverSheet
+    .getRange(`${provSegmentsColumn}2:${provRelocatedApColumn}2`)
+    .setValues([
+      ["Segments", "Addresses", "Values", "Relocated", "PC", "FP", "AP"],
+    ]);
+
+  relocateMemory();
+  relocateTrace();
 }

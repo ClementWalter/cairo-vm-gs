@@ -2,11 +2,8 @@
 
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 
-from fibonacci import fibonacci
-
 func main{range_check_ptr, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*}() {
-    let res = fibonacci(5);
-
+    tempvar res = 1234;
     assert [range_check_ptr] = res;
     let range_check_ptr = range_check_ptr + 1;
 

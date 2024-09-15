@@ -26,6 +26,8 @@ const runOp1Column: String = columns[i];
 i++;
 const executionColumn: String = columns[i];
 i++;
+const firstBuiltinColumn: String = columns[i];
+i++;
 
 let j = 0;
 const progBytecodeColumn: String = columns[j];
@@ -41,6 +43,14 @@ j++;
 const progApupdateColumn: String = columns[j];
 j++;
 const progFpupdateColumn: String = columns[j];
+j++;
+const progDecInstructionColumn: String = columns[j];
+j++;
+const progDstOffsetColumn: String = columns[j];
+j++;
+const progOp0OffsetColumn: String = columns[j];
+j++;
+const progOp1OffsetColumn: String = columns[j];
 j++;
 
 let k = 0;

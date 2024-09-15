@@ -178,3 +178,21 @@ function ADD_FELT(a: number | string, b: number | string): number | string {
 function MUL_FELT(a: number | string, b: number | string): number | string {
   return modMul(BigInt(a), BigInt(b)).toString(10);
 }
+
+function GET_FLAGS_AND_OFFSETS(encodedInstruction: string): number[][] {
+  const { dstOffset, op0Offset, op1Offset, flags } = getTraceInfo(
+    BigInt(encodedInstruction),
+  );
+
+  let traceFlags: number[] = [];
+
+  for (let i = 0; i <= 15; i++) {
+    let sum = 0;
+    for (let j = i; j <= 14; j++) {
+      sum += 2 ** (j - i) * flags[i];
+    }
+    traceFlags.push(sum);
+  }
+
+  return [[dstOffset, op0Offset, op1Offset, ...traceFlags]];
+}

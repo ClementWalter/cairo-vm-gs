@@ -143,3 +143,15 @@ function isFinalPc(pc: number | string): boolean {
     .indexOf(FINAL_PC);
   return finalPcColumnIndex == letterToIndex(pc.toString()[0]);
 }
+
+function bigintTo15BitString(value: bigint): string {
+  let binaryStr = value.toString(2);
+
+  if (binaryStr.length > 15) {
+    binaryStr = binaryStr.slice(-15);
+  } else {
+    binaryStr = binaryStr.padStart(15, "0");
+  }
+
+  return binaryStr;
+}

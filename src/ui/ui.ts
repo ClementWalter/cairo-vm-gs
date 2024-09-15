@@ -10,7 +10,7 @@ function onOpen(): void {
 }
 
 function menuStep(): void {
-  step(getLastActiveRowNumber("A", runSheet) - 2);
+  step(getLastActiveRowNumber(`${pcColumn}`, runSheet) - 2);
 }
 
 function menuRun(): void {
@@ -21,10 +21,16 @@ function clear(): void {
   const stackLength: number = Number(
     runSheet.getRange(`${apColumn}2`).getValue(),
   );
-  runSheet.getRange(`A3:C`).clearContent();
-  runSheet.getRange("D2:F").clearContent();
-  runSheet.getRange(`G${stackLength + 2}:G`).clearContent();
-  runSheet.getRange(`H2:Q`).clearContent();
+  runSheet.getRange(`${pcColumn}3:${apColumn}`).clearContent();
+  runSheet.getRange(`${opcodeColumn}2:${runOp1Column}`).clearContent();
+  runSheet
+    .getRange(`${executionColumn}${stackLength + 2}:${executionColumn}`)
+    .clearContent();
+  runSheet
+    .getRange(
+      `${firstBuiltinColumn}2:${columns[letterToIndex(firstBuiltinColumn) + stackLength + 2]}`,
+    )
+    .clearContent();
 }
 
 function showPicker() {
@@ -41,35 +47,51 @@ function showPicker() {
 }
 
 function loadProgram(program: any) {
-  programSheet.getRange("A2:G").clearContent();
-  proverSheet.getRange("A3:G").clearContent();
+  programSheet.getRange(`${progBytecodeColumn}2:AA`).clearContent();
+  proverSheet.getRange(`${provSegmentsColumn}3:Q`).clearContent();
+
+  programSheet
+    .getRange(`${progDecInstructionColumn}1`)
+    .setValue("Decimal instruction");
+  programSheet
+    .getRange(`${progDstOffsetColumn}1:${progOp1OffsetColumn}1`)
+    .setValues([["Dst Offset", "Op0 Offset", "Op1 Offset"]]);
+  for (let flagIndex = 0; flagIndex < 15; flagIndex++) {
+    programSheet
+      .getRange(
+        `${columns[letterToIndex(progOp1OffsetColumn) + flagIndex + 1]}1`,
+      )
+      .setValue(`f_${flagIndex}`);
+  }
+  programSheet.getRange(`AA1`).setValue(`f_15`);
+
   const bytecode: string[] = program.data;
   let isConstant: boolean = false;
   for (var i = 0; i < bytecode.length; i++) {
     programSheet
-      .getRange(`A${i + 2}:B${i + 2}`)
+      .getRange(`${progBytecodeColumn}${i + 2}:${progOpcodeColumn}${i + 2}`)
       .setValues([
         [
           bytecode[i],
           isConstant
-            ? `=TO_SIGNED_INTEGER(A${i + 2})`
-            : `=DECODE_INSTRUCTION(A${i + 2})`,
+            ? `=TO_SIGNED_INTEGER(${progBytecodeColumn}${i + 2})`
+            : `=DECODE_INSTRUCTION(${progBytecodeColumn}${i + 2})`,
         ],
       ]);
+    programSheet
+      .getRange(`${progDstOffsetColumn}${i + 2}`)
+      .setFormula(`=GET_FLAGS_AND_OFFSETS(${progBytecodeColumn}${i + 2})`);
+    programSheet
+      .getRange(`${progDecInstructionColumn}${i + 2}`)
+      .setValue(BigInt(bytecode[i]).toString(10));
     if (!isConstant) {
       isConstant = size(decodeInstruction(BigInt(bytecode[i]))) == 2;
     } else {
       isConstant = false;
     }
   }
-  programSheet.getRange("H1").setValue("Decimal instruction");
-  programSheet
-    .getRange(`H2:H${getLastActiveRowNumber("A", programSheet)}`)
-    .setValues(
-      bytecode.map((instruction) => [BigInt(instruction).toString(10)]),
-    );
 
-  runSheet.getRange("A1:O").clearContent();
+  runSheet.getRange("A1:Q").clearContent();
   runSheet
     .getRange(`${pcColumn}1:${executionColumn}1`)
     .setValues([
@@ -90,13 +112,17 @@ function loadProgram(program: any) {
 }
 
 function relocate() {
-  proverSheet.getRange(`A3:${columns[k]}`).clearContent();
+  proverSheet.getRange(`${provSegmentsColumn}3:${columns[k]}`).clearContent();
 
-  proverSheet.getRange("A1").setValue("Memory");
-  proverSheet.getRange(`A1:D1`).mergeAcross();
+  proverSheet.getRange(`${provSegmentsColumn}1`).setValue("Memory");
+  proverSheet
+    .getRange(`${provSegmentsColumn}1:${provMemoryRelocatedColumn}1`)
+    .mergeAcross();
 
-  proverSheet.getRange(`E1`).setValue("Relocated Trace");
-  proverSheet.getRange(`E1:G1`).mergeAcross();
+  proverSheet.getRange(`${provRelocatedPcColumn}1`).setValue("Relocated Trace");
+  proverSheet
+    .getRange(`${provRelocatedPcColumn}1:${provRelocatedApColumn}1`)
+    .mergeAcross();
 
   proverSheet
     .getRange(`${provSegmentsColumn}2:${provRelocatedApColumn}2`)

@@ -41,6 +41,21 @@ function getLastActiveFormulaRowNumber(column: string, sheet): number {
   return columnValues.length - lastNonEmptyIndex;
 }
 
+function getLastActiveColumnNumber(row: number, sheet): number {
+  let rowValues: string[] = sheet.getRange(`${row}1:${row}`).getValues()[0];
+
+  let lastNonEmptyIndex = rowValues
+    .slice()
+    .reverse()
+    .findIndex((value) => value !== "");
+
+  if (lastNonEmptyIndex === -1) {
+    return 0;
+  }
+
+  return rowValues.length - lastNonEmptyIndex;
+}
+
 function encodeUTF8(str: string): Uint8Array {
   const utf8Bytes: number[] = [];
 
@@ -132,16 +147,12 @@ function updateBuiltins() {
   }
 }
 
-function letterToIndex(char: string | String): number {
-  return char.charCodeAt(0) - "A".charCodeAt(0);
-}
-
 function isFinalPc(pc: number | string): boolean {
   const finalPcColumnIndex: number = runSheet
     .getRange("1:1")
     .getValues()[0]
     .indexOf(FINAL_PC);
-  return finalPcColumnIndex == letterToIndex(pc.toString()[0]);
+  return finalPcColumnIndex == columnToIndex(pc.toString()[0]);
 }
 
 function bigintTo15BitString(value: bigint): string {
@@ -154,4 +165,24 @@ function bigintTo15BitString(value: bigint): string {
   }
 
   return binaryStr;
+}
+
+function indexToColumn(index: number): string {
+  let column = "";
+  index += 1;
+  while (index > 0) {
+    let remainder = (index - 1) % 26;
+    column = String.fromCharCode(65 + remainder) + column;
+    index = Math.floor((index - 1) / 26);
+  }
+  return column;
+}
+
+function columnToIndex(column: string): number {
+  let rowNum = 0;
+  for (let i = 0; i < column.length; i++) {
+    rowNum *= 26;
+    rowNum += column.charCodeAt(i) - 64;
+  }
+  return rowNum - 1;
 }

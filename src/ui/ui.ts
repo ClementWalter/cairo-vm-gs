@@ -28,7 +28,12 @@ function clear(): void {
     .clearContent();
   runSheet
     .getRange(
-      `${firstBuiltinColumn}2:${columns[letterToIndex(firstBuiltinColumn) + stackLength + 2]}`,
+      `${firstBuiltinColumn}2:${indexToColumn(columnToIndex(firstBuiltinColumn) + stackLength + 2)}`,
+    )
+    .clearContent();
+  proverSheet
+    .getRange(
+      `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
     )
     .clearContent();
 }
@@ -47,8 +52,18 @@ function showPicker() {
 }
 
 function loadProgram(program: any) {
-  programSheet.getRange(`${progBytecodeColumn}2:AA`).clearContent();
-  proverSheet.getRange(`${provSegmentsColumn}3:Q`).clearContent();
+  proverSheet
+    .getRange(
+      `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
+    )
+    .clearContent();
+
+  //Program sheet
+  programSheet
+    .getRange(
+      `${progBytecodeColumn}2:${indexToColumn(getLastActiveColumnNumber(1, programSheet) - 1)}`,
+    )
+    .clearContent();
 
   programSheet
     .getRange(`${progDecInstructionColumn}1`)
@@ -56,14 +71,13 @@ function loadProgram(program: any) {
   programSheet
     .getRange(`${progDstOffsetColumn}1:${progOp1OffsetColumn}1`)
     .setValues([["Dst Offset", "Op0 Offset", "Op1 Offset"]]);
-  for (let flagIndex = 0; flagIndex < 15; flagIndex++) {
+  for (let flagIndex = 0; flagIndex < 16; flagIndex++) {
     programSheet
       .getRange(
-        `${columns[letterToIndex(progOp1OffsetColumn) + flagIndex + 1]}1`,
+        `${indexToColumn(columnToIndex(progOp1OffsetColumn) + flagIndex + 1)}1`,
       )
       .setValue(`f_${flagIndex}`);
   }
-  programSheet.getRange(`AA1`).setValue(`f_15`);
 
   const bytecode: string[] = program.data;
   let isConstant: boolean = false;
@@ -91,7 +105,12 @@ function loadProgram(program: any) {
     }
   }
 
-  runSheet.getRange("A1:Q").clearContent();
+  //Run sheet
+  runSheet
+    .getRange(
+      `${pcColumn}1:${indexToColumn(getLastActiveColumnNumber(1, runSheet) - 1)}`,
+    )
+    .clearContent();
   runSheet
     .getRange(`${pcColumn}1:${executionColumn}1`)
     .setValues([
@@ -112,7 +131,11 @@ function loadProgram(program: any) {
 }
 
 function relocate() {
-  proverSheet.getRange(`${provSegmentsColumn}3:${columns[k]}`).clearContent();
+  proverSheet
+    .getRange(
+      `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
+    )
+    .clearContent();
 
   proverSheet.getRange(`${provSegmentsColumn}1`).setValue("Memory");
   proverSheet

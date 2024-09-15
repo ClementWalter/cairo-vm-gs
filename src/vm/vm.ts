@@ -8,65 +8,69 @@ const programSheet: GoogleAppsScript.Spreadsheet.Sheet =
 const columns: String[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 let i = 0;
-const pcColumn: String = columns[i];
+const pcColumn: string = indexToColumn(i);
 i++;
-const fpColumn: String = columns[i];
+const fpColumn: string = indexToColumn(i);
 i++;
-const apColumn: String = columns[i];
+const apColumn: string = indexToColumn(i);
 i++;
-const opcodeColumn: String = columns[i];
+const opcodeColumn: string = indexToColumn(i);
 i++;
-const dstColumn: String = columns[i];
+const dstColumn: string = indexToColumn(i);
 i++;
-const resColumn: String = columns[i];
+const resColumn: string = indexToColumn(i);
 i++;
-const op0Column: String = columns[i];
+const op0Column: string = indexToColumn(i);
 i++;
-const runOp1Column: String = columns[i];
+const runOp1Column: string = indexToColumn(i);
 i++;
-const executionColumn: String = columns[i];
+const executionColumn: string = indexToColumn(i);
 i++;
-const firstBuiltinColumn: String = columns[i];
+const firstBuiltinColumn: string = indexToColumn(i);
 i++;
 
 let j = 0;
-const progBytecodeColumn: String = columns[j];
+const progBytecodeColumn: string = indexToColumn(j);
 j++;
-const progOpcodeColumn: String = columns[j];
+const progOpcodeColumn: string = indexToColumn(j);
 j++;
-const progDstColumn: String = columns[j];
+const progDstColumn: string = indexToColumn(j);
 j++;
-const progOpColumn: String = columns[j];
+const progOpColumn: string = indexToColumn(j);
 j++;
-const progPcupdateColumn: String = columns[j];
+const progPcupdateColumn: string = indexToColumn(j);
 j++;
-const progApupdateColumn: String = columns[j];
+const progApupdateColumn: string = indexToColumn(j);
 j++;
-const progFpupdateColumn: String = columns[j];
+const progFpupdateColumn: string = indexToColumn(j);
 j++;
-const progDecInstructionColumn: String = columns[j];
+const progDecInstructionColumn: string = indexToColumn(j);
 j++;
-const progDstOffsetColumn: String = columns[j];
+const progDstOffsetColumn: string = indexToColumn(j);
 j++;
-const progOp0OffsetColumn: String = columns[j];
+const progOp0OffsetColumn: string = indexToColumn(j);
 j++;
-const progOp1OffsetColumn: String = columns[j];
+const progOp1OffsetColumn: string = indexToColumn(j);
+j++;
+const progFlag0Column: string = indexToColumn(j);
+j += 15;
+const progFlag15Column: string = indexToColumn(j);
 j++;
 
 let k = 0;
-const provSegmentsColumn: String = columns[k];
+const provSegmentsColumn: string = indexToColumn(k);
 k++;
-const provAddressColumn: String = columns[k];
+const provAddressColumn: string = indexToColumn(k);
 k++;
-const provValuesColumn: String = columns[k];
+const provValuesColumn: string = indexToColumn(k);
 k++;
-const provMemoryRelocatedColumn: String = columns[k];
+const provMemoryRelocatedColumn: string = indexToColumn(k);
 k++;
-const provRelocatedPcColumn: String = columns[k];
+const provRelocatedPcColumn: string = indexToColumn(k);
 k++;
-const provRelocatedFpColumn: String = columns[k];
+const provRelocatedFpColumn: string = indexToColumn(k);
 k++;
-const provRelocatedApColumn: String = columns[k];
+const provRelocatedApColumn: string = indexToColumn(k);
 k++;
 
 type Builtins = {
@@ -114,21 +118,19 @@ let builtins: Builtins = {
 let builtinsColumns: {};
 function initializeSegments(builtinsList: string[]): string[] {
   let counter: number = 0;
-  const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;
+  const executionColumnOffset: number = columnToIndex(executionColumn) + 1;
 
   for (var key of builtinsList) {
-    builtins[key].column = columns[counter + executionColumnOffset];
+    builtins[key].column = indexToColumn(counter + executionColumnOffset);
     counter++;
   }
 
-  let fpRow: String =
-    columns[
-      letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1
-    ];
-  let pcRow: String =
-    columns[
-      letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 2
-    ];
+  let fpRow: string = indexToColumn(
+    columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1,
+  );
+  let pcRow: string = indexToColumn(
+    columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 2,
+  );
   runSheet
     .getRange(`${builtins[builtinsList[0]].column}1:${pcRow}1`)
     .setValues([[...builtinsList, FINAL_FP, FINAL_PC]]);
@@ -507,13 +509,13 @@ function runUntilPc(): void {
 
 function relocateMemory() {
   let formulas: string[] = [];
-  let columnIndex: number = letterToIndex(executionColumn);
+  let columnIndex: number = columnToIndex(executionColumn);
   let maxProgramRow: number = getLastActiveRowNumber("A", programSheet);
   for (let row = 2; row <= maxProgramRow; row++) {
     formulas.push(`=Program!H${row}`);
   }
   while (runSheet.getRange(1, columnIndex + 1).getValue() != "") {
-    let currentColumn: string = columns[columnIndex].toString();
+    let currentColumn: string = indexToColumn(columnIndex);
     let maxRowNumber: number = getLastActiveRowNumber(currentColumn, runSheet);
     let extraCell: number = currentColumn == executionColumn ? 0 : 1;
     for (let row = 2; row <= maxRowNumber + extraCell; row++) {
@@ -522,11 +524,11 @@ function relocateMemory() {
     columnIndex++;
   }
   proverSheet
-    .getRange(3, letterToIndex(provValuesColumn) + 1, formulas.length)
+    .getRange(3, columnToIndex(provValuesColumn) + 1, formulas.length)
     .setFormulas(formulas.map((formula) => [formula]));
 
   proverSheet
-    .getRange(3, letterToIndex(provSegmentsColumn) + 1, formulas.length)
+    .getRange(3, columnToIndex(provSegmentsColumn) + 1, formulas.length)
     .setFormulas(
       formulas.map((_, index) => [
         `=FORMULATEXT(${provValuesColumn}${index + 3})`,
@@ -534,7 +536,7 @@ function relocateMemory() {
     );
 
   proverSheet
-    .getRange(3, letterToIndex(provAddressColumn) + 1, formulas.length)
+    .getRange(3, columnToIndex(provAddressColumn) + 1, formulas.length)
     .setFormulas(
       formulas.map((_, index) => [
         `=REGEXEXTRACT(${provSegmentsColumn}${index + 3}; "([A-Z]+[0-9]+)$")`,
@@ -542,7 +544,7 @@ function relocateMemory() {
     );
 
   proverSheet
-    .getRange(3, letterToIndex(provMemoryRelocatedColumn) + 1, formulas.length)
+    .getRange(3, columnToIndex(provMemoryRelocatedColumn) + 1, formulas.length)
     .setFormulas(
       formulas.map((_, index) => [
         `=IFERROR(MATCH(${provValuesColumn}${index + 3};${provAddressColumn}3:${provAddressColumn}); ${provValuesColumn}${index + 3})`,

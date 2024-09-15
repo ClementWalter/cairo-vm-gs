@@ -72,7 +72,9 @@ function loadProgram(program: any) {
   runSheet.getRange("A1:O").clearContent();
   runSheet
     .getRange(`${pcColumn}1:${executionColumn}1`)
-    .setValues([["PC", "FP", "AP", "Opcode", "Dst", "Src", "Execution"]]);
+    .setValues([
+      ["PC", "FP", "AP", "Opcode", "Dst", "Res", "Op0", "Op1", "Execution"],
+    ]);
   const builtinsList: string[] = program.builtins;
   const segmentAddresses: string[] = initializeSegments(builtinsList);
   const mainOffset: string | number =

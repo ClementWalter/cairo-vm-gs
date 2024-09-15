@@ -20,6 +20,10 @@ const dstColumn: String = columns[i];
 i++;
 const resColumn: String = columns[i];
 i++;
+const op0Column: String = columns[i];
+i++;
+const runOp1Column: String = columns[i];
+i++;
 const executionColumn: String = columns[i];
 i++;
 
@@ -387,6 +391,9 @@ function step(n: number = 0): void {
       }
       break;
   }
+
+  runSheet.getRange(`${op0Column}${n + 2}`).setFormula(`=${op0Addr}`);
+  runSheet.getRange(`${runOp1Column}${n + 2}`).setFormula(`=${op1Addr}`);
 
   const resValue: string = runSheet.getRange(`${resColumn}${n + 2}`).getValue();
 

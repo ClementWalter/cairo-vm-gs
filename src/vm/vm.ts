@@ -491,6 +491,10 @@ function runUntilPc(): void {
 function relocateMemory() {
   let formulas: string[] = [];
   let columnIndex: number = letterToIndex(executionColumn);
+  let maxProgramRow: number = getLastActiveRowNumber("A", programSheet);
+  for (let row = 2; row <= maxProgramRow; row++) {
+    formulas.push(`=Program!H${row}`);
+  }
   while (runSheet.getRange(1, columnIndex + 1).getValue() != "") {
     let currentColumn: string = columns[columnIndex].toString();
     let maxRowNumber: number = getLastActiveRowNumber(currentColumn, runSheet);
@@ -516,7 +520,7 @@ function relocateMemory() {
     .getRange(3, letterToIndex(provAddressColumn) + 1, formulas.length)
     .setFormulas(
       formulas.map((_, index) => [
-        `=RIGHT(${provSegmentsColumn}${index + 3};LEN(${provSegmentsColumn}${index + 3}) - 5)`,
+        `=REGEXEXTRACT(${provSegmentsColumn}${index + 3}; "([A-Z]+[0-9]+)$")`,
       ]),
     );
 

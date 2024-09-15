@@ -62,6 +62,12 @@ function loadProgram(program: any) {
       isConstant = false;
     }
   }
+  programSheet.getRange("H1").setValue("Decimal instruction");
+  programSheet
+    .getRange(`H2:H${getLastActiveRowNumber("A", programSheet)}`)
+    .setValues(
+      bytecode.map((instruction) => [BigInt(instruction).toString(10)]),
+    );
 
   runSheet.getRange("A1:O").clearContent();
   runSheet

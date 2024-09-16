@@ -85,7 +85,11 @@ type Builtins = {
 };
 
 let builtins: Builtins = {
-  output: null,
+  output: {
+    freeCellsPerBuiltin: 0,
+    column: "",
+    functionName: ["output"],
+  },
   pedersen: {
     freeCellsPerBuiltin: 2,
     column: "",
@@ -116,7 +120,12 @@ let builtins: Builtins = {
 };
 
 let builtinsColumns: {};
-function initializeSegments(builtinsList: string[]): string[] {
+function initializeProgram(program: any, isProofMode: boolean, layout: Layout) {
+  const usedBuiltins: string[] = program.builtins;
+  let builtinsList: string[] = isProofMode
+    ? [...new Set(usedBuiltins.concat(layout.builtins))]
+    : usedBuiltins;
+
   let counter: number = 0;
   const executionColumnOffset: number = columnToIndex(executionColumn) + 1;
 
@@ -125,21 +134,58 @@ function initializeSegments(builtinsList: string[]): string[] {
     counter++;
   }
 
-  let fpRow: string = indexToColumn(
-    columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1,
-  );
-  let pcRow: string = indexToColumn(
-    columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 2,
-  );
-  runSheet
-    .getRange(`${builtins[builtinsList[0]].column}1:${pcRow}1`)
-    .setValues([[...builtinsList, FINAL_FP, FINAL_PC]]);
+  const builtinStack = builtinsList
+    .map((builtin) => {
+      let base: string = `${builtins[builtin].column}2`;
+      if (isProofMode) {
+        return usedBuiltins.includes(builtin) ? base : 0;
+      }
+      return base;
+    })
+    .filter((value) => !(value === 0));
 
-  return [
-    ...builtinsList.map((builtin) => `${builtins[builtin].column}2`),
-    `${fpRow}2`,
-    `${pcRow}2`,
-  ];
+  let stack: string[] = [];
+  if (!isProofMode) {
+    let fpRow: string = indexToColumn(
+      columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1,
+    );
+    let pcRow: string = indexToColumn(
+      columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 2,
+    );
+    stack = [...builtinStack, `${fpRow}2`, `${pcRow}2`];
+    runSheet
+      .getRange(`${builtins[builtinsList[0]].column}1:${pcRow}1`)
+      .setValues([[...builtinsList, FINAL_FP, FINAL_PC]]);
+    programSheet
+      .getRange(`B${Number(getFinalPcCell().substring(1)) + 1}`)
+      .setValue(stack.length);
+    programSheet.getRange(getFinalPcCell()).setValue(`${pcRow}2`);
+  } else {
+    stack = [`${executionColumn}2`, "0", ...builtinStack];
+    programSheet
+      .getRange(`B${Number(getFinalPcCell().substring(1)) + 1}`)
+      .setValue(2);
+    programSheet
+      .getRange(getFinalPcCell())
+      .setValue(program["identifiers"]["__main__.__end__"]["pc"]);
+
+    runSheet
+      .getRange(
+        `${builtins[builtinsList[0]].column}1:${builtins[builtinsList[builtinsList.length - 1]].column}1`,
+      )
+      .setValues([builtinsList]);
+  }
+  runSheet
+    .getRange(`${executionColumn}2:${executionColumn}${stack.length + 1}`)
+    .setValues(stack.map((address) => [address]));
+
+  runSheet
+    .getRange(`${pcColumn}2`)
+    .setFormula(`=Program!B${Number(getFinalPcCell().substring(1)) - 1}`);
+  runSheet
+    .getRange(`${apColumn}2`)
+    .setFormula(`=Program!B${Number(getFinalPcCell().substring(1)) + 1}`);
+  runSheet.getRange(`${fpColumn}2`).setFormula(`=${apColumn}2`);
 }
 
 function step(n: number = 0): void {
@@ -497,7 +543,7 @@ function step(n: number = 0): void {
   }
 }
 
-function runUntilPc(): void {
+function runUntilPc(): number {
   let i: number = getLastActiveRowNumber(`${pcColumn}`, runSheet) - 2;
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   while (!isFinalPc(pc)) {
@@ -505,12 +551,13 @@ function runUntilPc(): void {
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   }
+  return i + 1; //number of steps exectued
 }
 
 function relocateMemory() {
   let formulas: string[] = [];
   let columnIndex: number = columnToIndex(executionColumn);
-  let maxProgramRow: number = getLastActiveRowNumber("A", programSheet);
+  let maxProgramRow: number = getLastActiveRowNumber("C", programSheet);
   for (let row = 2; row <= maxProgramRow; row++) {
     formulas.push(`=Program!H${row}`);
   }

@@ -148,11 +148,7 @@ function updateBuiltins() {
 }
 
 function isFinalPc(pc: number | string): boolean {
-  const finalPcColumnIndex: number = runSheet
-    .getRange("1:1")
-    .getValues()[0]
-    .indexOf(FINAL_PC);
-  return finalPcColumnIndex == columnToIndex(pc.toString()[0]);
+  return pc == programSheet.getRange(getFinalPcCell()).getValue();
 }
 
 function bigintTo15BitString(value: bigint): string {
@@ -185,4 +181,40 @@ function columnToIndex(column: string): number {
     rowNum += column.charCodeAt(i) - 64;
   }
   return rowNum - 1;
+}
+
+function getFinalPcCell(): string {
+  return `B${
+    programSheet
+      .getRange("A1:A")
+      .getValues()
+      .map((value) => {
+        if (value) {
+          return value[0];
+        }
+      })
+      .indexOf(FINAL_PC) + 1
+  }`;
+}
+
+function getProofModeCell(): string {
+  return `B${
+    programSheet
+      .getRange("A1:A")
+      .getValues()
+      .map((value) => {
+        if (value) {
+          return value[0];
+        }
+      })
+      .indexOf("proof_mode") + 1
+  }`;
+}
+
+function isProofMode(): boolean {
+  return Number(programSheet.getRange(getProofModeCell()).getValue()) == 1;
+}
+
+function nextPowerOfTwo(n: number): number {
+  return 1 << Math.ceil(Math.log2(n));
 }

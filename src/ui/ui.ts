@@ -14,7 +14,16 @@ function menuStep(): void {
 }
 
 function menuRun(): void {
-  runUntilPc();
+  let lastStepNumber: number = runUntilPc();
+  if (isProofMode()) {
+    for (
+      let stepNum = lastStepNumber;
+      stepNum <= nextPowerOfTwo(lastStepNumber);
+      stepNum++
+    ) {
+      step(stepNum - 1);
+    }
+  }
 }
 
 function clear(): void {
@@ -51,7 +60,15 @@ function showPicker() {
   }
 }
 
-function loadProgram(program: any) {
+function loadProgram(
+  programStringified: any,
+  selectedRunnerMode: string,
+  selectedLayout: string,
+) {
+  let program = JSON.parse(programStringified);
+  let isProofMode: boolean = selectedRunnerMode == "proof";
+  let layout: Layout = layouts[selectedLayout];
+
   proverSheet
     .getRange(
       `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
@@ -105,6 +122,41 @@ function loadProgram(program: any) {
     }
   }
 
+  //Store complementary data (builtins, initial and final pc, proofMode, layout)
+  //to avoid loosing it when reloading the page for instance.
+  let lastActiveRowProgram: number = getLastActiveRowNumber(
+    progBytecodeColumn,
+    programSheet,
+  );
+  let rowOffset: number = lastActiveRowProgram + 3; //3 offset is arbitrary
+  programSheet.getRange(rowOffset, 1).setValue("Complementary information");
+  //programSheet.getRange(rowOffset,1,rowOffset,2).mergeAcross();
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue("proof_mode");
+  programSheet.getRange(rowOffset, 2).setValue(isProofMode ? 1 : 0);
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue("used_builtins");
+  programSheet
+    .getRange(rowOffset, 2, program.builtins.length)
+    .setValues(program.builtins.map((builtin) => [builtin]));
+  rowOffset += program.builtins.length;
+  programSheet.getRange(rowOffset, 1).setValue("initial_pc");
+  programSheet
+    .getRange(rowOffset, 2)
+    .setValue(
+      program["identifiers"][`__main__.${isProofMode ? "__start__" : "main"}`][
+        "pc"
+      ],
+    );
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue(FINAL_PC);
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue("initial_ap");
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue("layout");
+  programSheet.getRange(rowOffset, 2).setValue(selectedLayout);
+  rowOffset++;
+
   //Run sheet
   runSheet
     .getRange(
@@ -116,18 +168,8 @@ function loadProgram(program: any) {
     .setValues([
       ["PC", "FP", "AP", "Opcode", "Dst", "Res", "Op0", "Op1", "Execution"],
     ]);
-  const builtinsList: string[] = program.builtins;
-  const segmentAddresses: string[] = initializeSegments(builtinsList);
-  const mainOffset: string | number =
-    program["identifiers"]["__main__.main"]["pc"];
-  runSheet.getRange(`${pcColumn}2`).setValue(mainOffset);
-  runSheet.getRange(`${apColumn}2`).setValue(segmentAddresses.length);
-  runSheet.getRange(`${fpColumn}2`).setFormula(`=${apColumn}2`);
-  runSheet
-    .getRange(
-      `${executionColumn}2:${executionColumn}${segmentAddresses.length + 1}`,
-    )
-    .setValues(segmentAddresses.map((address) => [address]));
+
+  initializeProgram(program, isProofMode, layout);
 }
 
 function relocate() {

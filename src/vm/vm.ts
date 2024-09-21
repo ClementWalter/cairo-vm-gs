@@ -241,7 +241,8 @@ function step(n: number = 0): void {
       op1Addr = `${op0Value[0]}${Number(op0Value.substring(1)) + instruction.Op1Offset}`;
       break;
     case Op1Src.PC:
-      op1Index = registers[instruction.Op1Register] + instruction.Op1Offset;
+      op1Index =
+        Number(registers[instruction.Op1Register]) + instruction.Op1Offset;
       op1Addr = `Program!${progOpColumn}${op1Index + 2}`;
       break;
     default:
@@ -551,7 +552,7 @@ function runUntilPc(): number {
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   }
-  return i + 1; //number of steps exectued
+  return i + 1; //number of steps exectued (i+2 is the row of the new registers)
 }
 
 function relocateMemory() {

@@ -16,12 +16,19 @@ function menuStep(): void {
 function menuRun(): void {
   let lastStepNumber: number = runUntilPc();
   if (isProofMode()) {
+    step(lastStepNumber - 1);
+    let equalToLastStepFormulas: string[] = [];
+    for (let i = 0; i <= columnToIndex(runOp1Column); i++) {
+      equalToLastStepFormulas.push(`=${indexToColumn(i)}${lastStepNumber + 1}`);
+    }
     for (
-      let stepNum = lastStepNumber;
-      stepNum <= nextPowerOfTwo(lastStepNumber);
+      let stepNum = lastStepNumber + 2;
+      stepNum <= nextPowerOfTwo(lastStepNumber) + 1;
       stepNum++
     ) {
-      step(stepNum - 1);
+      runSheet
+        .getRange(`${pcColumn}${stepNum}:${runOp1Column}${stepNum}`)
+        .setFormulas([equalToLastStepFormulas]);
     }
   }
 }

@@ -557,13 +557,20 @@ function runUntilPc(): number {
 function relocateMemory() {
   let formulas: string[] = [];
   let columnIndex: number = columnToIndex(executionColumn);
-  let maxProgramRow: number = getLastActiveRowNumber("C", programSheet);
+  let maxProgramRow: number = getLastActiveRowNumber(
+    progDecInstructionColumn,
+    programSheet,
+  );
   for (let row = 2; row <= maxProgramRow; row++) {
-    formulas.push(`=Program!H${row}`);
+    formulas.push(`=Program!${progDecInstructionColumn}${row}`);
   }
   while (runSheet.getRange(1, columnIndex + 1).getValue() != "") {
     let currentColumn: string = indexToColumn(columnIndex);
     let maxRowNumber: number = getLastActiveRowNumber(currentColumn, runSheet);
+    if (maxRowNumber == 1) {
+      columnIndex++;
+      continue;
+    }
     let extraCell: number = currentColumn == executionColumn ? 0 : 1;
     for (let row = 2; row <= maxRowNumber + extraCell; row++) {
       formulas.push(`=Run!${currentColumn}${row}`);

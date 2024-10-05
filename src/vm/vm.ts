@@ -77,9 +77,10 @@ type Builtins = {
   output: BuitlinType;
   pedersen: BuitlinType;
   range_check: BuitlinType;
+  range_check96: BuitlinType;
   ecdsa: BuitlinType;
   bitwise: BuitlinType;
-  ecOp: BuitlinType;
+  ec_op: BuitlinType;
   keccak: BuitlinType;
   poseidon: BuitlinType;
 };
@@ -88,7 +89,7 @@ let builtins: Builtins = {
   output: {
     freeCellsPerBuiltin: 0,
     column: "",
-    functionName: ["output"],
+    functionName: ["OUTPUT"],
   },
   pedersen: {
     freeCellsPerBuiltin: 2,
@@ -100,13 +101,26 @@ let builtins: Builtins = {
     column: "",
     functionName: ["RANGE_CHECK"],
   },
-  ecdsa: null,
+  range_check96: {
+    freeCellsPerBuiltin: 0,
+    column: "",
+    functionName: ["RANGE_CHECK96"],
+  },
+  ecdsa: {
+    freeCellsPerBuiltin: 3,
+    column: "",
+    functionName: ["CHECK_ECDSA_SIGNATURE"],
+  },
   bitwise: {
     freeCellsPerBuiltin: 2,
     column: "",
     functionName: ["BITWISE_AND", "BITWISE_XOR", "BITWISE_OR"],
   },
-  ecOp: null,
+  ec_op: {
+    freeCellsPerBuiltin: 3,
+    column: "",
+    functionName: ["EC_OP"],
+  },
   keccak: {
     freeCellsPerBuiltin: 1,
     column: "",

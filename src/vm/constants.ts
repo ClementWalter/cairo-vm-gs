@@ -68,6 +68,10 @@ interface BuitlinType {
   functionName: string[];
 }
 
+type Layout = {
+  builtins: string[];
+};
+
 const PRIME: bigint = BigInt(
   "0x800000000000011000000000000000000000000000000000000000000000001",
 );
@@ -131,3 +135,80 @@ const FpUpdates: FpUpdatesType = {
 
 const FINAL_FP: string = "final_fp";
 const FINAL_PC: string = "final_pc";
+
+const layouts: { [key: string]: Layout } = {
+  plain: {
+    builtins: [],
+  },
+  small: {
+    builtins: ["output", "pedersen", "range_check", "ecdsa"],
+  },
+  dex: {
+    builtins: ["output", "pedersen", "range_check", "ecdsa"],
+  },
+  recursive: {
+    builtins: ["output", "pedersen", "range_check", "bitwise"],
+  },
+  starknet: {
+    builtins: [
+      "output",
+      "pedersen",
+      "range_check",
+      "ecdsa",
+      "bitwise",
+      "ec_op",
+      "poseidon",
+    ],
+  },
+  starknet_with_keccak: {
+    builtins: [
+      "output",
+      "pedersen",
+      "range_check",
+      "ecdsa",
+      "bitwise",
+      "ec_op",
+      "keccak",
+      "poseidon",
+    ],
+  },
+  recursive_large_output: {
+    builtins: ["output", "pedersen", "range_check", "bitwise", "poseidon"],
+  },
+  recursive_with_poseidon: {
+    builtins: ["output", "pedersen", "range_check", "bitwise", "poseidon"],
+  },
+  all_cairo: {
+    builtins: [
+      "output",
+      "pedersen",
+      "range_check",
+      "ecdsa",
+      "bitwise",
+      "ec_op",
+      "keccak",
+      "poseidon",
+      "range_check96",
+    ],
+  },
+  all_solidity: {
+    builtins: [
+      "output",
+      "pedersen",
+      "range_check",
+      "ecdsa",
+      "bitwise",
+      "ec_op",
+    ],
+  },
+  dynamic: {
+    builtins: [
+      "output",
+      "pedersen",
+      "range_check",
+      "ecdsa",
+      "bitwise",
+      "ec_op",
+    ],
+  },
+};

@@ -9,18 +9,29 @@
       function closeDialog() {
         google.script.host.close();
       }
+
       function onFileLoad(event) {
         var compiledJson = JSON.parse(event.target.result);
+        var selectedRunnerMode = document.querySelector(
+          'input[name="runnerMode"]:checked',
+        ).value;
+        var selectedLayout = document.getElementById("layoutPicker").value;
         google.script.run
           .withSuccessHandler(closeDialog)
           .withFailureHandler(closeDialog)
-          .loadProgram(compiledJson);
+          .loadProgram(
+            JSON.stringify(compiledJson, null, 2),
+            selectedRunnerMode,
+            selectedLayout,
+          );
       }
+
       function onFileChange(event) {
         var fileReader = new FileReader();
         fileReader.onload = onFileLoad;
         fileReader.readAsText(event.target.files[0]);
       }
+
       function onApiLoad() {
         document
           .getElementById("program")
@@ -31,7 +42,42 @@
   <body>
     <div>
       <input id="program" type="file" accept="application/json" />
+
+      <div>
+        <p>Select the runner configuration :</p>
+        <label
+          ><input
+            type="radio"
+            name="runnerMode"
+            value="execution"
+            checked
+          />Execution mode</label
+        ><br />
+        <label
+          ><input type="radio" name="runnerMode" value="proof" />Proof
+          mode</label
+        ><br />
+      </div>
+
+      <div>
+        <p>Pick a layout :</p>
+        <select id="layoutPicker">
+          <option value="plain">Plain</option>
+          <option value="small">Small</option>
+          <option value="dex">Dex</option>
+          <option value="recursive">Recursive</option>
+          <option value="starknet_with_keccak">Starknet with Keccak</option>
+          <option value="recursive_large_output">Recursive large output</option>
+          <option value="recursive_with_poseidon">
+            Recursive with Poseidon
+          </option>
+          <option value="all_cairo">All Cairo</option>
+          <option value="all_solidity">All Solidity</option>
+          <option value="dynamic">Dynamic</option>
+        </select>
+      </div>
     </div>
+
     <script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
   </body>
 </html>

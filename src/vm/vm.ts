@@ -8,66 +8,89 @@ const programSheet: GoogleAppsScript.Spreadsheet.Sheet =
 const columns: String[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 let i = 0;
-const pcColumn: String = columns[i];
+const pcColumn: string = indexToColumn(i);
 i++;
-const fpColumn: String = columns[i];
+const fpColumn: string = indexToColumn(i);
 i++;
-const apColumn: String = columns[i];
+const apColumn: string = indexToColumn(i);
 i++;
-const opcodeColumn: String = columns[i];
+const opcodeColumn: string = indexToColumn(i);
 i++;
-const dstColumn: String = columns[i];
+const dstColumn: string = indexToColumn(i);
 i++;
-const resColumn: String = columns[i];
+const resColumn: string = indexToColumn(i);
 i++;
-const executionColumn: String = columns[i];
+const op0Column: string = indexToColumn(i);
+i++;
+const runOp1Column: string = indexToColumn(i);
+i++;
+const executionColumn: string = indexToColumn(i);
+i++;
+const firstBuiltinColumn: string = indexToColumn(i);
 i++;
 
 let j = 0;
-const progBytecodeColumn: String = columns[j];
+const progBytecodeColumn: string = indexToColumn(j);
 j++;
-const progOpcodeColumn: String = columns[j];
+const progOpcodeColumn: string = indexToColumn(j);
 j++;
-const progDstColumn: String = columns[j];
+const progDstColumn: string = indexToColumn(j);
 j++;
-const progOpColumn: String = columns[j];
+const progOpColumn: string = indexToColumn(j);
 j++;
-const progPcupdateColumn: String = columns[j];
+const progPcupdateColumn: string = indexToColumn(j);
 j++;
-const progApupdateColumn: String = columns[j];
+const progApupdateColumn: string = indexToColumn(j);
 j++;
-const progFpupdateColumn: String = columns[j];
+const progFpupdateColumn: string = indexToColumn(j);
+j++;
+const progDecInstructionColumn: string = indexToColumn(j);
+j++;
+const progDstOffsetColumn: string = indexToColumn(j);
+j++;
+const progOp0OffsetColumn: string = indexToColumn(j);
+j++;
+const progOp1OffsetColumn: string = indexToColumn(j);
+j++;
+const progFlag0Column: string = indexToColumn(j);
+j += 15;
+const progFlag15Column: string = indexToColumn(j);
 j++;
 
 let k = 0;
-const provSegmentsColumn: String = columns[k];
+const provSegmentsColumn: string = indexToColumn(k);
 k++;
-const provAddressColumn: String = columns[k];
+const provAddressColumn: string = indexToColumn(k);
 k++;
-const provValuesColumn: String = columns[k];
+const provValuesColumn: string = indexToColumn(k);
 k++;
-const provMemoryRelocatedColumn: String = columns[k];
+const provMemoryRelocatedColumn: string = indexToColumn(k);
 k++;
-const provRelocatedPcColumn: String = columns[k];
+const provRelocatedPcColumn: string = indexToColumn(k);
 k++;
-const provRelocatedFpColumn: String = columns[k];
+const provRelocatedFpColumn: string = indexToColumn(k);
 k++;
-const provRelocatedApColumn: String = columns[k];
+const provRelocatedApColumn: string = indexToColumn(k);
 k++;
 
 type Builtins = {
   output: BuitlinType;
   pedersen: BuitlinType;
   range_check: BuitlinType;
+  range_check96: BuitlinType;
   ecdsa: BuitlinType;
   bitwise: BuitlinType;
-  ecOp: BuitlinType;
+  ec_op: BuitlinType;
   keccak: BuitlinType;
   poseidon: BuitlinType;
 };
 
 let builtins: Builtins = {
-  output: null,
+  output: {
+    freeCellsPerBuiltin: 0,
+    column: "",
+    functionName: ["OUTPUT"],
+  },
   pedersen: {
     freeCellsPerBuiltin: 2,
     column: "",
@@ -78,13 +101,26 @@ let builtins: Builtins = {
     column: "",
     functionName: ["RANGE_CHECK"],
   },
-  ecdsa: null,
+  range_check96: {
+    freeCellsPerBuiltin: 0,
+    column: "",
+    functionName: ["RANGE_CHECK96"],
+  },
+  ecdsa: {
+    freeCellsPerBuiltin: 3,
+    column: "",
+    functionName: ["CHECK_ECDSA_SIGNATURE"],
+  },
   bitwise: {
     freeCellsPerBuiltin: 2,
     column: "",
     functionName: ["BITWISE_AND", "BITWISE_XOR", "BITWISE_OR"],
   },
-  ecOp: null,
+  ec_op: {
+    freeCellsPerBuiltin: 3,
+    column: "",
+    functionName: ["EC_OP"],
+  },
   keccak: {
     freeCellsPerBuiltin: 1,
     column: "",
@@ -98,32 +134,72 @@ let builtins: Builtins = {
 };
 
 let builtinsColumns: {};
-function initializeSegments(builtinsList: string[]): string[] {
+function initializeProgram(program: any, isProofMode: boolean, layout: Layout) {
+  const usedBuiltins: string[] = program.builtins;
+  let builtinsList: string[] = isProofMode
+    ? [...new Set(usedBuiltins.concat(layout.builtins))]
+    : usedBuiltins;
+
   let counter: number = 0;
-  const executionColumnOffset: number = columns.indexOf(executionColumn) + 1;
+  const executionColumnOffset: number = columnToIndex(executionColumn) + 1;
 
   for (var key of builtinsList) {
-    builtins[key].column = columns[counter + executionColumnOffset];
+    builtins[key].column = indexToColumn(counter + executionColumnOffset);
     counter++;
   }
 
-  let fpRow: String =
-    columns[
-      letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1
-    ];
-  let pcRow: String =
-    columns[
-      letterToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 2
-    ];
-  runSheet
-    .getRange(`${builtins[builtinsList[0]].column}1:${pcRow}1`)
-    .setValues([[...builtinsList, FINAL_FP, FINAL_PC]]);
+  const builtinStack = builtinsList
+    .map((builtin) => {
+      let base: string = `${builtins[builtin].column}2`;
+      if (isProofMode) {
+        return usedBuiltins.includes(builtin) ? base : 0;
+      }
+      return base;
+    })
+    .filter((value) => !(value === 0));
 
-  return [
-    ...builtinsList.map((builtin) => `${builtins[builtin].column}2`),
-    `${fpRow}2`,
-    `${pcRow}2`,
-  ];
+  let stack: string[] = [];
+  if (!isProofMode) {
+    let fpRow: string = indexToColumn(
+      columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1,
+    );
+    let pcRow: string = indexToColumn(
+      columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 2,
+    );
+    stack = [...builtinStack, `${fpRow}2`, `${pcRow}2`];
+    runSheet
+      .getRange(`${builtins[builtinsList[0]].column}1:${pcRow}1`)
+      .setValues([[...builtinsList, FINAL_FP, FINAL_PC]]);
+    programSheet
+      .getRange(`B${Number(getFinalPcCell().substring(1)) + 1}`)
+      .setValue(stack.length);
+    programSheet.getRange(getFinalPcCell()).setValue(`${pcRow}2`);
+  } else {
+    stack = [`${executionColumn}2`, "0", ...builtinStack];
+    programSheet
+      .getRange(`B${Number(getFinalPcCell().substring(1)) + 1}`)
+      .setValue(2);
+    programSheet
+      .getRange(getFinalPcCell())
+      .setValue(program["identifiers"]["__main__.__end__"]["pc"]);
+
+    runSheet
+      .getRange(
+        `${builtins[builtinsList[0]].column}1:${builtins[builtinsList[builtinsList.length - 1]].column}1`,
+      )
+      .setValues([builtinsList]);
+  }
+  runSheet
+    .getRange(`${executionColumn}2:${executionColumn}${stack.length + 1}`)
+    .setValues(stack.map((address) => [address]));
+
+  runSheet
+    .getRange(`${pcColumn}2`)
+    .setFormula(`=Program!B${Number(getFinalPcCell().substring(1)) - 1}`);
+  runSheet
+    .getRange(`${apColumn}2`)
+    .setFormula(`=Program!B${Number(getFinalPcCell().substring(1)) + 1}`);
+  runSheet.getRange(`${fpColumn}2`).setFormula(`=${apColumn}2`);
 }
 
 function step(n: number = 0): void {
@@ -179,7 +255,8 @@ function step(n: number = 0): void {
       op1Addr = `${op0Value[0]}${Number(op0Value.substring(1)) + instruction.Op1Offset}`;
       break;
     case Op1Src.PC:
-      op1Index = registers[instruction.Op1Register] + instruction.Op1Offset;
+      op1Index =
+        Number(registers[instruction.Op1Register]) + instruction.Op1Offset;
       op1Addr = `Program!${progOpColumn}${op1Index + 2}`;
       break;
     default:
@@ -388,6 +465,9 @@ function step(n: number = 0): void {
       break;
   }
 
+  runSheet.getRange(`${op0Column}${n + 2}`).setFormula(`=${op0Addr}`);
+  runSheet.getRange(`${runOp1Column}${n + 2}`).setFormula(`=${op1Addr}`);
+
   const resValue: string = runSheet.getRange(`${resColumn}${n + 2}`).getValue();
 
   switch (instruction.PcUpdate) {
@@ -478,7 +558,7 @@ function step(n: number = 0): void {
   }
 }
 
-function runUntilPc(): void {
+function runUntilPc(): number {
   let i: number = getLastActiveRowNumber(`${pcColumn}`, runSheet) - 2;
   let pc: string = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   while (!isFinalPc(pc)) {
@@ -486,14 +566,26 @@ function runUntilPc(): void {
     i++;
     pc = runSheet.getRange(`${pcColumn}${i + 1 + 1}`).getValue();
   }
+  return i + 1; //number of steps exectued (i+2 is the row of the new registers)
 }
 
 function relocateMemory() {
   let formulas: string[] = [];
-  let columnIndex: number = letterToIndex(executionColumn);
+  let columnIndex: number = columnToIndex(executionColumn);
+  let maxProgramRow: number = getLastActiveRowNumber(
+    progDecInstructionColumn,
+    programSheet,
+  );
+  for (let row = 2; row <= maxProgramRow; row++) {
+    formulas.push(`=Program!${progDecInstructionColumn}${row}`);
+  }
   while (runSheet.getRange(1, columnIndex + 1).getValue() != "") {
-    let currentColumn: string = columns[columnIndex].toString();
+    let currentColumn: string = indexToColumn(columnIndex);
     let maxRowNumber: number = getLastActiveRowNumber(currentColumn, runSheet);
+    if (maxRowNumber == 1) {
+      columnIndex++;
+      continue;
+    }
     let extraCell: number = currentColumn == executionColumn ? 0 : 1;
     for (let row = 2; row <= maxRowNumber + extraCell; row++) {
       formulas.push(`=Run!${currentColumn}${row}`);
@@ -501,11 +593,11 @@ function relocateMemory() {
     columnIndex++;
   }
   proverSheet
-    .getRange(3, letterToIndex(provValuesColumn) + 1, formulas.length)
+    .getRange(3, columnToIndex(provValuesColumn) + 1, formulas.length)
     .setFormulas(formulas.map((formula) => [formula]));
 
   proverSheet
-    .getRange(3, letterToIndex(provSegmentsColumn) + 1, formulas.length)
+    .getRange(3, columnToIndex(provSegmentsColumn) + 1, formulas.length)
     .setFormulas(
       formulas.map((_, index) => [
         `=FORMULATEXT(${provValuesColumn}${index + 3})`,
@@ -513,15 +605,15 @@ function relocateMemory() {
     );
 
   proverSheet
-    .getRange(3, letterToIndex(provAddressColumn) + 1, formulas.length)
+    .getRange(3, columnToIndex(provAddressColumn) + 1, formulas.length)
     .setFormulas(
       formulas.map((_, index) => [
-        `=RIGHT(${provSegmentsColumn}${index + 3};LEN(${provSegmentsColumn}${index + 3}) - 5)`,
+        `=REGEXEXTRACT(${provSegmentsColumn}${index + 3}; "([A-Z]+[0-9]+)$")`,
       ]),
     );
 
   proverSheet
-    .getRange(3, letterToIndex(provMemoryRelocatedColumn) + 1, formulas.length)
+    .getRange(3, columnToIndex(provMemoryRelocatedColumn) + 1, formulas.length)
     .setFormulas(
       formulas.map((_, index) => [
         `=IFERROR(MATCH(${provValuesColumn}${index + 3};${provAddressColumn}3:${provAddressColumn}); ${provValuesColumn}${index + 3})`,

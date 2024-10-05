@@ -12,6 +12,13 @@ interface decodedInstruction {
   FpUpdate: string;
 }
 
+interface traceInfo {
+  dstOffset: number;
+  op0Offset: number;
+  op1Offset: number;
+  flags: number[];
+}
+
 function fromBiasedRepresentation(offset: bigint): number {
   const bias: bigint = BigInt(1) << BigInt(15);
   return Number(BigInt(Number(offset)) - bias);
@@ -53,7 +60,7 @@ function decodeInstruction(encodedInstruction: bigint): decodedInstruction {
   const op0Offset: number = this.fromBiasedRepresentation(
     (encodedInstruction >> BigInt(16)) & BigInt(0xffff),
   );
-  let op1Offset: number = this.fromBiasedRepresentation(
+  const op1Offset: number = this.fromBiasedRepresentation(
     (encodedInstruction >> BigInt(32)) & BigInt(0xffff),
   );
 
@@ -211,4 +218,22 @@ function decodeInstruction(encodedInstruction: bigint): decodedInstruction {
     ApUpdate: apUpdate,
     FpUpdate: fpUpdate,
   };
+}
+
+function getTraceInfo(encodedInstruction: bigint): traceInfo {
+  const dstOffset: number = Number(encodedInstruction & BigInt(0xffff));
+  const op0Offset: number = Number(
+    (encodedInstruction >> BigInt(16)) & BigInt(0xffff),
+  );
+  const op1Offset: number = Number(
+    (encodedInstruction >> BigInt(32)) & BigInt(0xffff),
+  );
+
+  let flagsBigint: bigint = encodedInstruction >> BigInt(48);
+  let flags: number[] = bigintTo15BitString(flagsBigint)
+    .split("")
+    .map((flag) => Number(flag))
+    .reverse();
+
+  return { dstOffset, op0Offset, op1Offset, flags };
 }

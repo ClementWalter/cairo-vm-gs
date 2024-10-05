@@ -17,12 +17,31 @@ function menuRun(): void {
   let lastStepNumber: number = runUntilPc();
   if (isProofMode()) {
     step(lastStepNumber - 1);
+    step(lastStepNumber - 1 + 1);
+    let lastRegisters = runSheet
+      .getRange(
+        `${pcColumn}${lastStepNumber + 1}:${apColumn}${lastStepNumber + 1}`,
+      )
+      .getValues();
+    let firstOfLoopRegister = runSheet
+      .getRange(
+        `${pcColumn}${lastStepNumber + 2}:${apColumn}${lastStepNumber + 2}`,
+      )
+      .getValues();
+    if (
+      Number(lastRegisters[0][0]) != Number(firstOfLoopRegister[0][0]) &&
+      Number(lastRegisters[0][1]) != Number(firstOfLoopRegister[0][1]) &&
+      Number(lastRegisters[0][2]) != Number(firstOfLoopRegister[0][2])
+    ) {
+      Logger.log("Make sure the program is compiled and loaded in proof mode.");
+      throw new InvalidLoopRegisters();
+    }
     let equalToLastStepFormulas: string[] = [];
     for (let i = 0; i <= columnToIndex(runOp1Column); i++) {
-      equalToLastStepFormulas.push(`=${indexToColumn(i)}${lastStepNumber + 1}`);
+      equalToLastStepFormulas.push(`=${indexToColumn(i)}${lastStepNumber + 2}`);
     }
     for (
-      let stepNum = lastStepNumber + 2;
+      let stepNum = lastStepNumber + 3;
       stepNum <= nextPowerOfTwo(lastStepNumber) + 1;
       stepNum++
     ) {

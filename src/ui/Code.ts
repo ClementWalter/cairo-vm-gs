@@ -185,7 +185,7 @@ function GET_FLAGS_AND_OFFSETS(encodedInstruction: string): number[][] {
   );
 
   let traceFlags: number[] = flags.map((f, i, arr) =>
-    parseInt(arr.slice(i).reverse().join()),
+    parseInt(arr.slice(i).reverse().join(""), 2),
   );
 
   return [[dstOffset, op0Offset, op1Offset, ...traceFlags]];

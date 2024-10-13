@@ -36,19 +36,21 @@ function menuRun(): void {
       Logger.log("Make sure the program is compiled and loaded in proof mode.");
       throw new InvalidLoopRegisters();
     }
-    let equalToLastStepFormulas: string[] = [];
-    for (let i = 0; i <= columnToIndex(runOp1Column); i++) {
-      equalToLastStepFormulas.push(`=${indexToColumn(i)}${lastStepNumber + 2}`);
-    }
     for (
       let stepNum = lastStepNumber + 3;
       stepNum <= nextPowerOfTwo(lastStepNumber) + 1;
       stepNum++
     ) {
-      runSheet
-        .getRange(`${pcColumn}${stepNum}:${runOp1Column}${stepNum}`)
-        .setFormulas([equalToLastStepFormulas]);
+      step(stepNum - 2);
     }
+
+    //Clear new registers for proper relocation purposes
+    let registerRowToClear: number = nextPowerOfTwo(lastStepNumber) + 2;
+    runSheet
+      .getRange(
+        `${pcColumn}${registerRowToClear}:${apColumn}${registerRowToClear}`,
+      )
+      .clearContent();
   }
 }
 

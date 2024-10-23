@@ -10,21 +10,69 @@ function onOpen(): void {
 }
 
 function menuStep(): void {
-  step(getLastActiveRowNumber("A", runSheet) - 2);
+  step(getLastActiveRowNumber(`${pcColumn}`, runSheet) - 2);
 }
 
 function menuRun(): void {
-  runUntilPc();
+  let lastStepNumber: number = runUntilPc();
+  if (isProofMode()) {
+    step(lastStepNumber - 1);
+    step(lastStepNumber - 1 + 1);
+    let lastRegisters = runSheet
+      .getRange(
+        `${pcColumn}${lastStepNumber + 1}:${apColumn}${lastStepNumber + 1}`,
+      )
+      .getValues();
+    let firstOfLoopRegister = runSheet
+      .getRange(
+        `${pcColumn}${lastStepNumber + 2}:${apColumn}${lastStepNumber + 2}`,
+      )
+      .getValues();
+    if (
+      Number(lastRegisters[0][0]) != Number(firstOfLoopRegister[0][0]) &&
+      Number(lastRegisters[0][1]) != Number(firstOfLoopRegister[0][1]) &&
+      Number(lastRegisters[0][2]) != Number(firstOfLoopRegister[0][2])
+    ) {
+      Logger.log("Make sure the program is compiled and loaded in proof mode.");
+      throw new InvalidLoopRegisters();
+    }
+    for (
+      let stepNum = lastStepNumber + 3;
+      stepNum <= nextPowerOfTwo(lastStepNumber) + 1;
+      stepNum++
+    ) {
+      step(stepNum - 2);
+    }
+
+    //Clear new registers for proper relocation purposes
+    let registerRowToClear: number = nextPowerOfTwo(lastStepNumber) + 2;
+    runSheet
+      .getRange(
+        `${pcColumn}${registerRowToClear}:${apColumn}${registerRowToClear}`,
+      )
+      .clearContent();
+  }
 }
 
 function clear(): void {
   const stackLength: number = Number(
     runSheet.getRange(`${apColumn}2`).getValue(),
   );
-  runSheet.getRange(`A3:C`).clearContent();
-  runSheet.getRange("D2:F").clearContent();
-  runSheet.getRange(`G${stackLength + 2}:G`).clearContent();
-  runSheet.getRange(`H2:Q`).clearContent();
+  runSheet.getRange(`${pcColumn}3:${apColumn}`).clearContent();
+  runSheet.getRange(`${opcodeColumn}2:${runOp1Column}`).clearContent();
+  runSheet
+    .getRange(`${executionColumn}${stackLength + 2}:${executionColumn}`)
+    .clearContent();
+  runSheet
+    .getRange(
+      `${firstBuiltinColumn}2:${indexToColumn(columnToIndex(firstBuiltinColumn) + stackLength + 2)}`,
+    )
+    .clearContent();
+  proverSheet
+    .getRange(
+      `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
+    )
+    .clearContent();
 }
 
 function showPicker() {
@@ -40,22 +88,61 @@ function showPicker() {
   }
 }
 
-function loadProgram(program: any) {
-  programSheet.getRange("A2:G").clearContent();
-  proverSheet.getRange("A3:G").clearContent();
+function loadProgram(
+  programStringified: any,
+  selectedRunnerMode: string,
+  selectedLayout: string,
+) {
+  let program = JSON.parse(programStringified);
+  let isProofMode: boolean = selectedRunnerMode == "proof";
+  let layout: Layout = layouts[selectedLayout];
+
+  proverSheet
+    .getRange(
+      `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
+    )
+    .clearContent();
+
+  //Program sheet
+  programSheet
+    .getRange(
+      `${progBytecodeColumn}2:${indexToColumn(getLastActiveColumnNumber(1, programSheet) - 1)}`,
+    )
+    .clearContent();
+
+  programSheet
+    .getRange(`${progDecInstructionColumn}1`)
+    .setValue("Decimal instruction");
+  programSheet
+    .getRange(`${progDstOffsetColumn}1:${progOp1OffsetColumn}1`)
+    .setValues([["Dst Offset", "Op0 Offset", "Op1 Offset"]]);
+  for (let flagIndex = 0; flagIndex < 16; flagIndex++) {
+    programSheet
+      .getRange(
+        `${indexToColumn(columnToIndex(progOp1OffsetColumn) + flagIndex + 1)}1`,
+      )
+      .setValue(`f_${flagIndex}`);
+  }
+
   const bytecode: string[] = program.data;
   let isConstant: boolean = false;
   for (var i = 0; i < bytecode.length; i++) {
     programSheet
-      .getRange(`A${i + 2}:B${i + 2}`)
+      .getRange(`${progBytecodeColumn}${i + 2}:${progOpcodeColumn}${i + 2}`)
       .setValues([
         [
           bytecode[i],
           isConstant
-            ? `=TO_SIGNED_INTEGER(A${i + 2})`
-            : `=DECODE_INSTRUCTION(A${i + 2})`,
+            ? `=TO_SIGNED_INTEGER(${progBytecodeColumn}${i + 2})`
+            : `=DECODE_INSTRUCTION(${progBytecodeColumn}${i + 2})`,
         ],
       ]);
+    programSheet
+      .getRange(`${progDstOffsetColumn}${i + 2}`)
+      .setFormula(`=GET_FLAGS_AND_OFFSETS(${progBytecodeColumn}${i + 2})`);
+    programSheet
+      .getRange(`${progDecInstructionColumn}${i + 2}`)
+      .setValue(BigInt(bytecode[i]).toString(10));
     if (!isConstant) {
       isConstant = size(decodeInstruction(BigInt(bytecode[i]))) == 2;
     } else {
@@ -63,32 +150,72 @@ function loadProgram(program: any) {
     }
   }
 
-  runSheet.getRange("A1:O").clearContent();
-  runSheet
-    .getRange(`${pcColumn}1:${executionColumn}1`)
-    .setValues([["PC", "FP", "AP", "Opcode", "Dst", "Src", "Execution"]]);
-  const builtinsList: string[] = program.builtins;
-  const segmentAddresses: string[] = initializeSegments(builtinsList);
-  const mainOffset: string | number =
-    program["identifiers"]["__main__.main"]["pc"];
-  runSheet.getRange(`${pcColumn}2`).setValue(mainOffset);
-  runSheet.getRange(`${apColumn}2`).setValue(segmentAddresses.length);
-  runSheet.getRange(`${fpColumn}2`).setFormula(`=${apColumn}2`);
+  //Store complementary data (builtins, initial and final pc, proofMode, layout)
+  //to avoid loosing it when reloading the page for instance.
+  let lastActiveRowProgram: number = getLastActiveRowNumber(
+    progBytecodeColumn,
+    programSheet,
+  );
+  let rowOffset: number = lastActiveRowProgram + 3; //3 offset is arbitrary
+  programSheet.getRange(rowOffset, 1).setValue("Complementary information");
+  //programSheet.getRange(rowOffset,1,rowOffset,2).mergeAcross();
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue("proof_mode");
+  programSheet.getRange(rowOffset, 2).setValue(isProofMode ? 1 : 0);
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue("used_builtins");
+  programSheet
+    .getRange(rowOffset, 2, program.builtins.length)
+    .setValues(program.builtins.map((builtin) => [builtin]));
+  rowOffset += program.builtins.length;
+  programSheet.getRange(rowOffset, 1).setValue("initial_pc");
+  programSheet
+    .getRange(rowOffset, 2)
+    .setValue(
+      program["identifiers"][`__main__.${isProofMode ? "__start__" : "main"}`][
+        "pc"
+      ],
+    );
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue(FINAL_PC);
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue("initial_ap");
+  rowOffset++;
+  programSheet.getRange(rowOffset, 1).setValue("layout");
+  programSheet.getRange(rowOffset, 2).setValue(selectedLayout);
+  rowOffset++;
+
+  //Run sheet
   runSheet
     .getRange(
-      `${executionColumn}2:${executionColumn}${segmentAddresses.length + 1}`,
+      `${pcColumn}1:${indexToColumn(getLastActiveColumnNumber(1, runSheet) - 1)}`,
     )
-    .setValues(segmentAddresses.map((address) => [address]));
+    .clearContent();
+  runSheet
+    .getRange(`${pcColumn}1:${executionColumn}1`)
+    .setValues([
+      ["PC", "FP", "AP", "Opcode", "Dst", "Res", "Op0", "Op1", "Execution"],
+    ]);
+
+  initializeProgram(program, isProofMode, layout);
 }
 
 function relocate() {
-  proverSheet.getRange(`A3:${columns[k]}`).clearContent();
+  proverSheet
+    .getRange(
+      `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
+    )
+    .clearContent();
 
-  proverSheet.getRange("A1").setValue("Memory");
-  proverSheet.getRange(`A1:D1`).mergeAcross();
+  proverSheet.getRange(`${provSegmentsColumn}1`).setValue("Memory");
+  proverSheet
+    .getRange(`${provSegmentsColumn}1:${provMemoryRelocatedColumn}1`)
+    .mergeAcross();
 
-  proverSheet.getRange(`E1`).setValue("Relocated Trace");
-  proverSheet.getRange(`E1:G1`).mergeAcross();
+  proverSheet.getRange(`${provRelocatedPcColumn}1`).setValue("Relocated Trace");
+  proverSheet
+    .getRange(`${provRelocatedPcColumn}1:${provRelocatedApColumn}1`)
+    .mergeAcross();
 
   proverSheet
     .getRange(`${provSegmentsColumn}2:${provRelocatedApColumn}2`)

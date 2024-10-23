@@ -9,3 +9,4 @@ class InvalidDstRegisterError extends Error {}
 class InvalidRangeError extends Error {}
 class AssertEqError extends Error {}
 class InvalidCellSumError extends Error {}
+class InvalidLoopRegisters extends Error {}

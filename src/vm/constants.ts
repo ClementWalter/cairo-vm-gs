@@ -64,8 +64,9 @@ interface HadesParamsType {
 
 interface BuitlinType {
   freeCellsPerBuiltin: number;
+  numOutputCells: number;
   column: string;
-  functionName: string[];
+  functionName: string;
 }
 
 type Layout = {

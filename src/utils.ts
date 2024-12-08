@@ -218,3 +218,6 @@ function isProofMode(): boolean {
 function nextPowerOfTwo(n: number): number {
   return 1 << Math.ceil(Math.log2(n));
 }
+function hasEmptyCell(array): boolean {
+  return array.flat().includes("");
+}

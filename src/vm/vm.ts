@@ -88,57 +88,57 @@ type Builtins = {
 let builtins: Builtins = {
   output: {
     freeCellsPerBuiltin: 0,
+    numOutputCells: 0,
     column: "",
-    functionName: ["OUTPUT"],
+    functionName: "OUTPUT",
   },
   pedersen: {
     freeCellsPerBuiltin: 2,
+    numOutputCells: 1,
     column: "",
-    functionName: ["PEDERSEN"],
+    functionName: "PEDERSEN",
   },
   range_check: {
     freeCellsPerBuiltin: 0,
+    numOutputCells: 1,
     column: "",
-    functionName: ["RANGE_CHECK"],
+    functionName: "RANGE_CHECK",
   },
   range_check96: {
     freeCellsPerBuiltin: 0,
+    numOutputCells: 1,
     column: "",
-    functionName: ["RANGE_CHECK96"],
+    functionName: "RANGE_CHECK96",
   },
   ecdsa: {
     freeCellsPerBuiltin: 3,
+    numOutputCells: 1,
     column: "",
-    functionName: ["CHECK_ECDSA_SIGNATURE"],
+    functionName: "CHECK_ECDSA_SIGNATURE",
   },
   bitwise: {
     freeCellsPerBuiltin: 2,
+    numOutputCells: 3,
     column: "",
-    functionName: ["BITWISE_AND", "BITWISE_XOR", "BITWISE_OR"],
+    functionName: "BITWISE",
   },
   ec_op: {
     freeCellsPerBuiltin: 5,
+    numOutputCells: 2,
     column: "",
-    functionName: ["EC_OP_X", "EC_OP_Y"],
+    functionName: "EC_OP",
   },
   keccak: {
     freeCellsPerBuiltin: 8,
+    numOutputCells: 8,
     column: "",
-    functionName: [
-      "KECCAK1",
-      "KECCAK2",
-      "KECCAK3",
-      "KECCAK4",
-      "KECCAK5",
-      "KECCAK6",
-      "KECCAK7",
-      "KECCAK8",
-    ],
+    functionName: "KECCAK",
   },
   poseidon: {
     freeCellsPerBuiltin: 3,
+    numOutputCells: 3,
     column: "",
-    functionName: ["POSEIDON0", "POSEIDON1", "POSEIDON2"],
+    functionName: "POSEIDON",
   },
 };
 
@@ -286,8 +286,7 @@ function step(n: number = 0): void {
   if (Object.keys(builtinsColumns).includes(op1Column)) {
     const builtin = builtinsColumns[op1Column];
     if (builtin.freeCellsPerBuiltin > 0) {
-      const builtinSize =
-        builtin.freeCellsPerBuiltin + builtin.functionName.length;
+      const builtinSize = builtin.freeCellsPerBuiltin + builtin.numOutputCells;
 
       const requiredInstances =
         op1Offset > 0 ? Math.ceil(op1Offset / builtinSize) : 1;
@@ -301,18 +300,13 @@ function step(n: number = 0): void {
         for (let j = 1; j <= builtin.freeCellsPerBuiltin; j++) {
           inputCells.push(`${op1Column}${lastInstance + j + 1}`);
         }
-
-        for (let k = 0; k < builtin.functionName.length; k++) {
-          runSheet
-            .getRange(
-              `${builtin.column}${lastInstance + 1 + builtin.freeCellsPerBuiltin + 1}:${builtin.column}${lastBuiltinCell + 1}`,
-            )
-            .setFormulas(
-              builtin.functionName.map((functionName) => [
-                `=${functionName}(${inputCells.join(";")})`,
-              ]),
-            );
-        }
+        runSheet
+          .getRange(
+            `${builtin.column}${lastInstance + 1 + builtin.freeCellsPerBuiltin + 1}`,
+          )
+          .setFormula(
+            `=${builtin.functionName}(${inputCells[0]}:${inputCells[inputCells.length - 1]})`,
+          );
       }
     }
   }

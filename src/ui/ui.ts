@@ -78,8 +78,8 @@ function clear(): void {
 function showPicker() {
   try {
     const html = HtmlService.createHtmlOutputFromFile("src/ui/dialog.html")
-      .setWidth(600)
-      .setHeight(425)
+      .setWidth(800)
+      .setHeight(600)
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);
     SpreadsheetApp.getUi().showModalDialog(html, "Select a file");
   } catch (e) {
@@ -88,34 +88,49 @@ function showPicker() {
   }
 }
 
+var cache = CacheService.getScriptCache();
+
+function updateCacheProgress(current: string) {
+  cache.put("current", current, 10); // Cache for 10 seconds
+}
+
+function getProgress() {
+  const current = cache.get("current");
+  return { current: current || "" };
+}
+
 function loadProgram(
   programStringified: any,
   selectedRunnerMode: string,
   selectedLayout: string,
 ) {
+  updateCacheProgress("Parsing program...");
   let program = JSON.parse(programStringified);
-  let isProofMode: boolean = selectedRunnerMode == "proof";
+  let isProofMode: boolean = selectedRunnerMode === "proof";
   let layout: Layout = layouts[selectedLayout];
 
+  updateCacheProgress("Clearing prover sheet...");
   proverSheet
     .getRange(
       `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
     )
     .clearContent();
 
-  //Program sheet
+  updateCacheProgress("Clearing program sheet...");
   programSheet
     .getRange(
       `${progBytecodeColumn}2:${indexToColumn(getLastActiveColumnNumber(1, programSheet) - 1)}`,
     )
     .clearContent();
 
+  updateCacheProgress("Decoding instruction and flags...");
   programSheet
     .getRange(`${progDecInstructionColumn}1`)
     .setValue("Decimal instruction");
   programSheet
     .getRange(`${progDstOffsetColumn}1:${progOp1OffsetColumn}1`)
     .setValues([["Dst Offset", "Op0 Offset", "Op1 Offset"]]);
+
   for (let flagIndex = 0; flagIndex < 16; flagIndex++) {
     programSheet
       .getRange(
@@ -152,6 +167,7 @@ function loadProgram(
 
   //Store complementary data (builtins, initial and final pc, proofMode, layout)
   //to avoid loosing it when reloading the page for instance.
+  updateCacheProgress("Storing complementary data...");
   let lastActiveRowProgram: number = getLastActiveRowNumber(
     progBytecodeColumn,
     programSheet,
@@ -186,6 +202,7 @@ function loadProgram(
   rowOffset++;
 
   //Run sheet
+  updateCacheProgress("Initializing run sheet...");
   runSheet
     .getRange(
       `${pcColumn}1:${indexToColumn(getLastActiveColumnNumber(1, runSheet) - 1)}`,

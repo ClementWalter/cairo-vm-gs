@@ -29,6 +29,11 @@ function toSignedInteger(encodedInstruction): bigint {
   return number > BigInt(2 ** 128) ? number - PRIME : number;
 }
 
+function toUnsignedInteger(encodedInstruction): bigint {
+  const number: bigint = BigInt(encodedInstruction);
+  return number < 0 ? number + PRIME : number;
+}
+
 function size(instruction): number {
   return instruction.Op1Register === Registers.PC ? 2 : 1;
 }

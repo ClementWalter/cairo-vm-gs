@@ -51,5 +51,5 @@ function ecMul(m: bigint, p: AffinePoint): AffinePoint {
 }
 
 function ecOp(m: bigint, p: AffinePoint, q: AffinePoint): AffinePoint {
-  return ecAdd(ecMul(m, p), q);
+  return ecAdd(p, ecMul(m, q));
 }

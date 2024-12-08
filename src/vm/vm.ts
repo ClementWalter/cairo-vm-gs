@@ -117,19 +117,28 @@ let builtins: Builtins = {
     functionName: ["BITWISE_AND", "BITWISE_XOR", "BITWISE_OR"],
   },
   ec_op: {
-    freeCellsPerBuiltin: 3,
+    freeCellsPerBuiltin: 5,
     column: "",
-    functionName: ["EC_OP"],
+    functionName: ["EC_OP_X", "EC_OP_Y"],
   },
   keccak: {
-    freeCellsPerBuiltin: 1,
+    freeCellsPerBuiltin: 8,
     column: "",
-    functionName: ["KECCAK"],
+    functionName: [
+      "KECCAK1",
+      "KECCAK2",
+      "KECCAK3",
+      "KECCAK4",
+      "KECCAK5",
+      "KECCAK6",
+      "KECCAK7",
+      "KECCAK8",
+    ],
   },
   poseidon: {
-    freeCellsPerBuiltin: 2,
+    freeCellsPerBuiltin: 3,
     column: "",
-    functionName: ["POSEIDON"],
+    functionName: ["POSEIDON0", "POSEIDON1", "POSEIDON2"],
   },
 };
 
@@ -308,6 +317,44 @@ function step(n: number = 0): void {
     }
   }
 
+  if (builtins["range_check"].column != "") {
+    for (
+      let j = 2;
+      j <=
+      getLastActiveFormulaRowNumber(builtins["range_check"].column, runSheet);
+      j++
+    ) {
+      let currentCell: string = `${builtins["range_check"].column}${j}`;
+      let currentCellFormula: string = runSheet
+        .getRange(currentCell)
+        .getFormula();
+      if (currentCellFormula[1] != "R") {
+        runSheet
+          .getRange(currentCell)
+          .setFormula(`=RANGE_CHECK(${currentCellFormula.substring(1)})`);
+      }
+    }
+  }
+
+  if (builtins["range_check96"].column != "") {
+    for (
+      let j = 2;
+      j <=
+      getLastActiveFormulaRowNumber(builtins["range_check96"].column, runSheet);
+      j++
+    ) {
+      let currentCell: string = `${builtins["range_check96"].column}${j}`;
+      let currentCellFormula: string = runSheet
+        .getRange(currentCell)
+        .getFormula();
+      if (currentCellFormula[1] != "R") {
+        runSheet
+          .getRange(currentCell)
+          .setFormula(`=RANGE_CHECK96(${currentCellFormula.substring(1)})`);
+      }
+    }
+  }
+
   let op1Value: string = runSheet.getRange(op1Addr).getValue();
 
   // Set formula for current opcode: dst and res
@@ -342,23 +389,11 @@ function step(n: number = 0): void {
       );
       let validCallDstValue: string = registers[Registers.FP].toString(10);
       if (op0Value == "") {
-        runSheet
-          .getRange(op0Addr)
-          .setFormula(
-            op0Addr[0] == builtins["range_check"].column
-              ? `=RANGE_CHECK(${validCallOp0Value})`
-              : `="${validCallOp0Value}"`,
-          );
+        runSheet.getRange(op0Addr).setFormula(`="${validCallOp0Value}"`);
         op0Value = runSheet.getRange(op0Addr).getValue();
       }
       if (dstValue == "") {
-        runSheet
-          .getRange(dstAddr)
-          .setFormula(
-            dstAddr[0] == builtins["range_check"].column
-              ? `=RANGE_CHECK(${validCallDstValue})`
-              : `="${validCallDstValue}"`,
-          );
+        runSheet.getRange(dstAddr).setFormula(`="${validCallDstValue}"`);
         dstValue = runSheet.getRange(dstAddr).getValue();
       }
 
@@ -373,30 +408,20 @@ function step(n: number = 0): void {
           if (op0Value === "") {
             runSheet
               .getRange(op0Addr)
-              .setFormula(
-                op0Addr[0] == builtins["range_check"].column
-                  ? `=RANGE_CHECK(${addSegmentValues(dstValue, `-${op1Value}`)})`
-                  : `="${addSegmentValues(dstValue, `-${op1Value}"`)}`,
-              );
+              .setFormula(`="${addSegmentValues(dstValue, `-${op1Value}"`)}`);
             op0Value = runSheet.getRange(op0Addr).getValue();
           }
           if (op1Value === "") {
             runSheet
               .getRange(op1Addr)
-              .setFormula(
-                op1Addr[0] == builtins["range_check"].column
-                  ? `=RANGE_CHECK(${addSegmentValues(dstValue, `-${op0Value}`)})`
-                  : `="${addSegmentValues(dstValue, `-${op0Value}"`)}`,
-              );
+              .setFormula(`="${addSegmentValues(dstValue, `-${op0Value}"`)}`);
             op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
             runSheet
               .getRange(dstAddr)
               .setFormula(
-                dstAddr[0] == builtins["range_check"].column
-                  ? `=RANGE_CHECK(${addSegmentValues(`${op0Value}`, `${op1Value}`)})`
-                  : `="${addSegmentValues(`${op0Value}`, `${op1Value}`)}"`,
+                `="${addSegmentValues(`${op0Value}`, `${op1Value}`)}"`,
               );
           }
           validAssertEqDstValue = addSegmentValues(op0Value, op1Value);
@@ -405,31 +430,19 @@ function step(n: number = 0): void {
           if (op0Value === "") {
             runSheet
               .getRange(op0Addr)
-              .setFormula(
-                op0Addr[0] == builtins["range_check"].column
-                  ? `=RANGE_CHECK(${BigInt(dstValue) / BigInt(op1Value)})`
-                  : `="${BigInt(dstValue) / BigInt(op1Value)}"`,
-              );
+              .setFormula(`="${BigInt(dstValue) / BigInt(op1Value)}"`);
             op0Value = runSheet.getRange(op0Addr).getValue();
           }
           if (op1Value === "") {
             runSheet
               .getRange(op1Addr)
-              .setFormula(
-                op1Addr[0] == builtins["range_check"].column
-                  ? `=RANGE_CHECK(${BigInt(dstValue) / BigInt(op0Value)})`
-                  : `="${BigInt(dstValue) / BigInt(op0Value)}"`,
-              );
+              .setFormula(`="${BigInt(dstValue) / BigInt(op0Value)}"`);
             op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
             runSheet
               .getRange(dstAddr)
-              .setFormula(
-                dstAddr[0] == builtins["range_check"].column
-                  ? `=RANGE_CHECK(${BigInt(op0Value) * BigInt(op1Value)})`
-                  : `="${BigInt(op0Value) * BigInt(op1Value)}"`,
-              );
+              .setFormula(`="${BigInt(op0Value) * BigInt(op1Value)}"`);
           }
           validAssertEqDstValue = Number(
             BigInt(op0Value) * BigInt(op1Value),
@@ -437,23 +450,11 @@ function step(n: number = 0): void {
           break;
         case ResLogics.Op1:
           if (op1Value === "") {
-            runSheet
-              .getRange(op1Addr)
-              .setFormula(
-                op1Addr[0] == builtins["range_check"].column
-                  ? `=RANGE_CHECK(${dstValue})`
-                  : `="${dstValue}"`,
-              );
+            runSheet.getRange(op1Addr).setFormula(`="${dstValue}"`);
             op1Value = runSheet.getRange(op1Addr).getValue();
           }
           if (dstValue === "") {
-            runSheet
-              .getRange(dstAddr)
-              .setFormula(
-                dstAddr[0] == builtins["range_check"].column
-                  ? `=RANGE_CHECK(${op1Value})`
-                  : `="${op1Value}"`,
-              );
+            runSheet.getRange(dstAddr).setFormula(`="${op1Value}"`);
           }
           validAssertEqDstValue = op1Value;
           break;

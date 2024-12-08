@@ -37,7 +37,7 @@ function hadesRound(
   return values;
 }
 
-function poseidon(x: bigint, y: bigint): bigint {
+function poseidon(x: bigint, y: bigint, z: bigint): bigint[] {
   const params: HadesParamsType = {
     r: 2,
     c: 1,
@@ -49,8 +49,8 @@ function poseidon(x: bigint, y: bigint): bigint {
     ark: roundKeys,
     mds: matrix,
   };
-  var values: bigint[] = [x, y, BigInt(2)];
-  return hadesPermutation(values, params)[0];
+  var values: bigint[] = [x, y, z];
+  return hadesPermutation(values, params);
 }
 
 function modAddVectors(A: bigint[], B: bigint[]): bigint[] {

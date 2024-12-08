@@ -59,7 +59,7 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
 }
 
 function TO_SIGNED_INTEGER(encodedInstruction: string): [any[]] {
-  return [["", "", toSignedInteger(BigInt(encodedInstruction)).toString(10)]];
+  return [["", "", toUnsignedInteger(BigInt(encodedInstruction)).toString(10)]];
 }
 
 /**
@@ -102,12 +102,36 @@ function BITWISE_OR(x: number | string, y: number | string): string {
   return x == "" || y == "" ? "" : bitwiseOr(BigInt(x), BigInt(y)).toString(10);
 }
 
-function EC_OP(
+function EC_OP_X(
+  px: string,
+  py: string,
+  qx: string,
+  qy: string,
   m: number | string,
-  p: AffinePoint,
-  q: AffinePoint,
-): AffinePoint {
-  return ecOp(BigInt(m), p, q);
+): string {
+  let p = new AffinePoint(px, py);
+  let q = new AffinePoint(qx, qy);
+  if (px == "" || py == "" || qx == "" || qy == "" || m == "") {
+    return "";
+  } else {
+    return ecOp(BigInt(m), p, q).x.toString(10);
+  }
+}
+
+function EC_OP_Y(
+  px: string,
+  py: string,
+  qx: string,
+  qy: string,
+  m: number | string,
+): string {
+  let p = new AffinePoint(px, py);
+  let q = new AffinePoint(qx, qy);
+  if (px == "" || py == "" || qx == "" || qy == "" || m == "") {
+    return "";
+  } else {
+    return ecOp(BigInt(m), p, q).y.toString(10);
+  }
 }
 
 function SIGN_ECDSA(
@@ -144,27 +168,172 @@ function PEDERSEN(x: number | string, y: number | string): number | string {
   return x == "" || y == "" ? "" : pedersen(BigInt(x), BigInt(y)).toString(10);
 }
 
-function KECCAK(message: string): string {
-  if (message == "") {
-    return "";
-  }
-  const utf8Bytes = encodeUTF8(message.toString());
-  const bytearrayOutput = keccak(1088, 512, utf8Bytes, 0x01, 256 / 8);
+function bigintsToUint8Array(bigints: bigint[]): Uint8Array {
+  const result = new Uint8Array(bigints.length * 8); // Allocate enough space for all BigInts (each is 8 bytes)
 
-  const bitOutput = Array.from(bytearrayOutput)
-    .map((byte) => byte.toString(2).padStart(8, "0"))
-    .join("");
+  bigints.forEach((bigint, index) => {
+    const offset = index * 8; // Offset in the final Uint8Array for this BigInt's bytes
+    for (let i = 0; i < 8; i++) {
+      result[offset + i] = Number((bigint >> BigInt(8 * i)) & BigInt(0xff)); // Extract each byte
+    }
+  });
 
-  // trim the first 6 bits as Starknet keccak is keccak % 2**250
-  const bitStringSlice = bitOutput.slice(6);
-  const bitBigInt = BigInt("0b" + bitStringSlice);
-
-  const decOutput = bitBigInt.toString(10);
-  return decOutput;
+  return result;
 }
 
-function POSEIDON(x: number | string, y: number | string): number | string {
-  return x == "" || y == "" ? "" : poseidon(BigInt(x), BigInt(y)).toString(10);
+function KECCAK(s: string[][]) {
+  if (s.includes([])) {
+    return "";
+  }
+  let sFlattened: string[] = s.map((value) => value[0]);
+  const input = concatBytes(
+    ...sFlattened.map((value) => {
+      return numberToBytesLE(BigInt(value), 25);
+    }),
+  );
+  const state = u32(input);
+  keccakP(state);
+  const finalState = u8(state);
+  const KECCAK_BYTES = 25;
+  const outputs = Array.from({ length: 8 }, (_, i) =>
+    finalState.slice(i * KECCAK_BYTES, (i + 1) * KECCAK_BYTES),
+  ).map(bytesToNumberLE);
+  return outputs;
+}
+
+function KECCAK1(
+  s1: string,
+  s2: string,
+  s3: string,
+  s4: string,
+  s5: string,
+  s6: string,
+  s7: string,
+  s8: string,
+) {
+  let s: string[][] = [[s1], [s2], [s3], [s4], [s5], [s6], [s7], [s8]];
+  return KECCAK(s)[0];
+}
+function KECCAK2(
+  s1: string,
+  s2: string,
+  s3: string,
+  s4: string,
+  s5: string,
+  s6: string,
+  s7: string,
+  s8: string,
+) {
+  let s: string[][] = [[s1], [s2], [s3], [s4], [s5], [s6], [s7], [s8]];
+  return KECCAK(s)[1];
+}
+function KECCAK3(
+  s1: string,
+  s2: string,
+  s3: string,
+  s4: string,
+  s5: string,
+  s6: string,
+  s7: string,
+  s8: string,
+) {
+  let s: string[][] = [[s1], [s2], [s3], [s4], [s5], [s6], [s7], [s8]];
+  return KECCAK(s)[2];
+}
+function KECCAK4(
+  s1: string,
+  s2: string,
+  s3: string,
+  s4: string,
+  s5: string,
+  s6: string,
+  s7: string,
+  s8: string,
+) {
+  let s: string[][] = [[s1], [s2], [s3], [s4], [s5], [s6], [s7], [s8]];
+  return KECCAK(s)[3];
+}
+function KECCAK5(
+  s1: string,
+  s2: string,
+  s3: string,
+  s4: string,
+  s5: string,
+  s6: string,
+  s7: string,
+  s8: string,
+) {
+  let s: string[][] = [[s1], [s2], [s3], [s4], [s5], [s6], [s7], [s8]];
+  return KECCAK(s)[4];
+}
+function KECCAK6(
+  s1: string,
+  s2: string,
+  s3: string,
+  s4: string,
+  s5: string,
+  s6: string,
+  s7: string,
+  s8: string,
+) {
+  let s: string[][] = [[s1], [s2], [s3], [s4], [s5], [s6], [s7], [s8]];
+  return KECCAK(s)[5];
+}
+function KECCAK7(
+  s1: string,
+  s2: string,
+  s3: string,
+  s4: string,
+  s5: string,
+  s6: string,
+  s7: string,
+  s8: string,
+) {
+  let s: string[][] = [[s1], [s2], [s3], [s4], [s5], [s6], [s7], [s8]];
+  return KECCAK(s)[6];
+}
+function KECCAK8(
+  s1: string,
+  s2: string,
+  s3: string,
+  s4: string,
+  s5: string,
+  s6: string,
+  s7: string,
+  s8: string,
+) {
+  let s: string[][] = [[s1], [s2], [s3], [s4], [s5], [s6], [s7], [s8]];
+  return KECCAK(s)[7];
+}
+
+function POSEIDON0(
+  x: number | string,
+  y: number | string,
+  z: number | string,
+): number | string {
+  return x == "" || y == "" || z == ""
+    ? ""
+    : poseidon(BigInt(x), BigInt(y), BigInt(z))[0].toString(10);
+}
+
+function POSEIDON1(
+  x: number | string,
+  y: number | string,
+  z: number | string,
+): number | string {
+  return x == "" || y == "" || z == ""
+    ? ""
+    : poseidon(BigInt(x), BigInt(y), BigInt(z))[1].toString(10);
+}
+
+function POSEIDON2(
+  x: number | string,
+  y: number | string,
+  z: number | string,
+): number | string {
+  return x == "" || y == "" || z == ""
+    ? ""
+    : poseidon(BigInt(x), BigInt(y), BigInt(z))[2].toString(10);
 }
 
 function RANGE_CHECK96(num: number | string): string {

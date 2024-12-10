@@ -164,10 +164,14 @@ function loadProgram(
   programSheet.getRange(rowOffset, 2).setValue(isProofMode ? 1 : 0);
   rowOffset++;
   programSheet.getRange(rowOffset, 1).setValue("used_builtins");
-  programSheet
-    .getRange(rowOffset, 2, program.builtins.length)
-    .setValues(program.builtins.map((builtin) => [builtin]));
-  rowOffset += program.builtins.length;
+  if (program.builtins.length > 0) {
+    programSheet
+      .getRange(rowOffset, 2, program.builtins.length)
+      .setValues(program.builtins.map((builtin) => [builtin]));
+    rowOffset += program.builtins.length;
+  } else {
+    rowOffset += 1;
+  }
   programSheet.getRange(rowOffset, 1).setValue("initial_pc");
   programSheet
     .getRange(rowOffset, 2)

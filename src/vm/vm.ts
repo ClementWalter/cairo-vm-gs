@@ -160,20 +160,32 @@ function initializeProgram(program: any, isProofMode: boolean, layout: Layout) {
 
   let stack: string[] = [];
   if (!isProofMode) {
-    let fpRow: string = indexToColumn(
-      columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 1,
-    );
-    let pcRow: string = indexToColumn(
-      columnToIndex(builtins[builtinsList[builtinsList.length - 1]].column) + 2,
-    );
-    stack = [...builtinStack, `${fpRow}2`, `${pcRow}2`];
+    let fpColumn: string =
+      program.builtins.length != 0
+        ? indexToColumn(
+            columnToIndex(
+              builtins[builtinsList[builtinsList.length - 1]].column,
+            ) + 1,
+          )
+        : indexToColumn(columnToIndex(executionColumn) + 1);
+    let pcColumn: string =
+      program.builtins.length != 0
+        ? indexToColumn(
+            columnToIndex(
+              builtins[builtinsList[builtinsList.length - 1]].column,
+            ) + 2,
+          )
+        : indexToColumn(columnToIndex(executionColumn) + 2);
+    stack = [...builtinStack, `${fpColumn}2`, `${pcColumn}2`];
     runSheet
-      .getRange(`${builtins[builtinsList[0]].column}1:${pcRow}1`)
+      .getRange(
+        `${indexToColumn(columnToIndex(executionColumn) + 1)}1:${pcColumn}1`,
+      )
       .setValues([[...builtinsList, FINAL_FP, FINAL_PC]]);
     programSheet
       .getRange(`B${Number(getFinalPcCell().substring(1)) + 1}`)
       .setValue(stack.length);
-    programSheet.getRange(getFinalPcCell()).setValue(`${pcRow}2`);
+    programSheet.getRange(getFinalPcCell()).setValue(`${pcColumn}2`);
   } else {
     stack = [`${executionColumn}2`, "0", ...builtinStack];
     programSheet
@@ -183,11 +195,13 @@ function initializeProgram(program: any, isProofMode: boolean, layout: Layout) {
       .getRange(getFinalPcCell())
       .setValue(program["identifiers"]["__main__.__end__"]["pc"]);
 
-    runSheet
-      .getRange(
-        `${builtins[builtinsList[0]].column}1:${builtins[builtinsList[builtinsList.length - 1]].column}1`,
-      )
-      .setValues([builtinsList]);
+    if (builtinsList.length > 0) {
+      runSheet
+        .getRange(
+          `${builtins[builtinsList[0]].column}1:${builtins[builtinsList[builtinsList.length - 1]].column}1`,
+        )
+        .setValues([builtinsList]);
+    }
   }
   runSheet
     .getRange(`${executionColumn}2:${executionColumn}${stack.length + 1}`)

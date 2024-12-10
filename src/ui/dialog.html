@@ -5,20 +5,176 @@
       rel="stylesheet"
       href="https://ssl.gstatic.com/docs/script/css/add-ons.css"
     />
+    <style>
+      /* Global Styles */
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f9f9f9;
+        color: #333;
+      }
+
+      /* Card Container */
+      .container {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      /* File Input */
+      #program {
+        display: none;
+      }
+
+      .file-label {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        color: #fff;
+        background-color: #007bff;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 1.5rem;
+      }
+
+      .file-label:hover {
+        background-color: #0056b3;
+      }
+
+      /* Select Inputs */
+      label {
+        display: block;
+        text-align: left;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: #666;
+      }
+
+      select {
+        width: 100%;
+        /* padding: 0.75rem; */
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        background-color: #f5f5f5;
+        color: #333;
+        appearance: none;
+        margin-bottom: 1.5rem;
+        outline: none;
+        transition:
+          background-color 0.3s ease,
+          border-color 0.3s ease;
+      }
+
+      /* On hover */
+      select:hover {
+        background-color: #e0e0e0; /* Gray background when hovered */
+      }
+
+      /* On focus */
+      select:focus {
+        border-color: #007bff; /* Blue border on focus */
+        background-color: #eaeaea; /* Lighter gray background */
+      }
+
+      select::-ms-expand {
+        display: none;
+      }
+
+      /* Styling for selected option (if not displaying correctly) */
+      select option {
+        background-color: #fff;
+        color: #333;
+      }
+
+      /* Buttons */
+      #loadButton {
+        background: #007bff;
+        color: #ffffff;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-top: 1rem;
+      }
+
+      #loadButton:disabled {
+        background-color: #d6d6d6;
+        cursor: not-allowed;
+      }
+
+      #loadButton:hover:not(:disabled) {
+        background-color: #0056b3;
+      }
+
+      /* Progress Status */
+      #progressStatus {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #555;
+        font-style: italic;
+      }
+
+      /* Titles */
+      p {
+        font-weight: 500;
+        font-size: 1rem;
+        color: #666;
+        margin: 1rem 0;
+      }
+    </style>
     <script>
+      let compiledJson = null;
+
       function closeDialog() {
         google.script.host.close();
       }
 
-      function onFileLoad(event) {
-        var compiledJson = JSON.parse(event.target.result);
-        var selectedRunnerMode = document.querySelector(
-          'input[name="runnerMode"]:checked',
-        ).value;
-        var selectedLayout = document.getElementById("layoutPicker").value;
+      function getProgress() {
+        google.script.run.withSuccessHandler(updateProgress).getProgress();
+      }
+
+      function updateProgress(data) {
+        if (data && data.current) {
+          document.getElementById("progressStatus").textContent = data.current;
+        }
+        setTimeout(getProgress, 10);
+      }
+
+      window.addEventListener("load", getProgress);
+
+      function loadProgramRunner() {
+        if (!compiledJson) {
+          alert("Please select a file before proceeding.");
+          return;
+        }
+        const selectedRunnerMode = document.getElementById("runnerMode").value;
+        const selectedLayout = document.getElementById("layoutPicker").value;
+
+        document.getElementById("loadButton").textContent = "Loading...";
+        document.getElementById("loadButton").disabled = true;
+        document.getElementById("progressStatus").textContent =
+          "Fetching program...";
+
         google.script.run
           .withSuccessHandler(closeDialog)
-          .withFailureHandler(closeDialog)
           .loadProgram(
             JSON.stringify(compiledJson, null, 2),
             selectedRunnerMode,
@@ -26,10 +182,17 @@
           );
       }
 
+      function onFileLoad(event) {
+        compiledJson = JSON.parse(event.target.result);
+        document.getElementById("loadButton").disabled = false;
+      }
+
       function onFileChange(event) {
         var fileReader = new FileReader();
         fileReader.onload = onFileLoad;
         fileReader.readAsText(event.target.files[0]);
+        var fileName = event.target.files[0].name;
+        document.querySelector(".file-label").textContent = fileName;
       }
 
       function onApiLoad() {
@@ -40,27 +203,22 @@
     </script>
   </head>
   <body>
-    <div>
+    <div class="container">
+      <label for="program" class="file-label"
+        >Select a .json cairo-compiled file</label
+      >
       <input id="program" type="file" accept="application/json" />
 
       <div>
-        <p>Select the runner configuration :</p>
-        <label
-          ><input
-            type="radio"
-            name="runnerMode"
-            value="execution"
-            checked
-          />Execution mode</label
-        ><br />
-        <label
-          ><input type="radio" name="runnerMode" value="proof" />Proof
-          mode</label
-        ><br />
+        <label for="runnerMode">Select the runner configuration:</label>
+        <select id="runnerMode">
+          <option value="execution">Execution mode</option>
+          <option value="proof">Proof mode</option>
+        </select>
       </div>
 
       <div>
-        <p>Pick a layout :</p>
+        <label for="layoutPicker">Pick a layout:</label>
         <select id="layoutPicker">
           <option value="plain">Plain</option>
           <option value="small">Small</option>
@@ -76,6 +234,11 @@
           <option value="dynamic">Dynamic</option>
         </select>
       </div>
+
+      <button id="loadButton" onclick="loadProgramRunner()" disabled="true">
+        Load Program
+      </button>
+      <div id="progressStatus"></div>
     </div>
 
     <script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>

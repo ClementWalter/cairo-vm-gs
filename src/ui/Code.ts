@@ -58,7 +58,7 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
   }
 }
 
-function TO_SIGNED_INTEGER(encodedInstruction: string): [any[]] {
+function TO_UNSIGNED_INTEGER(encodedInstruction: string): [any[]] {
   return [["", "", toUnsignedInteger(BigInt(encodedInstruction)).toString(10)]];
 }
 

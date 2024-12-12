@@ -58,125 +58,97 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
   }
 }
 
-function TO_SIGNED_INTEGER(encodedInstruction: string): [any[]] {
-  return [["", "", toSignedInteger(BigInt(encodedInstruction)).toString(10)]];
+function TO_UNSIGNED_INTEGER(encodedInstruction: string): [any[]] {
+  return [["", "", toUnsignedInteger(BigInt(encodedInstruction)).toString(10)]];
 }
 
-/**
- * Provides custom function for bitwise 'and' for given two inputs.
- *
- * @param {number} x - one of the input for 'and' operation
- * @param {number} y - the other input for 'and' operation
- * @return The bitwise 'and' of two given inputs in bigint form.
- * @customfunction
- */
-function BITWISE_AND(x: number | string, y: number | string): string {
-  return x == "" || y == ""
-    ? ""
-    : bitwiseAnd(BigInt(x), BigInt(y)).toString(10);
-}
-
-/**
- * Provides custom function for bitwise 'xor' for given two inputs.
- *
- * @param {number} x - one of the input for 'xor' operation
- * @param {number} y - the other input for 'xor' operation
- * @return The bitwise 'xor' of two given inputs in bigint form.
- * @customfunction
- */
-function BITWISE_XOR(x: number | string, y: number | string): string {
-  return x == "" || y == ""
-    ? ""
-    : bitwiseXor(BigInt(x), BigInt(y)).toString(10);
-}
-
-/**
- * Provides custom function for bitwise 'or' for given two inputs.
- *
- * @param {number} x - one of the input for 'or' operation
- * @param {number} y - the other input for 'or' operation
- * @return The bitwise 'or' of two given inputs in bigint form.
- * @customfunction
- */
-function BITWISE_OR(x: number | string, y: number | string): string {
-  return x == "" || y == "" ? "" : bitwiseOr(BigInt(x), BigInt(y)).toString(10);
-}
-
-function EC_OP(
-  m: number | string,
-  p: AffinePoint,
-  q: AffinePoint,
-): AffinePoint {
-  return ecOp(BigInt(m), p, q);
-}
-
-function SIGN_ECDSA(
-  message: number | string,
-  private_key: number | string,
-): SignatureType {
-  return signMessage(BigInt(message), BigInt(private_key));
-}
-
-function CHECK_ECDSA_SIGNATURE(
-  r: number | string,
-  s: number | string,
-  message: number | string,
-  x: number | string,
-  y: number | string,
-): boolean {
-  var signature: SignatureType = { r: BigInt(r), s: BigInt(s) };
-  var public_key = new AffinePoint(String(x), String(y));
-  return verifySignature(signature, BigInt(message), public_key);
-}
-
-/**
- * Provides custom function for range checking a given input.
- *
- * @param {number} num - The number which is to be validated.
- * @return The number itself in bigint form if it is in range, else throws InvalidRangeError.
- * @customfunction
- */
-function RANGE_CHECK(num: number | string): string {
-  return num == "" ? "" : rangeCheck(BigInt(num)).toString(10);
-}
-
-function PEDERSEN(x: number | string, y: number | string): number | string {
-  return x == "" || y == "" ? "" : pedersen(BigInt(x), BigInt(y)).toString(10);
-}
-
-function KECCAK(message: string): string {
-  if (message == "") {
-    return "";
+function BITWISE(inputs: string[][]): string[] {
+  if (hasEmptyCell(inputs)) {
+    return [""];
   }
-  const utf8Bytes = encodeUTF8(message.toString());
-  const bytearrayOutput = keccak(1088, 512, utf8Bytes, 0x01, 256 / 8);
-
-  const bitOutput = Array.from(bytearrayOutput)
-    .map((byte) => byte.toString(2).padStart(8, "0"))
-    .join("");
-
-  // trim the first 6 bits as Starknet keccak is keccak % 2**250
-  const bitStringSlice = bitOutput.slice(6);
-  const bitBigInt = BigInt("0b" + bitStringSlice);
-
-  const decOutput = bitBigInt.toString(10);
-  return decOutput;
+  const [x, y] = inputs.flat();
+  return [
+    bitwiseAnd(BigInt(x), BigInt(y)).toString(10),
+    bitwiseXor(BigInt(x), BigInt(y)).toString(10),
+    bitwiseOr(BigInt(x), BigInt(y)).toString(10),
+  ];
 }
 
-function POSEIDON(x: number | string, y: number | string): number | string {
-  return x == "" || y == "" ? "" : poseidon(BigInt(x), BigInt(y)).toString(10);
+function EC_OP(inputs: string[][]): string[] {
+  if (hasEmptyCell(inputs)) {
+    return [""];
+  }
+  const [px, py, qx, qy, m] = inputs.flat();
+  let p = new AffinePoint(px, py);
+  let q = new AffinePoint(qx, qy);
+  let ecOpResult: AffinePoint = ecOp(BigInt(m), p, q);
+  return [ecOpResult.x.toString(10), ecOpResult.y.toString(10)];
 }
 
-function RANGE_CHECK96(num: number | string): string {
-  return num == "" ? "" : rangeCheck96(BigInt(num)).toString(10);
+// function SIGN_ECDSA(
+//   message: number | string,
+//   private_key: number | string,
+// ): SignatureType {
+//   return signMessage(BigInt(message), BigInt(private_key));
+// }
+
+// function CHECK_ECDSA_SIGNATURE(inputs: string[][]): string[] {
+//   if (hasEmptyCell(inputs)) {
+//     return [""];
+//   }
+//   const [r, s, message, x, y] = inputs.flat();
+//   var signature: SignatureType = { r: BigInt(r), s: BigInt(s) };
+//   var public_key = new AffinePoint(String(x), String(y));
+//   return [verifySignature(signature, BigInt(message), public_key)];
+// }
+
+function PEDERSEN(inputs: string[][]): string[] {
+  if (hasEmptyCell(inputs)) {
+    return [""];
+  }
+  const [x, y] = inputs.flat();
+  return [pedersen(BigInt(x), BigInt(y)).toString(10)];
 }
 
-function ADD_FELT(a: number | string, b: number | string): number | string {
-  return modAdd(BigInt(a), BigInt(b)).toString(10);
+function KECCAK(inputs: string[][]): string[] {
+  if (hasEmptyCell(inputs)) {
+    return [""];
+  }
+  let inputsFlattened: string[] = inputs.flat();
+  const inputHash = concatBytes(
+    ...inputsFlattened.map((value) => {
+      return numberToBytesLE(BigInt(value), 25);
+    }),
+  );
+  const state = u32(inputHash);
+  keccakP(state);
+  const finalState = u8(state);
+  const KECCAK_BYTES = 25;
+  const outputs = Array.from({ length: 8 }, (_, i) =>
+    finalState.slice(i * KECCAK_BYTES, (i + 1) * KECCAK_BYTES),
+  ).map(bytesToNumberLE);
+  return outputs.map((output) => output.toString(10));
 }
 
-function MUL_FELT(a: number | string, b: number | string): number | string {
-  return modMul(BigInt(a), BigInt(b)).toString(10);
+function POSEIDON(inputs: string[][]): string[] {
+  if (hasEmptyCell(inputs)) {
+    return [""];
+  }
+  const [x, y, z] = inputs.flat();
+  let poseidonResult: bigint[] = poseidon(BigInt(x), BigInt(y), BigInt(z));
+  return [
+    poseidonResult[0].toString(10),
+    poseidonResult[1].toString(10),
+    poseidonResult[2].toString(10),
+  ];
+}
+
+function RANGE_CHECK(inputs: string): string[] {
+  return [rangeCheck(BigInt(inputs)).toString(10)];
+}
+
+function RANGE_CHECK96(inputs: string): string[] {
+  return [rangeCheck96(BigInt(inputs)).toString(10)];
 }
 
 function GET_FLAGS_AND_OFFSETS(encodedInstruction: string): number[][] {

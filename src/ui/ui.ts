@@ -148,7 +148,7 @@ function loadProgram(
         [
           bytecode[i],
           isConstant
-            ? `=TO_SIGNED_INTEGER(${progBytecodeColumn}${i + 2})`
+            ? `=TO_UNSIGNED_INTEGER(${progBytecodeColumn}${i + 2})`
             : `=DECODE_INSTRUCTION(${progBytecodeColumn}${i + 2})`,
         ],
       ]);

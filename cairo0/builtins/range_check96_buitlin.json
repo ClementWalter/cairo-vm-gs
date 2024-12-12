@@ -1,0 +1,234 @@
+{
+  "attributes": [],
+  "builtins": ["range_check96"],
+  "compiler_version": "0.13.1",
+  "data": [
+    "0x480680017fff8000",
+    "0xffffffffffffffffffffffff",
+    "0x400280007ffd7fff",
+    "0x482680017ffd8000",
+    "0x1",
+    "0x208b7fff7fff7ffe"
+  ],
+  "debug_info": {
+    "file_contents": {},
+    "instruction_locations": {
+      "0": {
+        "accessible_scopes": ["__main__", "__main__.main"],
+        "flow_tracking_data": {
+          "ap_tracking": {
+            "group": 0,
+            "offset": 0
+          },
+          "reference_ids": {
+            "__main__.main.range_check96_ptr": 0
+          }
+        },
+        "hints": [],
+        "inst": {
+          "end_col": 45,
+          "end_line": 4,
+          "input_file": {
+            "filename": "cairo0/Builtins/range_check96_builtin.cairo"
+          },
+          "start_col": 34,
+          "start_line": 4
+        }
+      },
+      "2": {
+        "accessible_scopes": ["__main__", "__main__.main"],
+        "flow_tracking_data": {
+          "ap_tracking": {
+            "group": 0,
+            "offset": 1
+          },
+          "reference_ids": {
+            "__main__.main.__temp0": 1,
+            "__main__.main.range_check96_ptr": 0
+          }
+        },
+        "hints": [],
+        "inst": {
+          "end_col": 46,
+          "end_line": 4,
+          "input_file": {
+            "filename": "cairo0/Builtins/range_check96_builtin.cairo"
+          },
+          "start_col": 5,
+          "start_line": 4
+        }
+      },
+      "3": {
+        "accessible_scopes": ["__main__", "__main__.main"],
+        "flow_tracking_data": {
+          "ap_tracking": {
+            "group": 0,
+            "offset": 1
+          },
+          "reference_ids": {
+            "__main__.main.__temp0": 1,
+            "__main__.main.range_check96_ptr": 2
+          }
+        },
+        "hints": [],
+        "inst": {
+          "end_col": 50,
+          "end_line": 5,
+          "input_file": {
+            "filename": "cairo0/Builtins/range_check96_builtin.cairo"
+          },
+          "parent_location": [
+            {
+              "end_col": 35,
+              "end_line": 3,
+              "input_file": {
+                "filename": "cairo0/Builtins/range_check96_builtin.cairo"
+              },
+              "parent_location": [
+                {
+                  "end_col": 15,
+                  "end_line": 6,
+                  "input_file": {
+                    "filename": "cairo0/Builtins/range_check96_builtin.cairo"
+                  },
+                  "start_col": 5,
+                  "start_line": 6
+                },
+                "While trying to retrieve the implicit argument 'range_check96_ptr' in:"
+              ],
+              "start_col": 11,
+              "start_line": 3
+            },
+            "While expanding the reference 'range_check96_ptr' in:"
+          ],
+          "start_col": 29,
+          "start_line": 5
+        }
+      },
+      "5": {
+        "accessible_scopes": ["__main__", "__main__.main"],
+        "flow_tracking_data": {
+          "ap_tracking": {
+            "group": 0,
+            "offset": 2
+          },
+          "reference_ids": {
+            "__main__.main.__temp0": 1,
+            "__main__.main.range_check96_ptr": 2
+          }
+        },
+        "hints": [],
+        "inst": {
+          "end_col": 15,
+          "end_line": 6,
+          "input_file": {
+            "filename": "cairo0/Builtins/range_check96_builtin.cairo"
+          },
+          "start_col": 5,
+          "start_line": 6
+        }
+      }
+    }
+  },
+  "hints": {},
+  "identifiers": {
+    "__main__.main": {
+      "decorators": [],
+      "pc": 0,
+      "type": "function"
+    },
+    "__main__.main.Args": {
+      "full_name": "__main__.main.Args",
+      "members": {},
+      "size": 0,
+      "type": "struct"
+    },
+    "__main__.main.ImplicitArgs": {
+      "full_name": "__main__.main.ImplicitArgs",
+      "members": {
+        "range_check96_ptr": {
+          "cairo_type": "felt*",
+          "offset": 0
+        }
+      },
+      "size": 1,
+      "type": "struct"
+    },
+    "__main__.main.Return": {
+      "cairo_type": "()",
+      "type": "type_definition"
+    },
+    "__main__.main.SIZEOF_LOCALS": {
+      "type": "const",
+      "value": 0
+    },
+    "__main__.main.__temp0": {
+      "cairo_type": "felt",
+      "full_name": "__main__.main.__temp0",
+      "references": [
+        {
+          "ap_tracking_data": {
+            "group": 0,
+            "offset": 1
+          },
+          "pc": 2,
+          "value": "[cast(ap + (-1), felt*)]"
+        }
+      ],
+      "type": "reference"
+    },
+    "__main__.main.range_check96_ptr": {
+      "cairo_type": "felt*",
+      "full_name": "__main__.main.range_check96_ptr",
+      "references": [
+        {
+          "ap_tracking_data": {
+            "group": 0,
+            "offset": 0
+          },
+          "pc": 0,
+          "value": "[cast(fp + (-3), felt**)]"
+        },
+        {
+          "ap_tracking_data": {
+            "group": 0,
+            "offset": 1
+          },
+          "pc": 3,
+          "value": "cast([fp + (-3)] + 1, felt*)"
+        }
+      ],
+      "type": "reference"
+    }
+  },
+  "main_scope": "__main__",
+  "prime": "0x800000000000011000000000000000000000000000000000000000000000001",
+  "reference_manager": {
+    "references": [
+      {
+        "ap_tracking_data": {
+          "group": 0,
+          "offset": 0
+        },
+        "pc": 0,
+        "value": "[cast(fp + (-3), felt**)]"
+      },
+      {
+        "ap_tracking_data": {
+          "group": 0,
+          "offset": 1
+        },
+        "pc": 2,
+        "value": "[cast(ap + (-1), felt*)]"
+      },
+      {
+        "ap_tracking_data": {
+          "group": 0,
+          "offset": 1
+        },
+        "pc": 3,
+        "value": "cast([fp + (-3)] + 1, felt*)"
+      }
+    ]
+  }
+}

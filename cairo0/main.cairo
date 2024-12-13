@@ -1,8 +1,8 @@
-%builtins range_check bitwise pedersen
+%builtins pedersen range_check bitwise
 
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 
-func main{range_check_ptr, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*}() {
+func main{pedersen_ptr: HashBuiltin*, range_check_ptr, bitwise_ptr: BitwiseBuiltin*}() {
     tempvar res = 1234;
     assert [range_check_ptr] = res;
     let range_check_ptr = range_check_ptr + 1;

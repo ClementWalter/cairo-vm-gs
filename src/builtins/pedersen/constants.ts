@@ -5,8 +5,8 @@ class AffinePoint {
 
   constructor(x: string, y: string, isNeutralElement: boolean = false) {
     if (!isNeutralElement) {
-      this.x = BigInt(x);
-      this.y = BigInt(y);
+      this.x = toUnsignedInteger(x);
+      this.y = toUnsignedInteger(y);
     }
     this.isNeutralElement = isNeutralElement;
   }

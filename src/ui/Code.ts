@@ -58,8 +58,8 @@ function DECODE_INSTRUCTION(encodedInstruction: string): [any[]] {
   }
 }
 
-function TO_UNSIGNED_INTEGER(encodedInstruction: string): [any[]] {
-  return [["", "", toUnsignedInteger(BigInt(encodedInstruction)).toString(10)]];
+function TO_SIGNED_INTEGER(encodedInstruction: string): [any[]] {
+  return [["", "", toSignedInteger(BigInt(encodedInstruction)).toString(10)]];
 }
 
 function BITWISE(inputs: string[][]): string[] {
@@ -68,9 +68,15 @@ function BITWISE(inputs: string[][]): string[] {
   }
   const [x, y] = inputs.flat();
   return [
-    bitwiseAnd(BigInt(x), BigInt(y)).toString(10),
-    bitwiseXor(BigInt(x), BigInt(y)).toString(10),
-    bitwiseOr(BigInt(x), BigInt(y)).toString(10),
+    toSignedInteger(
+      bitwiseAnd(toUnsignedInteger(x), toUnsignedInteger(y)),
+    ).toString(10),
+    toSignedInteger(
+      bitwiseXor(toUnsignedInteger(x), toUnsignedInteger(y)),
+    ).toString(10),
+    toSignedInteger(
+      bitwiseOr(toUnsignedInteger(x), toUnsignedInteger(y)),
+    ).toString(10),
   ];
 }
 
@@ -81,8 +87,11 @@ function EC_OP(inputs: string[][]): string[] {
   const [px, py, qx, qy, m] = inputs.flat();
   let p = new AffinePoint(px, py);
   let q = new AffinePoint(qx, qy);
-  let ecOpResult: AffinePoint = ecOp(BigInt(m), p, q);
-  return [ecOpResult.x.toString(10), ecOpResult.y.toString(10)];
+  let ecOpResult: AffinePoint = ecOp(toUnsignedInteger(m), p, q);
+  return [
+    toSignedInteger(ecOpResult.x).toString(10),
+    toSignedInteger(ecOpResult.y).toString(10),
+  ];
 }
 
 // function SIGN_ECDSA(
@@ -107,7 +116,11 @@ function PEDERSEN(inputs: string[][]): string[] {
     return [""];
   }
   const [x, y] = inputs.flat();
-  return [pedersen(BigInt(x), BigInt(y)).toString(10)];
+  return [
+    toSignedInteger(
+      pedersen(toUnsignedInteger(x), toUnsignedInteger(y)),
+    ).toString(10),
+  ];
 }
 
 function KECCAK(inputs: string[][]): string[] {
@@ -117,7 +130,7 @@ function KECCAK(inputs: string[][]): string[] {
   let inputsFlattened: string[] = inputs.flat();
   const inputHash = concatBytes(
     ...inputsFlattened.map((value) => {
-      return numberToBytesLE(BigInt(value), 25);
+      return numberToBytesLE(toUnsignedInteger(value), 25);
     }),
   );
   const state = u32(inputHash);
@@ -127,7 +140,7 @@ function KECCAK(inputs: string[][]): string[] {
   const outputs = Array.from({ length: 8 }, (_, i) =>
     finalState.slice(i * KECCAK_BYTES, (i + 1) * KECCAK_BYTES),
   ).map(bytesToNumberLE);
-  return outputs.map((output) => output.toString(10));
+  return outputs.map((output) => toSignedInteger(output).toString(10));
 }
 
 function POSEIDON(inputs: string[][]): string[] {
@@ -135,20 +148,26 @@ function POSEIDON(inputs: string[][]): string[] {
     return [""];
   }
   const [x, y, z] = inputs.flat();
-  let poseidonResult: bigint[] = poseidon(BigInt(x), BigInt(y), BigInt(z));
+  let poseidonResult: bigint[] = poseidon(
+    toUnsignedInteger(x),
+    toUnsignedInteger(y),
+    toUnsignedInteger(z),
+  );
   return [
-    poseidonResult[0].toString(10),
-    poseidonResult[1].toString(10),
-    poseidonResult[2].toString(10),
+    toSignedInteger(poseidonResult[0]).toString(10),
+    toSignedInteger(poseidonResult[1]).toString(10),
+    toSignedInteger(poseidonResult[2]).toString(10),
   ];
 }
 
 function RANGE_CHECK(inputs: string): string[] {
-  return [rangeCheck(BigInt(inputs)).toString(10)];
+  return [toSignedInteger(rangeCheck(toUnsignedInteger(inputs))).toString(10)];
 }
 
 function RANGE_CHECK96(inputs: string): string[] {
-  return [rangeCheck96(BigInt(inputs)).toString(10)];
+  return [
+    toSignedInteger(rangeCheck96(toUnsignedInteger(inputs))).toString(10),
+  ];
 }
 
 function GET_FLAGS_AND_OFFSETS(encodedInstruction: string): number[][] {

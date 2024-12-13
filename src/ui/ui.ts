@@ -148,7 +148,7 @@ function loadProgram(
         [
           bytecode[i],
           isConstant
-            ? `=TO_UNSIGNED_INTEGER(${progBytecodeColumn}${i + 2})`
+            ? `=TO_SIGNED_INTEGER(${progBytecodeColumn}${i + 2})`
             : `=DECODE_INSTRUCTION(${progBytecodeColumn}${i + 2})`,
         ],
       ]);
@@ -192,9 +192,7 @@ function loadProgram(
   programSheet
     .getRange(rowOffset, 2)
     .setValue(
-      program["identifiers"][`__main__.${isProofMode ? "__start__" : "main"}`][
-        "pc"
-      ],
+      `Program!A${program["identifiers"][`__main__.${isProofMode ? "__start__" : "main"}`]["pc"] + 2}`,
     );
   rowOffset++;
   programSheet.getRange(rowOffset, 1).setValue(FINAL_PC);

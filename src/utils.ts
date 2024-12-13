@@ -78,7 +78,13 @@ function encodeUTF8(str: string): Uint8Array {
 }
 
 function isCell(str: string): boolean {
-  return columns.includes(str.toString().charAt(0));
+  const regex = /^([A-Za-z]+[A-Za-z]*\d+|[A-Za-z]+)(\![A-Za-z]+\d+)?$/;
+  return regex.test(str);
+}
+
+function getSheetName(cellReference: string): string {
+  const parts = cellReference.split("!");
+  return parts.length > 1 ? parts[0] : "";
 }
 
 function getFormulaOfAddition(
@@ -89,10 +95,22 @@ function getFormulaOfAddition(
 ): string {
   var formula: string;
   if (isCell(value1) && !isCell(value2)) {
-    formula = `="${value1[0]}" & (${value1.substring(1)} + ${address2})`;
+    let columnValue1: string = indexToColumn(
+      runSheet.getRange(value1).getColumn() - 1,
+    );
+    let rowValue1: number = runSheet.getRange(value1).getRow();
+    let sheetNamePrefix: string =
+      getSheetName(value1) == "" ? "" : getSheetName(value1) + "!";
+    formula = `="${sheetNamePrefix}${columnValue1}" & (${rowValue1} + ${address2})`;
   }
   if (!isCell(value1) && isCell(value2)) {
-    formula = `="${value2[0]}" & (${value2.substring(1)} + ${address1})`;
+    let columnValue2: string = indexToColumn(
+      runSheet.getRange(value2).getColumn() - 1,
+    );
+    let rowValue2: number = runSheet.getRange(value2).getRow();
+    let sheetNamePrefix: string =
+      getSheetName(value2) == "" ? "" : getSheetName(value2) + "!";
+    formula = `="${sheetNamePrefix}${columnValue2}" & (${rowValue2} + ${address1})`;
   }
   if (!isCell(value1) && !isCell(value2)) {
     formula = `=${address1} + ${address2}`;
@@ -101,7 +119,14 @@ function getFormulaOfAddition(
     if (value1[0] !== value2[0]) {
       throw new InvalidCellSumError();
     }
-    formula = `="${value1[0]}" & (${value1.substring(1)} + ${value2.substring(1)})`;
+    let columnValue: string = indexToColumn(
+      runSheet.getRange(value1).getColumn() - 1,
+    );
+    let sheetNamePrefix: string =
+      getSheetName(value1) == "" ? "" : getSheetName(value1) + "!";
+    let rowValue1: number = runSheet.getRange(value1).getRow();
+    let rowValue2: number = runSheet.getRange(value2).getRow();
+    formula = `="${sheetNamePrefix}${columnValue}" & (${rowValue1} + ${rowValue2})`;
   }
   return formula;
 }
@@ -112,10 +137,26 @@ function addSegmentValues(
 ): string {
   var sum: string;
   if (isCell(segmentValue1) && !isCell(segmentValue2)) {
-    sum = `${segmentValue1[0]}${Number(segmentValue1.substring(1)) + Number(segmentValue2)}`;
+    let columnValue1: string = indexToColumn(
+      runSheet.getRange(segmentValue1).getColumn() - 1,
+    );
+    let rowValue1: number = runSheet.getRange(segmentValue1).getRow();
+    let sheetNamePrefix: string =
+      getSheetName(segmentValue1) == ""
+        ? ""
+        : getSheetName(segmentValue1) + "!";
+    sum = `${sheetNamePrefix}${columnValue1}${rowValue1 + Number(segmentValue2)}`;
   }
   if (!isCell(segmentValue1) && isCell(segmentValue2)) {
-    sum = `${segmentValue2[0]}${Number(segmentValue2.substring(1)) + Number(segmentValue1)}`;
+    let columnValue2: string = indexToColumn(
+      runSheet.getRange(segmentValue2).getColumn() - 1,
+    );
+    let rowValue2: number = runSheet.getRange(segmentValue2).getRow();
+    let sheetNamePrefix: string =
+      getSheetName(segmentValue2) == ""
+        ? ""
+        : getSheetName(segmentValue2) + "!";
+    sum = `${sheetNamePrefix}${columnValue2}${rowValue2 + Number(segmentValue1)}`;
   }
   if (!isCell(segmentValue1) && !isCell(segmentValue2)) {
     sum = `${Number(segmentValue1) + Number(segmentValue2)}`;
@@ -124,7 +165,16 @@ function addSegmentValues(
     if (segmentValue1[0] !== segmentValue2[0]) {
       throw new InvalidCellSumError();
     }
-    sum = `${segmentValue1[0]}${Number(segmentValue1.substring(1)) + Number(segmentValue2.substring(1))}`;
+    let columnValue: string = indexToColumn(
+      runSheet.getRange(segmentValue1).getColumn() - 1,
+    );
+    let sheetNamePrefix: string =
+      getSheetName(segmentValue1) == ""
+        ? ""
+        : getSheetName(segmentValue1) + "!";
+    let rowValue1: number = runSheet.getRange(segmentValue1).getRow();
+    let rowValue2: number = runSheet.getRange(segmentValue2).getRow();
+    sum = `${sheetNamePrefix}${columnValue}${rowValue1 + rowValue2}`;
   }
   return sum;
 }
@@ -218,6 +268,7 @@ function isProofMode(): boolean {
 function nextPowerOfTwo(n: number): number {
   return 1 << Math.ceil(Math.log2(n));
 }
+
 function hasEmptyCell(array): boolean {
   return array.flat().includes("");
 }

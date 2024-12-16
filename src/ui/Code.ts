@@ -181,3 +181,7 @@ function GET_FLAGS_AND_OFFSETS(encodedInstruction: string): number[][] {
 
   return [[dstOffset, op0Offset, op1Offset, ...traceFlags]];
 }
+
+function IS_CELL(input: string | number): boolean {
+  return isCell(input.toString(10));
+}

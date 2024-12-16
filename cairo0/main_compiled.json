@@ -1,29 +1,29 @@
 {
   "attributes": [],
-  "builtins": ["range_check", "bitwise", "pedersen"],
+  "builtins": ["pedersen", "range_check", "bitwise"],
   "compiler_version": "0.13.1",
   "data": [
     "0x480680017fff8000",
     "0x4d2",
-    "0x400280007ffb7fff",
     "0x400280007ffc7fff",
-    "0x480680017fff8000",
-    "0x10",
-    "0x400280017ffc7fff",
-    "0x480280027ffc8000",
-    "0x480280037ffc8000",
-    "0x480280047ffc8000",
-    "0x400280007ffd7ffb",
+    "0x400280007ffd7fff",
     "0x480680017fff8000",
     "0x10",
     "0x400280017ffd7fff",
     "0x480280027ffd8000",
+    "0x480280037ffd8000",
+    "0x480280047ffd8000",
+    "0x400280007ffb7ffb",
+    "0x480680017fff8000",
+    "0x10",
+    "0x400280017ffb7fff",
+    "0x480280027ffb8000",
     "0x482680017ffb8000",
-    "0x1",
-    "0x482680017ffc8000",
-    "0x5",
-    "0x482680017ffd8000",
     "0x3",
+    "0x482680017ffc8000",
+    "0x1",
+    "0x482680017ffd8000",
+    "0x5",
     "0x208b7fff7fff7ffe"
   ],
   "debug_info": {
@@ -37,9 +37,9 @@
             "offset": 0
           },
           "reference_ids": {
-            "__main__.main.bitwise_ptr": 1,
-            "__main__.main.pedersen_ptr": 2,
-            "__main__.main.range_check_ptr": 0
+            "__main__.main.bitwise_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
+            "__main__.main.range_check_ptr": 1
           }
         },
         "hints": [],
@@ -47,7 +47,7 @@
           "end_col": 23,
           "end_line": 6,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 19,
           "start_line": 6
@@ -61,9 +61,9 @@
             "offset": 1
           },
           "reference_ids": {
-            "__main__.main.bitwise_ptr": 1,
-            "__main__.main.pedersen_ptr": 2,
-            "__main__.main.range_check_ptr": 0,
+            "__main__.main.bitwise_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
+            "__main__.main.range_check_ptr": 1,
             "__main__.main.res": 3
           }
         },
@@ -72,7 +72,7 @@
           "end_col": 36,
           "end_line": 7,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 5,
           "start_line": 7
@@ -86,9 +86,9 @@
             "offset": 1
           },
           "reference_ids": {
-            "__main__.main.bitwise_ptr": 1,
+            "__main__.main.bitwise_ptr": 2,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3
           }
@@ -98,7 +98,7 @@
           "end_col": 32,
           "end_line": 11,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 5,
           "start_line": 11
@@ -112,9 +112,9 @@
             "offset": 1
           },
           "reference_ids": {
-            "__main__.main.bitwise_ptr": 1,
+            "__main__.main.bitwise_ptr": 2,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3
           }
@@ -124,14 +124,14 @@
           "end_col": 20,
           "end_line": 10,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "parent_location": [
             {
               "end_col": 32,
               "end_line": 12,
               "input_file": {
-                "filename": "cairo0/main.cairo"
+                "filename": "main.cairo"
               },
               "start_col": 28,
               "start_line": 12
@@ -151,9 +151,9 @@
           },
           "reference_ids": {
             "__main__.main.__temp0": 6,
-            "__main__.main.bitwise_ptr": 1,
+            "__main__.main.bitwise_ptr": 2,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3
           }
@@ -163,7 +163,7 @@
           "end_col": 33,
           "end_line": 12,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 5,
           "start_line": 12
@@ -178,9 +178,9 @@
           },
           "reference_ids": {
             "__main__.main.__temp0": 6,
-            "__main__.main.bitwise_ptr": 1,
+            "__main__.main.bitwise_ptr": 2,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3
           }
@@ -190,7 +190,7 @@
           "end_col": 42,
           "end_line": 13,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 23,
           "start_line": 13
@@ -205,9 +205,9 @@
           },
           "reference_ids": {
             "__main__.main.__temp0": 6,
-            "__main__.main.bitwise_ptr": 1,
+            "__main__.main.bitwise_ptr": 2,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3,
             "__main__.main.x_and_y": 7
@@ -218,7 +218,7 @@
           "end_col": 42,
           "end_line": 14,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 23,
           "start_line": 14
@@ -233,9 +233,9 @@
           },
           "reference_ids": {
             "__main__.main.__temp0": 6,
-            "__main__.main.bitwise_ptr": 1,
+            "__main__.main.bitwise_ptr": 2,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3,
             "__main__.main.x_and_y": 7,
@@ -247,7 +247,7 @@
           "end_col": 40,
           "end_line": 15,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 22,
           "start_line": 15
@@ -264,7 +264,7 @@
             "__main__.main.__temp0": 6,
             "__main__.main.bitwise_ptr": 10,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3,
             "__main__.main.x_and_y": 7,
@@ -277,7 +277,7 @@
           "end_col": 33,
           "end_line": 18,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 5,
           "start_line": 18
@@ -294,7 +294,7 @@
             "__main__.main.__temp0": 6,
             "__main__.main.bitwise_ptr": 10,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3,
             "__main__.main.x_and_y": 7,
@@ -307,14 +307,14 @@
           "end_col": 20,
           "end_line": 10,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "parent_location": [
             {
               "end_col": 33,
               "end_line": 19,
               "input_file": {
-                "filename": "cairo0/main.cairo"
+                "filename": "main.cairo"
               },
               "start_col": 29,
               "start_line": 19
@@ -337,7 +337,7 @@
             "__main__.main.__temp1": 11,
             "__main__.main.bitwise_ptr": 10,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3,
             "__main__.main.x_and_y": 7,
@@ -350,7 +350,7 @@
           "end_col": 34,
           "end_line": 19,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 5,
           "start_line": 19
@@ -368,7 +368,7 @@
             "__main__.main.__temp1": 11,
             "__main__.main.bitwise_ptr": 10,
             "__main__.main.mask": 5,
-            "__main__.main.pedersen_ptr": 2,
+            "__main__.main.pedersen_ptr": 0,
             "__main__.main.range_check_ptr": 4,
             "__main__.main.res": 3,
             "__main__.main.x_and_y": 7,
@@ -381,7 +381,7 @@
           "end_col": 39,
           "end_line": 20,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 20,
           "start_line": 20
@@ -410,37 +410,37 @@
         },
         "hints": [],
         "inst": {
-          "end_col": 46,
-          "end_line": 8,
+          "end_col": 55,
+          "end_line": 21,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "parent_location": [
             {
-              "end_col": 26,
+              "end_col": 37,
               "end_line": 5,
               "input_file": {
-                "filename": "cairo0/main.cairo"
+                "filename": "main.cairo"
               },
               "parent_location": [
                 {
                   "end_col": 15,
                   "end_line": 23,
                   "input_file": {
-                    "filename": "cairo0/main.cairo"
+                    "filename": "main.cairo"
                   },
                   "start_col": 5,
                   "start_line": 23
                 },
-                "While trying to retrieve the implicit argument 'range_check_ptr' in:"
+                "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
               ],
               "start_col": 11,
               "start_line": 5
             },
-            "While expanding the reference 'range_check_ptr' in:"
+            "While expanding the reference 'pedersen_ptr' in:"
           ],
-          "start_col": 27,
-          "start_line": 8
+          "start_col": 24,
+          "start_line": 21
         }
       },
       "17": {
@@ -466,37 +466,37 @@
         },
         "hints": [],
         "inst": {
-          "end_col": 56,
-          "end_line": 16,
+          "end_col": 46,
+          "end_line": 8,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "parent_location": [
             {
-              "end_col": 56,
+              "end_col": 54,
               "end_line": 5,
               "input_file": {
-                "filename": "cairo0/main.cairo"
+                "filename": "main.cairo"
               },
               "parent_location": [
                 {
                   "end_col": 15,
                   "end_line": 23,
                   "input_file": {
-                    "filename": "cairo0/main.cairo"
+                    "filename": "main.cairo"
                   },
                   "start_col": 5,
                   "start_line": 23
                 },
-                "While trying to retrieve the implicit argument 'bitwise_ptr' in:"
+                "While trying to retrieve the implicit argument 'range_check_ptr' in:"
               ],
-              "start_col": 28,
+              "start_col": 39,
               "start_line": 5
             },
-            "While expanding the reference 'bitwise_ptr' in:"
+            "While expanding the reference 'range_check_ptr' in:"
           ],
-          "start_col": 23,
-          "start_line": 16
+          "start_col": 27,
+          "start_line": 8
         }
       },
       "19": {
@@ -522,37 +522,37 @@
         },
         "hints": [],
         "inst": {
-          "end_col": 55,
-          "end_line": 21,
+          "end_col": 56,
+          "end_line": 16,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "parent_location": [
             {
               "end_col": 84,
               "end_line": 5,
               "input_file": {
-                "filename": "cairo0/main.cairo"
+                "filename": "main.cairo"
               },
               "parent_location": [
                 {
                   "end_col": 15,
                   "end_line": 23,
                   "input_file": {
-                    "filename": "cairo0/main.cairo"
+                    "filename": "main.cairo"
                   },
                   "start_col": 5,
                   "start_line": 23
                 },
-                "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
+                "While trying to retrieve the implicit argument 'bitwise_ptr' in:"
               ],
-              "start_col": 58,
+              "start_col": 56,
               "start_line": 5
             },
-            "While expanding the reference 'pedersen_ptr' in:"
+            "While expanding the reference 'bitwise_ptr' in:"
           ],
-          "start_col": 24,
-          "start_line": 21
+          "start_col": 23,
+          "start_line": 16
         }
       },
       "21": {
@@ -581,7 +581,7 @@
           "end_col": 15,
           "end_line": 23,
           "input_file": {
-            "filename": "cairo0/main.cairo"
+            "filename": "main.cairo"
           },
           "start_col": 5,
           "start_line": 23
@@ -615,15 +615,15 @@
       "members": {
         "bitwise_ptr": {
           "cairo_type": "starkware.cairo.common.cairo_builtins.BitwiseBuiltin*",
-          "offset": 1
+          "offset": 2
         },
         "pedersen_ptr": {
           "cairo_type": "starkware.cairo.common.cairo_builtins.HashBuiltin*",
-          "offset": 2
+          "offset": 0
         },
         "range_check_ptr": {
           "cairo_type": "felt",
-          "offset": 0
+          "offset": 1
         }
       },
       "size": 3,
@@ -677,7 +677,7 @@
             "offset": 0
           },
           "pc": 0,
-          "value": "[cast(fp + (-4), starkware.cairo.common.cairo_builtins.BitwiseBuiltin**)]"
+          "value": "[cast(fp + (-3), starkware.cairo.common.cairo_builtins.BitwiseBuiltin**)]"
         },
         {
           "ap_tracking_data": {
@@ -685,7 +685,7 @@
             "offset": 5
           },
           "pc": 10,
-          "value": "cast([fp + (-4)] + 5, starkware.cairo.common.cairo_builtins.BitwiseBuiltin*)"
+          "value": "cast([fp + (-3)] + 5, starkware.cairo.common.cairo_builtins.BitwiseBuiltin*)"
         }
       ],
       "type": "reference"
@@ -730,7 +730,7 @@
             "offset": 0
           },
           "pc": 0,
-          "value": "[cast(fp + (-3), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
+          "value": "[cast(fp + (-5), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
         },
         {
           "ap_tracking_data": {
@@ -738,7 +738,7 @@
             "offset": 7
           },
           "pc": 15,
-          "value": "cast([fp + (-3)] + 3, starkware.cairo.common.cairo_builtins.HashBuiltin*)"
+          "value": "cast([fp + (-5)] + 3, starkware.cairo.common.cairo_builtins.HashBuiltin*)"
         }
       ],
       "type": "reference"
@@ -753,7 +753,7 @@
             "offset": 0
           },
           "pc": 0,
-          "value": "[cast(fp + (-5), felt*)]"
+          "value": "[cast(fp + (-4), felt*)]"
         },
         {
           "ap_tracking_data": {
@@ -761,7 +761,7 @@
             "offset": 1
           },
           "pc": 3,
-          "value": "cast([fp + (-5)] + 1, felt)"
+          "value": "cast([fp + (-4)] + 1, felt)"
         }
       ],
       "type": "reference"
@@ -1036,7 +1036,7 @@
           "offset": 0
         },
         "pc": 0,
-        "value": "[cast(fp + (-5), felt*)]"
+        "value": "[cast(fp + (-5), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
       },
       {
         "ap_tracking_data": {
@@ -1044,7 +1044,7 @@
           "offset": 0
         },
         "pc": 0,
-        "value": "[cast(fp + (-4), starkware.cairo.common.cairo_builtins.BitwiseBuiltin**)]"
+        "value": "[cast(fp + (-4), felt*)]"
       },
       {
         "ap_tracking_data": {
@@ -1052,7 +1052,7 @@
           "offset": 0
         },
         "pc": 0,
-        "value": "[cast(fp + (-3), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
+        "value": "[cast(fp + (-3), starkware.cairo.common.cairo_builtins.BitwiseBuiltin**)]"
       },
       {
         "ap_tracking_data": {
@@ -1068,7 +1068,7 @@
           "offset": 1
         },
         "pc": 3,
-        "value": "cast([fp + (-5)] + 1, felt)"
+        "value": "cast([fp + (-4)] + 1, felt)"
       },
       {
         "ap_tracking_data": {
@@ -1116,7 +1116,7 @@
           "offset": 5
         },
         "pc": 10,
-        "value": "cast([fp + (-4)] + 5, starkware.cairo.common.cairo_builtins.BitwiseBuiltin*)"
+        "value": "cast([fp + (-3)] + 5, starkware.cairo.common.cairo_builtins.BitwiseBuiltin*)"
       },
       {
         "ap_tracking_data": {
@@ -1140,7 +1140,7 @@
           "offset": 7
         },
         "pc": 15,
-        "value": "cast([fp + (-3)] + 3, starkware.cairo.common.cairo_builtins.HashBuiltin*)"
+        "value": "cast([fp + (-5)] + 3, starkware.cairo.common.cairo_builtins.HashBuiltin*)"
       }
     ]
   }

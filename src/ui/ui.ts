@@ -220,9 +220,11 @@ function loadProgram(
 }
 
 function relocate() {
+  let lastLastActiveColumnIndex: number =
+    getLastActiveColumnNumber(2, proverSheet) - 1;
   proverSheet
     .getRange(
-      `${provSegmentsColumn}3:${indexToColumn(getLastActiveColumnNumber(2, proverSheet) - 1)}`,
+      `${provSegmentsColumn}3:${indexToColumn(lastLastActiveColumnIndex == -1 ? 0 : lastLastActiveColumnIndex)}`,
     )
     .clearContent();
 

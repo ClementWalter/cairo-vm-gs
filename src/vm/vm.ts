@@ -193,13 +193,13 @@ function initializeProgram(program: any, isProofMode: boolean, layout: Layout) {
       .setValues([[...builtinsList, FINAL_FP, FINAL_PC]]);
     programSheet
       .getRange(`B${Number(getFinalPcCell().substring(1)) + 1}`)
-      .setValue(stack.length);
+      .setValue(`${executionColumn}${stack.length + 2}`);
     programSheet.getRange(getFinalPcCell()).setValue(`${pcColumn}2`);
   } else {
     stack = [`${executionColumn}2`, "0", ...builtinStack];
     programSheet
       .getRange(`B${Number(getFinalPcCell().substring(1)) + 1}`)
-      .setValue(2);
+      .setValue(`${executionColumn}${2}`);
     programSheet
       .getRange(getFinalPcCell())
       .setValue(program["identifiers"]["__main__.__end__"]["pc"]);
@@ -243,16 +243,21 @@ function step(n: number = 0): void {
     AP: ap,
   };
 
-  const encodedInstruction: any = program[pc][0];
+  const encodedInstruction: any =
+    program[runSheet.getRange(pc).getRow() - 2][0];
   const instruction: decodedInstruction = decodeInstruction(
     BigInt(encodedInstruction),
   );
   runSheet.getRange(`${opcodeColumn}${n + 2}`).setValue(instruction.Opcode);
 
   const op0Index: number =
-    Number(registers[instruction.Op0Register]) + instruction.Op0Offset;
+    runSheet.getRange(registers[instruction.Op0Register]).getRow() -
+    2 +
+    instruction.Op0Offset;
   const dstIndex: number =
-    Number(registers[instruction.DstRegister]) + instruction.DstOffset;
+    runSheet.getRange(registers[instruction.DstRegister]).getRow() -
+    2 +
+    instruction.DstOffset;
   let op1Index: number;
 
   // Addresses are sheet address (e.g. H4) or constants
@@ -275,16 +280,24 @@ function step(n: number = 0): void {
     case Op1Src.Op0:
       //instruction.Op0Register can't be Registers.PC because we expect op0Value to be an pointer to a segment emplacement and not a felt
       //So there is no need to deal with this case.
-      op1Addr = `${op0Value[0]}${Number(op0Value.substring(1)) + instruction.Op1Offset}`;
+      let op0ValueColumn: string = indexToColumn(
+        runSheet.getRange(op0Value).getColumn() - 1,
+      );
+      let op0ValueRow: number = runSheet.getRange(op0Value).getRow();
+      op1Addr = `${op0ValueColumn}${op0ValueRow + instruction.Op1Offset}`;
       break;
     case Op1Src.PC:
       op1Index =
-        Number(registers[instruction.Op1Register]) + instruction.Op1Offset;
+        runSheet.getRange(registers[instruction.Op1Register]).getRow() -
+        2 +
+        instruction.Op1Offset;
       op1Addr = `Program!${progOpColumn}${op1Index + 2}`;
       break;
     default:
       op1Index =
-        Number(registers[instruction.Op1Register]) + instruction.Op1Offset;
+        runSheet.getRange(registers[instruction.Op1Register]).getRow() -
+        2 +
+        instruction.Op1Offset;
       op1Addr = `${executionColumn}${op1Index + 2}`;
       break;
   }
@@ -392,10 +405,10 @@ function step(n: number = 0): void {
   switch (instruction.Opcode) {
     case Opcodes.Call:
       let validCallOp0Value: string = addSegmentValues(
-        registers[Registers.PC].toString(10),
+        registers[Registers.PC],
         size(instruction).toString(10),
       );
-      let validCallDstValue: string = registers[Registers.FP].toString(10);
+      let validCallDstValue: string = registers[Registers.FP];
       if (op0Value == "") {
         runSheet.getRange(op0Addr).setFormula(`="${validCallOp0Value}"`);
         op0Value = runSheet.getRange(op0Addr).getValue();
@@ -501,7 +514,14 @@ function step(n: number = 0): void {
       runSheet
         .getRange(`${pcColumn}${n + 2 + 1}`)
         .setFormula(
-          `=${pcColumn}${n + 2} + IF(${dstColumn}${n + 2} = "0"; ${size(instruction)}; ${resColumn}${n + 2})`,
+          getFormulaOfAddition(
+            pc,
+            dstValue == "0" ? size(instruction).toString(10) : resValue,
+            `${pcColumn}${n + 2}`,
+            dstValue == "0"
+              ? size(instruction).toString(10)
+              : `${resColumn}${n + 2}`,
+          ),
         );
       break;
     case PcUpdates.Regular:

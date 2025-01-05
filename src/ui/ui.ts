@@ -7,6 +7,13 @@ function onOpen(): void {
     .addItem("Load Program", "showPicker")
     .addItem("Relocate", "relocate")
     .addToUi();
+
+  ui.createMenu("Tutorials")
+    .addItem("Fibonacci - add notes", "addNotesFibonacci")
+    .addItem("Fibonacci - start tutorial", "startFibonacci")
+    .addItem("Next", "nextStepTuto")
+    .addItem("Clear notes", "clearNotes")
+    .addToUi();
 }
 
 function menuStep(): void {

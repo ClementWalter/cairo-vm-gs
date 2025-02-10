@@ -26,3 +26,8 @@ func fibonacci(n: felt) -> felt {
 
     return j;
 }
+
+func main() {
+    fibonacci(4);
+    return ();
+}

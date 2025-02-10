@@ -91,10 +91,10 @@ To start contributing:
 
 ```bash
 npx clasp login
-npx clasp clone <project id> --rootDir .
+npx clasp clone <script id> --rootDir .
 ```
 
-- the project id can be found by:
+- the script id can be found by:
 
   - opening the menu Extensions > Apps Script
   - go to project setting on the left navigation bar
@@ -133,9 +133,32 @@ the remote code running on the sheet is always up to date:
 npx clasp push -w
 ```
 
+### Using the python venv to compile .cairo files
+
+The project uses uv workspaces and cairo-lang to compile .cairo programs:
+1. [install uv](https://docs.astral.sh/uv/getting-started/installation/)
+1. run `uv run` to install the required packages and create a venv
+1. you are then ready to compile cairo-program:
+    - navigate to the cairo file you want to compile. For instance
+      `cd cairo0/fibonacci`
+    - then run `uv run cairo-compile <FILE TO COMPILE> --ouput main_compiled.json`
+    - it's also possible to compile in proof mode using the `--proof-mode` parameter,
+      this will generate special identifiers in the artifacts used for proof generation:
+      `uv run cairo-compile main.cairo --proof_mode --ouput main_compiled.json`
+
+The .venv folder created by `uv run` contains the kernel to use for the notebooks (`.venv/bin/python`).
+
+
 ### Debug
 
-You can run functions locally using `npx clasp run`. Follow
+The current workflow is like so:
+- write code in a code editor,
+- run `npx clasp push` to push changes to your GAS application (ie your spreadsheet),
+- test these changes directly on the spreadsheet or in the Extensions>Apps Script section
+  (using the execute button to run specific functions to be tested)
+- repeat the 3 first steps as much as needed
+
+You can also run functions locally using `npx clasp run`. Follow
 [this documentation](https://github.com/google/clasp/blob/master/docs/run.md) to
 set your project:
 

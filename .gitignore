@@ -1,4 +1,5 @@
 .clasprc.json
 .clasp.json
+.venv
 creds.json
 node_modules
